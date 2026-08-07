@@ -242,13 +242,18 @@
             padding: 0 52px 130px;
         }
         .g-grid {
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            gap: 18px;
-            align-items: start;
+            /* 修改为瀑布流布局：分3列，设定列间距 */
+            column-count: 3;
+            column-gap: 18px;
         }
         .art-card {
-            grid-column: span 4;
+            /* 防止卡片被硬性截断，并使用下边距代替原本的gap */
+            break-inside: avoid;
+            page-break-inside: avoid;
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 18px;
+            
             position: relative;
             border-radius: 6px;
             overflow: hidden;
@@ -845,14 +850,14 @@
             .header { padding: 0 20px; }
             .gallery { padding: 0 16px 80px; }
             .sec-head { padding: 90px 20px 0; margin-bottom: 36px; }
-            .g-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
-            .art-card { grid-column: span 1; }
-            .art-card:nth-child(1) { grid-column: span 2; }
+            /* 平板改为2列瀑布流 */
+            .g-grid { column-count: 2; column-gap: 14px; }
+            .art-card { margin-bottom: 14px; }
             .lb-nav { width: 48px; }
         }
         @media(max-width:600px) {
-            .g-grid { grid-template-columns: 1fr; }
-            .art-card:nth-child(n) { grid-column: span 1; }
+            /* 手机改为单列瀑布流 */
+            .g-grid { column-count: 1; column-gap: 0; }
             .sec-head { padding: 80px 12px 0; }
             .gallery { padding: 0 10px 60px; }
             .footer { padding: 36px 16px; flex-direction: column; gap: 10px; text-align: center; }
@@ -1027,11 +1032,14 @@
                 const timestamp = new Date().getTime();
                 const res = await fetch(`${API_BASE}?t=${timestamp}`);
                 if (!res.ok) throw new Error('无法访问仓库');
-                const folders = await res.json();
+                let folders = await res.json();
                 
-                const promises = folders
-                    .filter(item => item.type === 'dir') // 只读取文件夹
-                    .map(async (folder) => {
+                // 【新增逻辑】只保留文件夹，并根据文件夹名称的数字进行智能自然排序
+                let sortedFolders = folders
+                    .filter(item => item.type === 'dir')
+                    .sort((a, b) => a.name.localeCompare(b.name, 'zh-CN', {numeric: true}));
+                
+                const promises = sortedFolders.map(async (folder) => {
                         const folderName = folder.name;
                         const folderUrl = `${API_BASE}/${encodeURIComponent(folderName)}?t=${timestamp}`;
                         const fileRes = await fetch(folderUrl);
