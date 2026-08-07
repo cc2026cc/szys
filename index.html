@@ -193,14 +193,16 @@
         }
         
         // ══════════════════════════════════════
-        //  核心：动态加载作品列表
+        //  核心：动态加载作品列表 (已修复缓存与命名规则)
         // ══════════════════════════════════════
         async function loadWorksFromGitHub() {
             const grid = document.getElementById('galleryGrid');
             grid.innerHTML = '<p style="color:#888; text-align:center; padding:40px;">正在从云端加载作品...</p>';
             
             try {
-                const res = await fetch(API_BASE);
+                // 1. 生成时间戳，打破 GitHub API 缓存限制，确保每次都读取最新增加的文件夹
+                const timestamp = new Date().getTime();
+                const res = await fetch(`${API_BASE}?t=${timestamp}`);
                 if (!res.ok) throw new Error('无法访问仓库');
                 const folders = await res.json();
                 
@@ -208,7 +210,8 @@
                     .filter(item => item.type === 'dir')
                     .map(async (folder) => {
                         const folderName = folder.name;
-                        const folderUrl = `${API_BASE}/${encodeURIComponent(folderName)}`;
+                        // 给里面的文件请求也加上时间戳
+                        const folderUrl = `${API_BASE}/${encodeURIComponent(folderName)}?t=${timestamp}`;
                         const fileRes = await fetch(folderUrl);
                         const files = await fileRes.json();
                         
@@ -221,7 +224,7 @@
                             if (['jpg','jpeg','png','webp'].includes(ext)) {
                                 images.push(file.name);
                             } else if (['md','txt'].includes(ext)) {
-                                const infoUrl = `${RAW_BASE}/${encodeURIComponent(folderName)}/${encodeURIComponent(file.name)}`;
+                                const infoUrl = `${RAW_BASE}/${encodeURIComponent(folderName)}/${encodeURIComponent(file.name)}?t=${timestamp}`;
                                 const infoRes = await fetch(infoUrl);
                                 infoContent = await infoRes.text();
                             }
@@ -232,20 +235,29 @@
                         // 排序图片
                         images.sort();
                         
+                        // 2. 核心修改：从第一张图片文件名提取纯汉字名称和后续编号
+                        const firstImg = images[0];
+                        // 去掉文件后缀名 (例如去掉 .jpg)
+                        const nameWithoutExt = firstImg.substring(0, firstImg.lastIndexOf('.'));
+                        
+                        // 正则说明：匹配最后的连续汉字(作为标题)，以及它后面的字母数字(作为编号)
+                        const match = nameWithoutExt.match(/([\u4e00-\u9fa5]+)([a-zA-Z0-9]*)$/);
+                        let extractedName = folderName;
+                        let extractedNum = '0000';
+                        
+                        if (match) {
+                            extractedName = match[1]; // 提取到的汉字部分，例如 "财神七仔"
+                            extractedNum = match[2] ? match[2].toUpperCase() : '0000'; // 汉字后面的编号，例如 "QSQ01"
+                        }
+                        
                         // 解析信息
                         let meta;
                         if (infoContent) {
                             meta = parseInfoFile(infoContent);
+                            if (!meta.num) meta.num = extractedNum;
+                            if (meta.name === '未命名作品' || !meta.name) meta.name = extractedName;
                         } else {
-                            meta = { ...parseInfoFile(''), name: folderName }; // 使用文件夹名作为名称
-                        }
-                        
-                        // 自动生成编号（如果 info.md 没提供）
-                        if (!meta.num) {
-                            // 从第一张图片的文件名中提取字母数字部分作为编号
-                            const firstImg = images[0];
-                            const match = firstImg.match(/[a-zA-Z0-9]+/);
-                            meta.num = match ? match[0].toUpperCase() : '0000';
+                            meta = { ...parseInfoFile(''), name: extractedName, num: extractedNum }; 
                         }
                         
                         // 构建版本列表
