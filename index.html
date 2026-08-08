@@ -242,18 +242,18 @@
             padding: 0 52px 130px;
         }
         .g-grid {
-            /* 修改为瀑布流布局：分3列，设定列间距 */
-            column-count: 3;
-            column-gap: 18px;
+            display: flex;
+            align-items: flex-start;
+            gap: 18px;
+        }
+        .g-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            width: 0; /* 强制等分列宽，防止某些宽图撑破布局 */
         }
         .art-card {
-            /* 防止卡片被硬性截断，并使用下边距代替原本的gap */
-            break-inside: avoid;
-            page-break-inside: avoid;
-            display: inline-block;
-            width: 100%;
-            margin-bottom: 18px;
-            
             position: relative;
             border-radius: 6px;
             overflow: hidden;
@@ -850,14 +850,12 @@
             .header { padding: 0 20px; }
             .gallery { padding: 0 16px 80px; }
             .sec-head { padding: 90px 20px 0; margin-bottom: 36px; }
-            /* 平板改为2列瀑布流 */
-            .g-grid { column-count: 2; column-gap: 14px; }
-            .art-card { margin-bottom: 14px; }
+            /* 调整平板和手机端的间距 */
+            .g-grid { gap: 14px; }
+            .g-col { gap: 14px; }
             .lb-nav { width: 48px; }
         }
         @media(max-width:600px) {
-            /* 手机改为单列瀑布流 */
-            .g-grid { column-count: 1; column-gap: 0; }
             .sec-head { padding: 80px 12px 0; }
             .gallery { padding: 0 10px 60px; }
             .footer { padding: 36px 16px; flex-direction: column; gap: 10px; text-align: center; }
@@ -1114,13 +1112,21 @@
         }
 
         // ==========================================
-        // 界面渲染与交互控制 (保留你之前的完整逻辑)
+        // 界面渲染与交互控制 (加入智能“发牌”排版算法)
         // ==========================================
         function renderGallery() {
             const grid = document.getElementById('galleryGrid');
-            grid.innerHTML = works.map((w, i) => {
+            
+            // 智能计算列数：电脑端 3 列，平板/手机端双列
+            const colCount = window.innerWidth <= 900 ? 2 : 3;
+            
+            // 准备好列容器（像准备好几个空盒子）
+            let cols = Array.from({ length: colCount }, () => []);
+            
+            // 像“发牌”一样，把作品严格按照从左到右的顺序分发到各个列中
+            works.forEach((w, i) => {
                 const thumb = w.versions[0].src;
-                return `
+                const cardHTML = `
                 <div class="art-card" style="animation-delay: ${i*0.1}s;" onclick="openLB(${i})">
                     <div class="img-wrap"><img src="${thumb}" alt="${w.name}" loading="lazy" /></div>
                     <div class="art-overlay"></div>
@@ -1132,8 +1138,22 @@
                     </div>
                     <button class="art-buy" onclick="event.stopPropagation(); openPurchase(${i},0)">购买收藏</button>
                 </div>`;
-            }).join('');
+                
+                // 将当前作品放入对应的列中 (例如3列时：0进左, 1进中, 2进右, 3又进左...)
+                cols[i % colCount].push(cardHTML);
+            });
+            
+            // 将分发好的列输出到网页上
+            grid.innerHTML = cols.map(colHTML => `<div class="g-col">${colHTML.join('')}</div>`).join('');
         }
+
+        // 监听屏幕大小变化（比如手机横屏），自动重新计算排版
+        window.addEventListener('resize', () => {
+            clearTimeout(window.resizeTimer);
+            window.resizeTimer = setTimeout(() => {
+                if (works.length > 0) renderGallery();
+            }, 300);
+        });
 
         /* ─── 灯箱 ─── */
         function openLB(idx) {
