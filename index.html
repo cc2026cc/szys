@@ -274,12 +274,13 @@
             box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65), 0 0 40px rgba(124, 159, 75, 0.06);
         }
         
+        /* 增加平滑过度与容器预占位支持 */
         .img-wrap {
             position: relative;
             overflow: hidden;
             width: 100%;
             background: #11111d;
-            min-height: 200px;
+            min-height: 200px; /* 默认保底高度，防止没图时被塌陷成条状 */
         }
         .img-wrap img {
             display: block;
@@ -289,7 +290,7 @@
             filter: brightness(0.9) saturate(0.95);
         }
         .img-wrap img.blur-loading {
-            filter: blur(20px) scale(1.08);
+            filter: blur(20px) scale(1.08); /* 加载前高斯模糊并适度放大隐藏边缘 */
             opacity: 0.8;
         }
         .img-wrap img.blur-loaded {
@@ -742,9 +743,6 @@
             padding: 14px 10px;
             text-align: center;
             position: relative;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: all 0.3s;
         }
         .p-tier:not(:last-child)::after {
             content: '';
@@ -752,13 +750,9 @@
             right: 0;
             top: 50%;
             transform: translateY(-50%);
-            width: 1px;
+            width: 2px;
             height: 36px;
-            background: rgba(255, 255, 255, 0.15); 
-        }
-        .p-tier.on {
-            background: rgba(124, 159, 75, 0.12);
-            box-shadow: inset 0 0 0 1px var(--bamboo);
+            background: rgba(255, 255, 255, 0.25); 
         }
         .p-tier-name {
             font-size: 11px;
@@ -781,7 +775,7 @@
         .pay-switch {
             display: flex;
             gap: 0;
-            border: 1px solid var(--b-sub);
+            border: 2px solid var(--b-sub);
             border-radius: 4px;
             overflow: hidden;
         }
@@ -859,20 +853,15 @@
                 flex-direction: row;
                 gap: 16px;
                 align-items: center;
-                border-right: none;
-                border-bottom: 1px solid rgba(255,255,255,0.08);
-                padding-right: 0;
-                padding-bottom: 16px;
             }
             .purchase-thumb {
-                width: 80px;
-                height: 80px;
+                width: 100px;
+                height: 100px;
             }
             .tier-row {
                 flex-direction: column;
                 gap: 8px;
             }
-            .p-tier:not(:last-child)::after { display: none; }
             .qr-code-img {
                 width: 110px;
                 height: 110px;
@@ -912,8 +901,8 @@
             </div>
         </div>
         <div class="wechat-btn">
-            <svg viewBox="0 0 24 24">
-                <path d="M8.9 2C4.3 2 .6 5.1 .6 8.9c0 2.1 1.1 4 2.8 5.2a.55.55 0 0 1 .2.6l-.4 1.4a.27.27 0 0 0 .28.34c.06 0 .12-.02.16-.05l1.8-1.05a.8.8 0 0 1 .67-.1c.85.25 1.76.38 2.68.38.26 0 .51-.02.76-.05-.8-2.44.15-4.7 1.82-6.1C12.8 8.3 14.9 7.8 16.8 7.9 16.2 4.6 12.9 2 8.9 2zM6.2 5.5c.6 0 1.1.5 1.1 1.1a1.1 1.1 0 0 1-2.2 0c0-.6.5-1.1 1.1-1.1zm5.4 0c.6 0 1.1.5 1.1 1.1a1.1 1.1 0 0 1-2.2 0c0-.6.5-1.1 1.1-1.1zm5.1 2.7c-1.7-.05-3.5.48-4.9 1.68-1.6 1.35-2.5 3.5-1.7 5.86.9 2.3 3.4 3.98 6.4 3.98.78 0 1.53-.11 2.23-.32a.68.68 0 0 1 .56.08l1.49.87a.26.26 0 0 0 .27-.19l-.31-1.16a.55.55 0 0 1 .19-.5c1.2-.93 2.1-2.5 2.1-4.2 0-3-2.7-5.5-6.6-5.8zm-3.5 2.5c.47 0 .85.38.85.85a.85.85 0 1 1-1.7 0c0-.47.38-.85.85-.85zm5.4 0c.47 0 .85.38.85.85a.85.85 0 1 1-1.7 0c0-.47.38-.85.85-.85z" />
+            <svg viewBox="0 0 24 24" width="17" height="17">
+                <path d="M8.9 2C4.3 2 .6 5.1 .6 8.9c0 2.1 1.1 4 2.8 5.2a.55.55 0 0 1 .2.6l-.4 1.4a.27.27 0 0 0 .28.34c.06 0 .12-.02.16-.05l1.8-1.05a.8.8 0 0 1 .67-.1c.85.25 1.76.38 2.68.38.26 0 .51-.02.76-.05-.8-2.44.15-4.7 1.82-6.1C12.8 8.3 14.9 7.8 16.8 7.9 16.2 4.6 12.9 2 8.9 2zM6.2 5.5c.6 0 1.1.5 1.1 1.1a1.1 1.1 0 0 1-2.2 0c0-.6.5-1.1 1.1-1.1zm5.4 0c.6 0 1.1.5 1.1 1.1a1.1 1.1 0 0 1-2.2 0c0-.6.5-1.1 1.1-1.1zm5.1 2.7c-1.7-.05-3.5.48-4.9 1.68-1.6 1.35-2.5 3.5-1.7 5.86.9 2.3 3.4 3.98 6.4 3.98.78 0 1.53-.11 2.23-.32a.68.68 0 0 1 .56.08l1.49.87a.26.26 0 0 0 .27-.19l-.31-1.16a.55.55 0 0 1 .19-.5c1.2-.93 2.1-2.5 2.1-4.2 0-3-2.7-5.5-6.6-5.8zm-3.5 2.5c.47 0 .85.38.85.85a.85.85 0 1 1-1.7 0c0-.47.38-.85.85-.85zm5.4 0c.47 0 .85.38.85.85a.85.85 0 1 1-1.7 0c0-.47.38-.85.85-.85z" fill="#c9a84c" />
             </svg>
             <div class="wechat-words">
                 <span class="wechat-tag">微信客服</span>
@@ -989,7 +978,7 @@
                 <div class="purchase-note-highlight" id="purchaseNote">
                     <span class="warn-icon">⚠</span>
                     <span class="note-text">
-                        付款备注：<strong id="purchaseNoteCode">QSQ01</strong> + （邮箱/微信/QQ）三选一，或收件地址<br>务必填写付款备注，以便我第一时间发送文件
+                        付款备注：<strong id="purchaseNoteCode">QSQ01</strong> + （邮箱/微信/QQ）三选一，或收件地址<br>勿必填写付款备注，以便我第一时间发送文件
                     </span>
                 </div>
                 <div class="tier-row" id="purchaseTiers"></div>
@@ -1102,7 +1091,7 @@
         // ==========================================
         async function loadWorksFromGitHub() {
             const grid = document.getElementById('galleryGrid');
-            grid.innerHTML = '<p style="color:#888; text-align:center; padding:40px; width:100%;">正在从云端加载最新作品...</p>';
+            grid.innerHTML = '<p style="color:#888; text-align:center; padding:40px; grid-column: span 12;">正在从云端加载最新作品...</p>';
             
             try {
                 const timestamp = new Date().getTime();
@@ -1125,7 +1114,7 @@
                     .sort((a, b) => a.name.localeCompare(b.name, 'zh-CN', {numeric: true}));
                 
                 const promises = sortedFolders.map(async (folder) => {
-                    const folderName = folder.name; // 例如："01财神七仔"
+                    const folderName = folder.name;
                     const folderUrl = `${API_BASE}/${encodeURIComponent(folderName)}?t=${timestamp}`;
                     const fileRes = await fetch(folderUrl);
                     const files = await fileRes.json();
@@ -1141,14 +1130,16 @@
                     if (images.length === 0) return null;
                     images.sort();
                     
-                    // 改用文件夹名提取作品名与编号，不依赖图片文件名
-                    const match = folderName.match(/^(\d*)([\u4e00-\u9fa5]+)/);
+                    const firstImg = images[0];
+                    const nameWithoutExt = firstImg.substring(0, firstImg.lastIndexOf('.'));
+                    const match = nameWithoutExt.match(/([\u4e00-\u9fa5]+)([a-zA-Z0-9]*)$/);
+                    
                     let extractedName = folderName;
                     let extractedNum = '0000';
                     
                     if (match) {
-                        extractedNum = match[1] ? match[1].padStart(2, '0') : '0000';
-                        extractedName = match[2] || folderName;
+                        extractedName = match[1];
+                        extractedNum = match[2] ? match[2].toUpperCase() : '0000';
                     }
                     
                     const textData = textDataDict[extractedName] || defaultText;
@@ -1157,6 +1148,7 @@
                         const lower = imgName.toLowerCase();
                         const label = (lower.includes('横') || lower.includes('02')) ? '横版' : '竖版';
                         
+                        // 包含智能前缀模糊匹配（兼容 熊猫创意/01财神七仔 和 01财神七仔 两种 JSON 存取 Key）
                         const relativePath1 = `熊猫创意/${folderName}/${imgName}`;
                         const relativePath2 = `${folderName}/${imgName}`;
                         
@@ -1184,12 +1176,12 @@
                 works = (await Promise.all(promises)).filter(Boolean);
                 
                 if (works.length === 0) {
-                    grid.innerHTML = '<p style="color:#888; text-align:center; width:100%;">暂无作品，请在 GitHub 上传图片。</p>';
+                    grid.innerHTML = '<p style="color:#888; text-align:center; grid-column: span 12;">暂无作品，请在 GitHub 上传图片。</p>';
                 } else {
                     renderGallery();
                 }
             } catch (err) {
-                grid.innerHTML = '<p style="color:#c44; text-align:center; width:100%;">加载失败，请稍后刷新重试。</p>';
+                grid.innerHTML = '<p style="color:#c44; text-align:center; grid-column: span 12;">加载失败，请稍后刷新重试。</p>';
                 console.error(err);
             }
         }
@@ -1223,7 +1215,7 @@
             
             grid.innerHTML = cols.map(colHTML => `<div class="g-col">${colHTML.join('')}</div>`).join('');
 
-            // 逐个响应式加载模糊图与高清图
+            // 渲染完毕后，逐个响应式加载模糊图与高清图
             works.forEach((w, i) => {
                 const imgEl = document.getElementById(`card-img-${i}`);
                 const firstVer = w.versions[0];
@@ -1349,7 +1341,7 @@
             const w = works[purchaseArtIdx];
             const container = document.getElementById('purchaseTiers');
             container.innerHTML = tierNames.map((name, i) => `
-                <div class="p-tier ${i===purchaseTier?'on':''}" onclick="selectPurchaseTier(${i})">
+                <div class="p-tier">
                     <div class="p-tier-name">${name}</div>
                     <div class="p-tier-spec">${i===0?'1080P 高清': i===1?'6寸精印含顺丰':'2K 超清无损'}</div>
                     <div class="p-tier-price">¥${w.prices[i]}</div>
