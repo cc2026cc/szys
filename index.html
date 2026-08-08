@@ -1164,10 +1164,17 @@
             });
         }
 
+        /* ─── 视口变化监听（限制仅在宽度变化时重绘，防止手机滑动触发刷新） ─── */
+        let lastWindowWidth = window.innerWidth;
         window.addEventListener('resize', () => {
             clearTimeout(window.resizeTimer);
             window.resizeTimer = setTimeout(() => {
-                if (works.length > 0) renderGallery();
+                // 只有当宽度改变时（如切换横竖屏）才重新渲染画廊
+                // 忽略上下滑动时手机地址栏收起/展开引起的单纯高度变化
+                if (window.innerWidth !== lastWindowWidth) {
+                    lastWindowWidth = window.innerWidth;
+                    if (works.length > 0) renderGallery();
+                }
             }, 300);
         });
 
@@ -1191,9 +1198,9 @@
             const w = works[idx];
             const v = w.versions[verIdx];
             
-            // 使用 BlurHash 渐进加载灯箱图
+            // 直接设置灯箱高清图片（完全移除 BlurHash 依赖）
             const lbImg = document.getElementById('lbImg');
-            setImageWithBlur(lbImg, v.src, v.hash);
+            setImageWithBlur(lbImg, v.src);
 
             document.getElementById('lbSeries').textContent = w.series;
             document.getElementById('lbGhost').textContent = w.num;
@@ -1216,7 +1223,7 @@
             if (busy || verIdx === curVer) return;
             curVer = verIdx;
             const v = works[cur].versions[verIdx];
-            setImageWithBlur(document.getElementById('lbImg'), v.src, v.hash);
+            setImageWithBlur(document.getElementById('lbImg'), v.src);
             document.querySelectorAll('.lb-ver-btn').forEach((b,i) => b.classList.toggle('active', i===verIdx));
         }
         function nav(dir) { if (!busy) jumpTo((cur + dir + works.length) % works.length, dir); }
@@ -1265,7 +1272,7 @@
             const w = works[purchaseArtIdx];
             const v = w.versions[purchaseVer];
             const thumbImg = document.getElementById('purchaseThumb');
-            setImageWithBlur(thumbImg, v.src, v.hash);
+            setImageWithBlur(thumbImg, v.src);
         }
         function renderPurchaseVersions() {
             const w = works[purchaseArtIdx];
