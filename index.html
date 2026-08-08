@@ -1015,13 +1015,6 @@
             chips: ['数字艺术', '七仔', '插画'],
             prices: [49, 119, 199]
         };
-
-        // 清理后的原生图片直接设置（彻底移除 BlurHash 算法）
-        function setImageWithBlur(imgElement, highResSrc) {
-            if (!imgElement) return;
-            imgElement.src = highResSrc;
-        }
-
         // ==========================================
         // 动态读取仓库目录与渲染
         // ==========================================
@@ -1156,12 +1149,11 @@
             
             grid.innerHTML = cols.map(colHTML => `<div class="g-col">${colHTML.join('')}</div>`).join('');
 
-            // 渲染完毕后，逐个加载模糊代码与高清图
-            works.forEach((w, i) => {
-                const imgEl = document.getElementById(`card-img-${i}`);
-                const firstVer = w.versions[0];
-                setImageWithBlur(imgEl, firstVer.src, firstVer.hash);
-            });
+            // 渲染完毕后，设置图片路径
+works.forEach((w, i) => {
+    const imgEl = document.getElementById(`card-img-${i}`);
+    if (imgEl) imgEl.src = w.versions[0].src;
+});
         }
 
         /* ─── 视口变化监听（限制仅在宽度变化时重绘，防止手机滑动触发刷新） ─── */
@@ -1198,9 +1190,8 @@
             const w = works[idx];
             const v = w.versions[verIdx];
             
-            // 直接设置灯箱高清图片（完全移除 BlurHash 依赖）
             const lbImg = document.getElementById('lbImg');
-            setImageWithBlur(lbImg, v.src);
+if (lbImg) lbImg.src = v.src;
 
             document.getElementById('lbSeries').textContent = w.series;
             document.getElementById('lbGhost').textContent = w.num;
@@ -1220,12 +1211,13 @@
             bar.innerHTML = w.versions.length > 1 ? w.versions.map((v,i) => `<button class="lb-ver-btn${i===curVer?' active':''}" onclick="switchLBVersion(${i})">${v.label}</button>`).join('') : '';
         }
         function switchLBVersion(verIdx) {
-            if (busy || verIdx === curVer) return;
-            curVer = verIdx;
-            const v = works[cur].versions[verIdx];
-            setImageWithBlur(document.getElementById('lbImg'), v.src);
-            document.querySelectorAll('.lb-ver-btn').forEach((b,i) => b.classList.toggle('active', i===verIdx));
-        }
+    if (busy || verIdx === curVer) return;
+    curVer = verIdx;
+    const v = works[cur].versions[verIdx];
+    const lbImg = document.getElementById('lbImg');
+    if (lbImg) lbImg.src = v.src;
+    document.querySelectorAll('.lb-ver-btn').forEach((b,i) => b.classList.toggle('active', i===verIdx));
+}
         function nav(dir) { if (!busy) jumpTo((cur + dir + works.length) % works.length, dir); }
         function jumpTo(next, dir) {
             if (busy || next === cur) return;
@@ -1269,11 +1261,11 @@
             document.body.style.overflow = '';
         }
         function updatePurchaseThumb() {
-            const w = works[purchaseArtIdx];
-            const v = w.versions[purchaseVer];
-            const thumbImg = document.getElementById('purchaseThumb');
-            setImageWithBlur(thumbImg, v.src);
-        }
+    const w = works[purchaseArtIdx];
+    const v = w.versions[purchaseVer];
+    const thumbImg = document.getElementById('purchaseThumb');
+    if (thumbImg) thumbImg.src = v.src;
+}
         function renderPurchaseVersions() {
             const w = works[purchaseArtIdx];
             const container = document.getElementById('purchaseVersionSwitch');
@@ -1329,7 +1321,16 @@
             const dx = e.changedTouches[0].clientX - tx;
             if (Math.abs(dx) > 55) nav(dx < 0 ? 1 : -1);
         });
-
+// 全局给所有 <img> 元素加上图片失败自动降级为 jpg 的兜底事件
+document.addEventListener('error', function (e) {
+    if (e.target && e.target.tagName === 'IMG') {
+        const img = e.target;
+        // 如果是以 .webp 结尾的图片加载失败了，尝试将其替换为 .jpg 后缀再次尝试
+        if (img.src && img.src.toLowerCase().endsWith('.webp')) {
+            img.src = img.src.replace(/\.webp$/i, '.jpg');
+        }
+    }
+}, true);
         // 页面启动
         window.addEventListener('DOMContentLoaded', loadWorksFromGitHub);
     </script>
