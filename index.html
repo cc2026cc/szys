@@ -817,6 +817,68 @@
 
         /* 响应式 */
         @media(max-width: 850px) {
+            .purchase-modal {
+                align-items: flex-end; /* 底部对齐，变为底部抽屉 */
+            }
+            .purchase-box {
+                flex-direction: column;
+                width: 100vw;
+                max-width: 100vw;
+                max-height: 85vh;
+                overflow-y: auto;
+                gap: 16px;
+                padding: 12px 20px 32px;
+                border-radius: 20px 20px 0 0; /* 顶部圆角 */
+                border-bottom: none;
+                transform: translateY(100%); /* 初始隐藏在屏幕底部外 */
+                transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            .purchase-modal.active .purchase-box {
+                transform: translateY(0); /* 向上滑出显示 */
+            }
+
+            /* 抽屉顶部顶部顶部指示条 */
+            .sheet-handle {
+                display: block;
+                width: 36px;
+                height: 4px;
+                background: rgba(255, 255, 255, 0.25);
+                border-radius: 2px;
+                margin: 0 auto 4px auto;
+                flex-shrink: 0;
+            }
+
+            .purchase-left {
+                width: 100%;
+                flex-direction: row;
+                gap: 16px;
+                align-items: center;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                padding-right: 0;
+                padding-bottom: 14px;
+            }
+            .purchase-thumb {
+                width: 72px;
+                height: 72px;
+                flex-shrink: 0;
+            }
+            .purchase-close {
+                top: 12px;
+                right: 12px;
+            }
+            .tier-row {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .p-tier:not(:last-child)::after {
+                display: none;
+            }
+            .qr-code-img {
+                width: 110px;
+                height: 110px;
+            }
+        }
             .purchase-box {
                 flex-direction: column;
                 width: 92vw;
@@ -944,6 +1006,15 @@
     <div class="purchase-modal" id="purchaseModal">
         <div class="purchase-bg" onclick="closePurchaseModal()"></div>
         <div class="purchase-box">
+            <!-- ═══ 购买弹窗 ═══ -->
+    <div class="purchase-modal" id="purchaseModal">
+        <div class="purchase-bg" onclick="closePurchaseModal()"></div>
+        <div class="purchase-box" id="purchaseBox">
+            <!-- 下面这一行为纯新增的代码 -->
+            <div class="sheet-handle"></div>
+            
+            <button class="purchase-close" onclick="closePurchaseModal()">✕</button>
+            <div class="purchase-left">
             <button class="purchase-close" onclick="closePurchaseModal()">✕</button>
             <div class="purchase-left">
                 <div class="purchase-thumb"><img id="purchaseThumb" src="" alt="作品缩略图" /></div>
@@ -1015,6 +1086,13 @@
             chips: ['数字艺术', '七仔', '插画'],
             prices: [49, 119, 199]
         };
+
+        // 清理后的原生图片直接设置（彻底移除 BlurHash 算法）
+        function setImageWithBlur(imgElement, highResSrc) {
+            if (!imgElement) return;
+            imgElement.src = highResSrc;
+        }
+
         // ==========================================
         // 动态读取仓库目录与渲染
         // ==========================================
@@ -1149,11 +1227,12 @@
             
             grid.innerHTML = cols.map(colHTML => `<div class="g-col">${colHTML.join('')}</div>`).join('');
 
-            // 渲染完毕后，设置图片路径
-works.forEach((w, i) => {
-    const imgEl = document.getElementById(`card-img-${i}`);
-    if (imgEl) imgEl.src = w.versions[0].src;
-});
+            // 渲染完毕后，逐个加载模糊代码与高清图
+            works.forEach((w, i) => {
+                const imgEl = document.getElementById(`card-img-${i}`);
+                const firstVer = w.versions[0];
+                setImageWithBlur(imgEl, firstVer.src, firstVer.hash);
+            });
         }
 
         /* ─── 视口变化监听（限制仅在宽度变化时重绘，防止手机滑动触发刷新） ─── */
@@ -1190,8 +1269,9 @@ works.forEach((w, i) => {
             const w = works[idx];
             const v = w.versions[verIdx];
             
+            // 直接设置灯箱高清图片（完全移除 BlurHash 依赖）
             const lbImg = document.getElementById('lbImg');
-if (lbImg) lbImg.src = v.src;
+            setImageWithBlur(lbImg, v.src);
 
             document.getElementById('lbSeries').textContent = w.series;
             document.getElementById('lbGhost').textContent = w.num;
@@ -1211,13 +1291,12 @@ if (lbImg) lbImg.src = v.src;
             bar.innerHTML = w.versions.length > 1 ? w.versions.map((v,i) => `<button class="lb-ver-btn${i===curVer?' active':''}" onclick="switchLBVersion(${i})">${v.label}</button>`).join('') : '';
         }
         function switchLBVersion(verIdx) {
-    if (busy || verIdx === curVer) return;
-    curVer = verIdx;
-    const v = works[cur].versions[verIdx];
-    const lbImg = document.getElementById('lbImg');
-    if (lbImg) lbImg.src = v.src;
-    document.querySelectorAll('.lb-ver-btn').forEach((b,i) => b.classList.toggle('active', i===verIdx));
-}
+            if (busy || verIdx === curVer) return;
+            curVer = verIdx;
+            const v = works[cur].versions[verIdx];
+            setImageWithBlur(document.getElementById('lbImg'), v.src);
+            document.querySelectorAll('.lb-ver-btn').forEach((b,i) => b.classList.toggle('active', i===verIdx));
+        }
         function nav(dir) { if (!busy) jumpTo((cur + dir + works.length) % works.length, dir); }
         function jumpTo(next, dir) {
             if (busy || next === cur) return;
@@ -1259,13 +1338,20 @@ if (lbImg) lbImg.src = v.src;
         function closePurchaseModal() {
             document.getElementById('purchaseModal').classList.remove('active');
             document.body.style.overflow = '';
+            // 重置下拉手势产生的偏移
+            const box = document.getElementById('purchaseBox');
+            if (box) box.style.transform = '';
+        }
+        function closePurchaseModal() {
+            document.getElementById('purchaseModal').classList.remove('active');
+            document.body.style.overflow = '';
         }
         function updatePurchaseThumb() {
-    const w = works[purchaseArtIdx];
-    const v = w.versions[purchaseVer];
-    const thumbImg = document.getElementById('purchaseThumb');
-    if (thumbImg) thumbImg.src = v.src;
-}
+            const w = works[purchaseArtIdx];
+            const v = w.versions[purchaseVer];
+            const thumbImg = document.getElementById('purchaseThumb');
+            setImageWithBlur(thumbImg, v.src);
+        }
         function renderPurchaseVersions() {
             const w = works[purchaseArtIdx];
             const container = document.getElementById('purchaseVersionSwitch');
@@ -1321,17 +1407,42 @@ if (lbImg) lbImg.src = v.src;
             const dx = e.changedTouches[0].clientX - tx;
             if (Math.abs(dx) > 55) nav(dx < 0 ? 1 : -1);
         });
-// 全局给所有 <img> 元素加上图片失败自动降级为 jpg 的兜底事件
-document.addEventListener('error', function (e) {
-    if (e.target && e.target.tagName === 'IMG') {
-        const img = e.target;
-        // 如果是以 .webp 结尾的图片加载失败了，尝试将其替换为 .jpg 后缀再次尝试
-        if (img.src && img.src.toLowerCase().endsWith('.webp')) {
-            img.src = img.src.replace(/\.webp$/i, '.jpg');
-        }
-    }
-}, true);
+
         // 页面启动
+        /* ─── 底部抽屉下拉滑动关闭手势 ─── */
+        (function initSheetDrag() {
+            const box = document.getElementById('purchaseBox');
+            let startY = 0, currentY = 0, isDragging = false;
+
+            box.addEventListener('touchstart', e => {
+                if (window.innerWidth > 850) return;
+                // 如果页面在抽屉内部发生了向上滚动，则不触发下滑关闭手势
+                if (box.scrollTop > 0) return; 
+                startY = e.touches[0].clientY;
+                isDragging = true;
+                box.style.transition = 'none';
+            }, { passive: true });
+
+            box.addEventListener('touchmove', e => {
+                if (!isDragging) return;
+                currentY = e.touches[0].clientY - startY;
+                if (currentY > 0) { // 仅允许向下拖拽
+                    box.style.transform = `translateY(${currentY}px)`;
+                }
+            }, { passive: true });
+
+            box.addEventListener('touchend', () => {
+                if (!isDragging) return;
+                isDragging = false;
+                box.style.transition = '';
+                if (currentY > 100) { // 下滑超过 100px 则自动关闭
+                    closePurchaseModal();
+                } else {
+                    box.style.transform = ''; // 恢复原位
+                }
+                currentY = 0;
+            });
+        })();
         window.addEventListener('DOMContentLoaded', loadWorksFromGitHub);
     </script>
 </body>
