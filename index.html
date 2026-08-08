@@ -2,23 +2,1348 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>熊猫创意 · 数字艺术作品展</title>
-    <!-- 引入 BlurHash JS 解码库 -->
+    <!-- 引入 BlurHash JS 解码库 (保留但不使用) -->
+    <script src="https://cdn.jsdelivr.net/npm/blurhash@2.0.5/dist/blurhash.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #04040a;
+            --bg2: #08080f;
+            --bg3: #0d0d18;
+            --gold: #c9a84c;
+            --gold-l: #e8c97a;
+            --gold-d: rgba(201, 168, 76, 0.1);
+            --bamboo: #7c9f4b;
+            --t1: #ede9e3;
+            --t2: #6e6a78;
+            --t3: #302e3a;
+            --b-gold: rgba(201, 168, 76, 0.14);
+            --b-sub: rgba(255, 255, 255, 0.05);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--t1);
+            font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .bg-glow {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse 55% 45% at 10% 20%, rgba(124, 159, 75, 0.04) 0%, transparent 65%),
+                radial-gradient(ellipse 45% 55% at 90% 80%, rgba(201, 168, 76, 0.04) 0%, transparent 65%),
+                radial-gradient(ellipse 35% 35% at 60% 40%, rgba(79, 195, 247, 0.02) 0%, transparent 55%);
+        }
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.018;
+            background-image:
+                linear-gradient(rgba(124, 159, 75, 1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124, 159, 75, 1) 1px, transparent 1px);
+            background-size: 72px 72px;
+        }
+
+        /* ═══ 顶部导航 ═══ */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            height: 66px;
+            padding: 0 52px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(4, 4, 10, 0.28);
+            backdrop-filter: blur(32px) saturate(2);
+            -webkit-backdrop-filter: blur(32px) saturate(2);
+            border-bottom: 1px solid rgba(124, 159, 75, 0.12);
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg,
+                    transparent 0%, rgba(124, 159, 75, 0.5) 25%,
+                    rgba(201, 168, 76, 0.6) 50%, rgba(124, 159, 75, 0.5) 75%, transparent 100%);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .logo-icon {
+            position: relative;
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+        }
+        .logo-icon::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 1.5px solid var(--bamboo);
+            border-radius: 50% 40% 50% 40%;
+            transform: rotate(30deg);
+            opacity: 0.8;
+        }
+        .logo-icon::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(135deg, var(--gold), var(--bamboo));
+            transform: translate(-50%, -50%) rotate(45deg);
+            border-radius: 2px;
+        }
+        .logo-words {
+            display: flex;
+            flex-direction: column;
+        }
+        .logo-cn {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 6px;
+            background: linear-gradient(90deg, var(--t1) 0%, var(--bamboo) 80%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .logo-en {
+            font-size: 9px;
+            letter-spacing: 3px;
+            color: var(--t2);
+            margin-top: 1px;
+        }
+        .wechat-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 18px;
+            border: 1px solid var(--b-gold);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.35s ease;
+            background: transparent;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        .wechat-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 30px;
+            background: linear-gradient(135deg, var(--gold-d), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .wechat-btn:hover::before {
+            opacity: 1;
+        }
+        .wechat-btn:hover {
+            border-color: var(--gold);
+        }
+        .wechat-btn svg {
+            width: 17px;
+            height: 17px;
+            fill: var(--gold-l);
+            filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.4));
+            position: relative;
+            z-index: 1;
+        }
+        .wechat-words {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+        }
+        .wechat-tag {
+            font-size: 8px;
+            letter-spacing: 2px;
+            color: var(--t2);
+        }
+        .wechat-id {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gold-l);
+            letter-spacing: 1px;
+        }
+
+        /* ═══ 分节标题 ═══ */
+        .sec-head {
+            position: relative;
+            z-index: 1;
+            padding: 100px 52px 0;
+            margin-bottom: 52px;
+            display: flex;
+            align-items: center;
+            gap: 22px;
+        }
+        .sec-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--b-gold), transparent);
+        }
+        .sec-dmd {
+            width: 7px;
+            height: 7px;
+            border: 1px solid var(--bamboo);
+            transform: rotate(45deg);
+            flex-shrink: 0;
+        }
+        .sec-words {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
+            text-align: center;
+        }
+        .sec-label {
+            font-size: 9px;
+            letter-spacing: 5px;
+            color: var(--bamboo);
+        }
+        .sec-title {
+            font-size: 20px;
+            font-weight: 300;
+            letter-spacing: 10px;
+            color: var(--t1);
+            padding-left: 10px;
+        }
+
+        /* ═══ 作品网格 ═══ */
+        .gallery {
+            position: relative;
+            z-index: 1;
+            padding: 0 52px 130px;
+        }
+        .g-grid {
+            display: flex;
+            align-items: flex-start;
+            gap: 18px;
+        }
+        .g-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            width: 0;
+        }
+        .art-card {
+            position: relative;
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            background: var(--bg3);
+            border: 1px solid var(--b-sub);
+            transition: border-color 0.4s, box-shadow 0.4s;
+            animation: fadeUp 0.7s ease both;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(22px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .art-card:hover {
+            border-color: rgba(124, 159, 75, 0.35);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65), 0 0 40px rgba(124, 159, 75, 0.06);
+        }
+        .img-wrap {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+        .img-wrap img {
+            display: block;
+            width: 100%;
+            height: auto;
+            transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s;
+            filter: brightness(0.9) saturate(0.95);
+        }
+        .art-card:hover .img-wrap img {
+            transform: scale(1.05);
+            filter: brightness(1.02) saturate(1.1);
+        }
+
+        .art-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 76px;
+            background: rgba(180, 130, 70, 0.28);
+            backdrop-filter: blur(3px) saturate(1.3);
+            -webkit-backdrop-filter: blur(3px) saturate(1.3);
+            border-top: 1px solid rgba(255, 230, 180, 0.35);
+            background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 40%, transparent 100%);
+            pointer-events: none;
+            z-index: 1;
+            border-radius: 0 0 6px 6px;
+        }
+        .art-num {
+            position: absolute;
+            top: 13px;
+            right: 13px;
+            z-index: 4;
+            width: 30px;
+            height: 30px;
+            border: 1px solid rgba(201, 168, 76, .35);
+            background: rgba(4, 4, 10, .75);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 1px;
+            border-radius: 2px;
+        }
+        .art-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 85px;
+            z-index: 3;
+            pointer-events: none;
+            padding: 14px 16px 14px 14px;
+        }
+        .art-series {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 9px;
+            font-weight: 500;
+            letter-spacing: 3px;
+            color: #f0d88a;
+            margin-bottom: 6px;
+        }
+        .art-series::before {
+            content: '';
+            width: 14px;
+            height: 1px;
+            background: #e2c87a;
+            opacity: 0.9;
+        }
+        .art-title-text {
+            font-size: 15px;
+            font-weight: 500;
+            letter-spacing: 3px;
+            color: var(--t1);
+            margin-bottom: 3px;
+            line-height: 1.3;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+        }
+        .art-meta-text {
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: #ffe9b0;
+            font-weight: 500;
+        }
+        .art-buy {
+            position: absolute;
+            bottom: 22px;
+            right: 16px;
+            z-index: 5;
+            padding: 7px 16px;
+            background: rgba(220, 180, 100, 0.18);
+            backdrop-filter: blur(10px) saturate(1.4);
+            -webkit-backdrop-filter: blur(10px) saturate(1.4);
+            border: 1px solid rgba(220, 180, 100, 0.5);
+            color: #fff6e0;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            cursor: pointer;
+            font-family: inherit;
+            border-radius: 4px;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            line-height: 1.2;
+        }
+        .art-buy:hover {
+            background: rgba(220, 180, 100, 0.35);
+            border-color: rgba(220, 180, 100, 0.8);
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+        }
+
+        /* ═══════════════════════════════
+           灯箱 (PC & 手机共用基础)
+        ═══════════════════════════════ */
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 500;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.45s ease;
+        }
+        .lightbox.active { opacity: 1; pointer-events: auto; }
+        .lb-bg {
+            position: absolute;
+            inset: 0;
+            background: rgba(2, 2, 6, 0.96);
+            backdrop-filter: blur(28px);
+        }
+        .lb-layout {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: stretch;
+        }
+        /* PC 导航按钮 */
+        .lb-nav {
+            width: 88px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .lb-nav-btn {
+            width: 44px; height: 44px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(15, 15, 25, 0.45);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: #c9a84c;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.25s;
+            border-radius: 50%;
+        }
+        .lb-nav-btn svg { width: 20px; height: 20px; stroke: currentColor; }
+        .lb-nav-btn:hover {
+            border-color: var(--bamboo);
+            background: rgba(124, 159, 75, 0.2);
+            color: var(--bamboo);
+            box-shadow: 0 0 18px rgba(124, 159, 75, 0.25);
+        }
+        .lb-stage {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 0 40px;
+            overflow: hidden;
+            position: relative;
+        }
+        /* PC 图片容器 */
+        .lb-card-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            width: 100%;
+        }
+        .lb-card {
+            position: relative;
+            flex-shrink: 0;
+            will-change: transform, opacity;
+        }
+        .lb-card img {
+            display: block;
+            max-width: 88vw;
+            max-height: 84vh;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 4px;
+            border: 1px solid rgba(124, 159, 75, 0.35);
+            box-shadow: 0 48px 130px rgba(0, 0, 0, .85), 0 0 80px rgba(124, 159, 75, 0.06);
+        }
+        /* 动画 (PC) */
+        @keyframes zoomIn {
+            from { transform: scale(0.88); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .lb-card.enter { animation: zoomIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes outLeft {
+            0% { transform: translateX(0) scale(1); opacity: 1; }
+            100% { transform: translateX(-45%) scale(0.93); opacity: 0; }
+        }
+        @keyframes outRight {
+            0% { transform: translateX(0) scale(1); opacity: 1; }
+            100% { transform: translateX(45%) scale(0.93); opacity: 0; }
+        }
+        @keyframes inFromRight {
+            0% { transform: translateX(45%) scale(0.93); opacity: 0; }
+            100% { transform: translateX(0) scale(1); opacity: 1; }
+        }
+        @keyframes inFromLeft {
+            0% { transform: translateX(-45%) scale(0.93); opacity: 0; }
+            100% { transform: translateX(0) scale(1); opacity: 1; }
+        }
+        .lb-card.out-l { animation: outLeft 0.3s cubic-bezier(0.4, 0, 1, 1) forwards; }
+        .lb-card.out-r { animation: outRight 0.3s cubic-bezier(0.4, 0, 1, 1) forwards; }
+        .lb-card.in-r { animation: inFromRight 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .lb-card.in-l { animation: inFromLeft 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        /* PC 版本切换 & 点号 */
+        .lb-version-bar {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+            z-index: 10;
+        }
+        .lb-ver-btn {
+            padding: 6px 18px;
+            border: 1px solid var(--b-gold);
+            background: rgba(4, 4, 10, 0.6);
+            backdrop-filter: blur(10px);
+            color: var(--gold);
+            font-size: 10px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 2px;
+            font-family: inherit;
+        }
+        .lb-ver-btn.active {
+            background: rgba(124, 159, 75, 0.15);
+            border-color: var(--bamboo);
+            color: var(--bamboo);
+        }
+        .lb-dots {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .lb-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            border: 1px solid rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: all .3s;
+        }
+        .lb-dot.on {
+            background: var(--bamboo);
+            width: 10px; height: 10px;
+            border-color: var(--bamboo);
+            box-shadow: 0 0 10px rgba(124, 159, 75, 0.9);
+        }
+
+        /* PC 右侧信息面板 */
+        .lb-panel {
+            width: 310px;
+            flex-shrink: 0;
+            padding: 0 36px 0 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .lb-info { margin-bottom: 24px; }
+        .lb-tag-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 9px;
+            letter-spacing: 3px;
+            color: var(--bamboo);
+            margin-bottom: 14px;
+            position: relative;
+            z-index: 2;
+        }
+        .lb-tag-row::before { content: ''; width: 18px; height: 1px; background: var(--bamboo); }
+        .lb-ghost-num {
+            font-size: 88px;
+            font-weight: 200;
+            line-height: 1;
+            color: rgba(124, 159, 75, 0.12);
+            margin-bottom: -10px;
+            letter-spacing: -4px;
+            user-select: none;
+            z-index: 0;
+            position: relative;
+        }
+        .lb-art-name {
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: 5px;
+            color: var(--t1);
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+        }
+        .lb-art-desc {
+            font-size: 11px;
+            color: var(--t2);
+            letter-spacing: 1.5px;
+            line-height: 2.1;
+            margin-bottom: 18px;
+        }
+        .lb-art-chips {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .lb-chip {
+            padding: 3px 10px;
+            border: 1px solid var(--b-sub);
+            font-size: 8px;
+            letter-spacing: 2px;
+            color: var(--t2);
+            border-radius: 2px;
+        }
+        .lb-story {
+            margin-top: 16px;
+            border-top: 1px solid var(--b-sub);
+            padding-top: 16px;
+        }
+        .lb-story-title {
+            font-size: 9px;
+            letter-spacing: 4px;
+            color: var(--bamboo);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .lb-story-text {
+            font-size: 11px;
+            color: var(--t2);
+            line-height: 1.9;
+            letter-spacing: 1px;
+        }
+        .btn-collect {
+            width: 100%;
+            padding: 14px;
+            margin-top: 24px;
+            background: linear-gradient(135deg, var(--bamboo) 0%, #9bbf6a 100%);
+            border: none;
+            border-radius: 3px;
+            color: #0a0f05;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 5px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        .btn-collect:hover {
+            box-shadow: 0 8px 32px rgba(124, 159, 75, 0.45);
+            transform: translateY(-1px);
+        }
+
+        /* PC 关闭按钮 (桌面) */
+        .lb-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 20;
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--b-sub);
+            background: rgba(4, 4, 10, .55);
+            color: var(--t2);
+            cursor: pointer;
+            font-size: 15px;
+            backdrop-filter: blur(10px);
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .lb-close:hover {
+            border-color: var(--bamboo);
+            color: var(--bamboo);
+        }
+
+        /* =============================================
+               手机端专用样式 (屏幕宽度 < 1100px)
+           ============================================= */
+        @media (max-width: 1100px) {
+            /* 隐藏 PC 导航和面板 */
+            .lb-nav,
+            .lb-panel {
+                display: none !important;
+            }
+            /* 关闭按钮在手机端更大，放右上角 */
+            .lb-close {
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+                top: 12px;
+                right: 12px;
+                background: rgba(0, 0, 0, 0.5);
+                border-color: rgba(255, 255, 255, 0.2);
+                color: #fff;
+                border-radius: 50%;
+                z-index: 30;
+            }
+            .lb-close:hover {
+                border-color: var(--bamboo);
+                color: var(--bamboo);
+            }
+            /* 手机端 stage 占满全屏，padding 取消 */
+            .lb-stage {
+                padding: 0 !important;
+                flex: 1;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                position: relative;
+            }
+            /* 手机容器 – flex 列，撑满 stage */
+            .lb-mobile-container {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                height: 100%;
+                position: relative;
+                overflow: hidden;
+                touch-action: none; /* 禁止浏览器默认手势 */
+            }
+            /* 图片区域：flex 1 默认撑满 */
+            .lb-mobile-img-area {
+                flex: 1 0 auto;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+                transition: flex 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+                min-height: 0;
+                position: relative;
+                width: 100%;
+            }
+            .lb-mobile-img-area .lb-card {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .lb-mobile-img-area .lb-card img {
+                max-width: 100vw;
+                max-height: 100vh;
+                width: auto;
+                height: auto;
+                object-fit: contain;
+                border: none;
+                box-shadow: none;
+                border-radius: 0;
+            }
+            /* 信息区域：默认高度 0，不可见，不可滚动 */
+            .lb-mobile-info-area {
+                flex: 0 0 0;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                transition: flex 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+                background: rgba(8, 8, 15, 0.92);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border-top: 1px solid rgba(124, 159, 75, 0.2);
+                padding: 0 18px 20px;
+                color: var(--t1);
+                scroll-behavior: smooth;
+                min-height: 0;
+            }
+            /* 信息区域展开时 flex:1 占用剩余空间 */
+            .lb-mobile-container.expanded .lb-mobile-img-area {
+                flex: 0 0 30% !important;
+            }
+            .lb-mobile-container.expanded .lb-mobile-info-area {
+                flex: 1 1 70% !important;
+            }
+            /* 信息内容样式 */
+            .lb-mobile-info-area .info-inner {
+                padding-top: 16px;
+                padding-bottom: 10px;
+            }
+            .lb-mobile-info-area .mi-title {
+                font-size: 22px;
+                font-weight: 600;
+                letter-spacing: 3px;
+                margin-bottom: 4px;
+            }
+            .lb-mobile-info-area .mi-num {
+                font-size: 12px;
+                color: var(--bamboo);
+                letter-spacing: 2px;
+                margin-bottom: 12px;
+            }
+            .lb-mobile-info-area .mi-desc {
+                font-size: 13px;
+                color: var(--t2);
+                line-height: 1.8;
+                letter-spacing: 0.5px;
+                margin-bottom: 12px;
+            }
+            .lb-mobile-info-area .mi-chips {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+                margin-bottom: 16px;
+            }
+            .lb-mobile-info-area .mi-chip {
+                padding: 4px 12px;
+                border: 1px solid var(--b-sub);
+                font-size: 10px;
+                letter-spacing: 1px;
+                color: var(--t2);
+                border-radius: 2px;
+            }
+            .lb-mobile-info-area .mi-story-title {
+                font-size: 10px;
+                letter-spacing: 4px;
+                color: var(--bamboo);
+                margin: 12px 0 6px;
+                text-transform: uppercase;
+            }
+            .lb-mobile-info-area .mi-story-text {
+                font-size: 12px;
+                color: var(--t2);
+                line-height: 1.9;
+                letter-spacing: 0.5px;
+                margin-bottom: 14px;
+            }
+            /* 手机端版本切换按钮（在信息区内） */
+            .lb-mobile-info-area .mi-version-bar {
+                display: flex;
+                gap: 8px;
+                margin: 8px 0 4px;
+            }
+            .lb-mobile-info-area .mi-ver-btn {
+                padding: 5px 14px;
+                border: 1px solid var(--b-sub);
+                background: transparent;
+                color: var(--t2);
+                font-size: 10px;
+                letter-spacing: 1px;
+                cursor: pointer;
+                transition: all 0.3s;
+                border-radius: 2px;
+                font-family: inherit;
+            }
+            .lb-mobile-info-area .mi-ver-btn.active {
+                border-color: var(--bamboo);
+                color: var(--bamboo);
+                background: rgba(124, 159, 75, 0.08);
+            }
+            /* 手机端底部固定购买按钮 */
+            .lb-mobile-buy-fixed {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 25;
+                padding: 12px 20px 20px;
+                background: linear-gradient(to top, rgba(4, 4, 10, 0.9) 60%, transparent);
+                pointer-events: none;
+            }
+            .lb-mobile-buy-fixed button {
+                width: 100%;
+                padding: 16px;
+                background: linear-gradient(135deg, var(--bamboo) 0%, #9bbf6a 100%);
+                border: none;
+                border-radius: 6px;
+                color: #0a0f05;
+                font-size: 16px;
+                font-weight: 700;
+                letter-spacing: 6px;
+                cursor: pointer;
+                font-family: inherit;
+                pointer-events: auto;
+                box-shadow: 0 4px 20px rgba(124, 159, 75, 0.4);
+                transition: all 0.3s;
+            }
+            .lb-mobile-buy-fixed button:active {
+                transform: scale(0.97);
+            }
+            /* 手机端隐藏 PC 的版本栏和点号 */
+            .lb-version-bar,
+            .lb-dots {
+                display: none !important;
+            }
+        }
+
+        /* =============================================
+               购买弹窗 (原样，已适配手机)
+           ============================================= */
+        .purchase-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s;
+        }
+        .purchase-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .purchase-bg {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+        .purchase-box {
+            position: relative;
+            z-index: 1;
+            width: 820px;
+            max-width: 96vw;
+            background: rgba(15, 15, 20, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 45px 35px 35px;
+            display: flex;
+            gap: 28px;
+            align-items: stretch;
+            box-shadow: 0 40px 120px rgba(0,0,0,0.8);
+            transform: scale(0.92);
+            transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .purchase-modal.active .purchase-box {
+            transform: scale(1);
+        }
+        .purchase-close {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            color: var(--t2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all .3s;
+            border-radius: 4px;
+            z-index: 10;
+            opacity: 0.7;
+        }
+        .purchase-close:hover {
+            color: var(--bamboo);
+            opacity: 1;
+        }
+        .purchase-left {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            width: 170px;
+            border-right: 1px solid rgba(255,255,255,0.08);
+            padding-right: 28px;
+        }
+        .purchase-thumb {
+            width: 140px;
+            height: auto;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: var(--bg2);
+            display: flex;
+            align-items: flex-start;
+        }
+        .purchase-thumb img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .purchase-name {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            color: var(--t1);
+            text-align: center;
+            line-height: 1.3;
+        }
+        .purchase-num {
+            font-size: 10px;
+            letter-spacing: 3px;
+            color: var(--t2);
+        }
+        .version-switch {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .v-switch-btn {
+            padding: 4px 14px;
+            border: 1px solid var(--b-sub);
+            background: transparent;
+            color: var(--t2);
+            font-size: 9px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 3px;
+            font-family: inherit;
+        }
+        .v-switch-btn.active {
+            border-color: var(--bamboo);
+            color: var(--bamboo);
+            background: rgba(124, 159, 75, 0.08);
+        }
+        .purchase-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            justify-content: center;
+        }
+        @keyframes softPulse {
+            0%, 100% { box-shadow: 0 0 8px rgba(255, 200, 80, 0.3); border-color: rgba(255, 200, 80, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(255, 200, 80, 0.7), 0 0 40px rgba(255, 200, 80, 0.3); border-color: rgba(255, 200, 80, 0.8); }
+        }
+        .purchase-note-highlight {
+            padding: 12px 14px;
+            background: rgba(255, 200, 80, 0.05);
+            border: 1px solid rgba(255, 200, 80, 0.5);
+            border-radius: 6px;
+            font-size: 11px;
+            color: #ffd580;
+            letter-spacing: 1px;
+            animation: softPulse 2.2s ease-in-out infinite;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        .purchase-note-highlight strong {
+            font-size: 13px;
+            color: #fff;
+            letter-spacing: 2px;
+        }
+        .warn-icon {
+            font-size: 36px;
+            line-height: 1;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .note-text {
+            line-height: 1.6;
+            text-align: left;
+        }
+        .tier-row {
+            display: flex;
+            gap: 0;
+        }
+        .p-tier {
+            flex: 1;
+            padding: 14px 10px;
+            text-align: center;
+            position: relative;
+        }
+        .p-tier:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 2px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.25);
+        }
+        .p-tier-name {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--t1);
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+        .p-tier-spec {
+            font-size: 8px;
+            color: var(--t2);
+            margin-bottom: 6px;
+        }
+        .p-tier-price {
+            font-size: 20px;
+            font-weight: 300;
+            color: var(--bamboo);
+        }
+        .pay-switch {
+            display: flex;
+            gap: 0;
+            border: 2px solid var(--b-sub);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .pay-btn {
+            flex: 1;
+            padding: 10px;
+            background: transparent;
+            border: none;
+            color: var(--t2);
+            font-size: 11px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: inherit;
+        }
+        .pay-btn.active {
+            background: rgba(124, 159, 75, 0.15);
+            color: var(--bamboo);
+            font-weight: 600;
+        }
+        .qr-code-img {
+            width: 130px;
+            height: 130px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 6px;
+            padding: 6px;
+            align-self: center;
+        }
+        .qr-code-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .purchase-steps {
+            display: flex;
+            gap: 14px;
+            font-size: 9px;
+            color: var(--t2);
+            letter-spacing: 0.5px;
+            justify-content: center;
+            margin-top: 4px;
+        }
+        .p-step {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .p-step-n {
+            width: 16px;
+            height: 16px;
+            border: 1px solid var(--bamboo);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            color: var(--bamboo);
+            flex-shrink: 0;
+            border-radius: 2px;
+        }
+
+        /* 购买弹窗手机响应式 (原样保留) */
+        @media (max-width: 850px) {
+            .purchase-box {
+                flex-direction: column;
+                width: 92vw;
+                gap: 20px;
+                padding: 40px 20px 28px;
+                align-items: stretch;
+            }
+            .purchase-left {
+                width: 100%;
+                flex-direction: row;
+                gap: 16px;
+                align-items: center;
+            }
+            .purchase-thumb {
+                width: 100px;
+                height: 100px;
+            }
+            .tier-row {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .qr-code-img {
+                width: 110px;
+                height: 110px;
+            }
+        }
+
+        /* 首页响应式 (原样) */
+        @media (max-width: 900px) {
+            .header { padding: 0 20px; }
+            .gallery { padding: 0 16px 80px; }
+            .sec-head { padding: 90px 20px 0; margin-bottom: 36px; }
+            .g-grid { gap: 14px; }
+            .g-col { gap: 14px; }
+        }
+        @media (max-width: 600px) {
+            .sec-head { padding: 80px 12px 0; }
+            .gallery { padding: 0 10px 60px; }
+            .footer { padding: 36px 16px; flex-direction: column; gap: 10px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow"></div>
+    <div class="bg-grid"></div>
+
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon"></div>
+            <div class="logo-words">
+                <span class="logo-cn">熊猫创意</span>
+                <span class="logo-en">PANDA CREATION</span>
+            </div>
+        </div>
+        <div class="wechat-btn">
+            <svg viewBox="0 0 24 24" width="17" height="17">
+                <path d="M8.9 2C4.3 2 .6 5.1 .6 8.9c0 2.1 1.1 4 2.8 5.2a.55.55 0 0 1 .2.6l-.4 1.4a.27.27 0 0 0 .28.34c.06 0 .12-.02.16-.05l1.8-1.05a.8.8 0 0 1 .67-.1c.85.25 1.76.38 2.68.38.26 0 .51-.02.76-.05-.8-2.44.15-4.7 1.82-6.1C12.8 8.3 14.9 7.8 16.8 7.9 16.2 4.6 12.9 2 8.9 2zM6.2 5.5c.6 0 1.1.5 1.1 1.1a1.1 1.1 0 0 1-2.2 0c0-.6.5-1.1 1.1-1.1zm5.4 0c.6 0 1.1.5 1.1 1.1a1.1 1.1 0 0 1-2.2 0c0-.6.5-1.1 1.1-1.1zm5.1 2.7c-1.7-.05-3.5.48-4.9 1.68-1.6 1.35-2.5 3.5-1.7 5.86.9 2.3 3.4 3.98 6.4 3.98.78 0 1.53-.11 2.23-.32a.68.68 0 0 1 .56.08l1.49.87a.26.26 0 0 0 .27-.19l-.31-1.16a.55.55 0 0 1 .19-.5c1.2-.93 2.1-2.5 2.1-4.2 0-3-2.7-5.5-6.6-5.8zm-3.5 2.5c.47 0 .85.38.85.85a.85.85 0 1 1-1.7 0c0-.47.38-.85.85-.85zm5.4 0c.47 0 .85.38.85.85a.85.85 0 1 1-1.7 0c0-.47.38-.85.85-.85z" fill="#c9a84c" />
+            </svg>
+            <div class="wechat-words">
+                <span class="wechat-tag">微信客服</span>
+                <span class="wechat-id">PandaArt_7</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="sec-head">
+        <div class="sec-line"></div>
+        <div class="sec-dmd"></div>
+        <div class="sec-words">
+            <span class="sec-label">作品全览</span>
+            <span class="sec-title">熊猫创意</span>
+        </div>
+        <div class="sec-dmd"></div>
+        <div class="sec-line"></div>
+    </div>
+
+    <section class="gallery">
+        <div class="g-grid" id="galleryGrid"></div>
+    </section>
+
+    <footer class="footer" style="position: relative; z-index: 1; padding: 56px 52px; border-top: 1px solid rgba(124, 159, 75, 0.12); display: flex; align-items: center; justify-content: space-between;">
+        <div>
+            <div style="font-size: 17px; font-weight: 300; letter-spacing: 8px; color: var(--t2); margin-bottom: 7px;">熊猫创意</div>
+            <div style="font-size: 9px; letter-spacing: 2px; color: var(--t3);">© 2024 · 七仔数字艺术 · 未经授权不得转载或商用</div>
+        </div>
+        <div style="font-size: 9px; letter-spacing: 2px; color: var(--t3);">精品限量作品 · 多种收藏规格</div>
+    </footer>
+
+    <!-- ═══ 灯箱 ═══ -->
+    <div class="lightbox" id="lightbox">
+        <div class="lb-bg" onclick="closeLB()"></div>
+        <div class="lb-layout">
+            <!-- PC 左箭头 -->
+            <div class="lb-nav"><button class="lb-nav-btn" onclick="nav(-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 18 9 12 15 6"></polyline></svg></button></div>
+            <!-- 中间舞台 -->
+            <div class="lb-stage" id="lbStage">
+                <!-- PC 原有内容会被替换，但保留容器 -->
+                <div class="lb-card-wrap" id="lbCardWrap">
+                    <div class="lb-card" id="lbCard"><img id="lbImg" src="" alt="" /></div>
+                </div>
+                <!-- PC 版本栏 & 点号 -->
+                <div class="lb-version-bar" id="lbVersionBar"></div>
+                <div class="lb-dots" id="lbDots"></div>
+            </div>
+            <!-- PC 右箭头 -->
+            <div class="lb-nav"><button class="lb-nav-btn" onclick="nav(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"></polyline></svg></button></div>
+            <!-- PC 右侧面板 -->
+            <div class="lb-panel" id="lbPanel">
+                <div class="lb-info">
+                    <div class="lb-tag-row" id="lbSeries">神话系列</div>
+                    <div class="lb-ghost-num" id="lbGhost">01</div>
+                    <div class="lb-art-name" id="lbName">财神七仔</div>
+                    <div class="lb-art-desc" id="lbDesc"></div>
+                    <div class="lb-art-chips" id="lbChips"></div>
+                </div>
+                <div class="lb-story">
+                    <div class="lb-story-title">设计故事</div>
+                    <div class="lb-story-text" id="lbStory">故事的细节将在此呈现。</div>
+                </div>
+                <button class="btn-collect" onclick="openPurchaseFromLB()">购买收藏</button>
+            </div>
+        </div>
+        <!-- 关闭按钮 (PC / 手机共用) -->
+        <button class="lb-close" onclick="closeLB()">✕</button>
+    </div>
+
+    <!-- ═══ 购买弹窗 ═══ -->
+    <div class="purchase-modal" id="purchaseModal">
+        <div class="purchase-bg" onclick="closePurchaseModal()"></div>
+        <div class="purchase-box">
+            <button class="purchase-close" onclick="closePurchaseModal()">✕</button>
+            <div class="purchase-left">
+                <div class="purchase-thumb"><img id="purchaseThumb" src="" alt="作品缩略图" /></div>
+                <div class="purchase-name" id="purchaseName">财神七仔</div>
+                <div class="purchase-num" id="purchaseNum">QSQ01</div>
+                <div class="version-switch" id="purchaseVersionSwitch"></div>
+            </div>
+            <div class="purchase-right">
+                <div class="purchase-note-highlight" id="purchaseNote">
+                    <span class="warn-icon">⚠</span>
+                    <span class="note-text">
+                        付款备注：<strong id="purchaseNoteCode">QSQ01</strong> + （邮箱/微信/QQ）三选一，或收件地址<br>勿必填写付款备注，以便我第一时间发送文件
+                    </span>
+                </div>
+                <div class="tier-row" id="purchaseTiers"></div>
+                <div class="pay-switch">
+                    <button class="pay-btn active" onclick="switchPurchasePay(0)">微信支付</button>
+                    <button class="pay-btn" onclick="switchPurchasePay(1)">支付宝</button>
+                </div>
+                <div class="qr-code-img">
+                    <img id="qrWx" src="微信.jpg" alt="微信收款码" style="display:block;" />
+                    <img id="qrAli" src="支付宝.jpg" alt="支付宝收款码" style="display:none;" />
+                </div>
+                <div class="purchase-steps">
+                    <div class="p-step"><span class="p-step-n">1</span>扫码付款</div>
+                    <div class="p-step"><span class="p-step-n">2</span>备注编号+邮箱/地址</div>
+                    <div class="p-step"><span class="p-step-n">3</span>24h内发货</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ==========================================
-        // 核心配置区
+        // 核心配置区 (不变)
         // ==========================================
-        const GITHUB_USERNAME = "cc2026cc";   
-        const REPO_NAME = "szys";               
+        const GITHUB_USERNAME = "cc2026cc";
+        const REPO_NAME = "szys";
         const API_BASE = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/熊猫创意`;
 
-        let works = []; 
+        let works = [];
         const tierNames = ['壁纸级数字版', '实体纸质版', '收藏级数字版'];
-        let cur = 0, curVer = 0, busy = false;
-        let purchaseArtIdx = 0, purchaseVer = 0, purchaseTier = 0, purchasePay = 0;
+        let cur = 0,
+            curVer = 0,
+            busy = false;
+        let purchaseArtIdx = 0,
+            purchaseVer = 0,
+            purchaseTier = 0,
+            purchasePay = 0;
 
-        // 作品文案映射字典（保持不变）
+        // 作品文案 (不变)
         const textDataDict = {
             "财神七仔": {
                 desc: '七仔化身财神，金红交织的数字笔触中，憨态与祥瑞融为一体，传递出独特的东方美学与新春祝愿。',
@@ -36,7 +1361,6 @@
                 chips: ['数字艺术', '如来', '七仔', '庄严']
             }
         };
-
         const defaultText = {
             desc: '七仔主题数字艺术作品，融合东方美学与数字绘画，记录每一刻灵感。',
             story: '此作品的创作背景与幕后故事正在由作者精心整理中，敬请期待。',
@@ -44,19 +1368,19 @@
             prices: [49, 119, 199]
         };
 
-        // 设置图片（直接加载高清图，移除BlurHash）
+        // 图片加载辅助 (不变)
         function setImageWithBlur(imgElement, highResSrc) {
             if (!imgElement) return;
             imgElement.src = highResSrc;
         }
 
         // ==========================================
-        // 动态读取仓库目录与渲染
+        // 从 GitHub 读取作品 (不变)
         // ==========================================
         async function loadWorksFromGitHub() {
             const grid = document.getElementById('galleryGrid');
             grid.innerHTML = '<p style="color:#888; text-align:center; padding:40px; grid-column: span 12;">正在加载最新作品...</p>';
-            
+
             let folders = [];
             const timestamp = new Date().getTime();
 
@@ -66,7 +1390,7 @@
                     folders = await repoRes.json();
                 }
             } catch (e) {
-                console.warn('动态读取目录超时，自动启用本地结构加载图片');
+                console.warn('动态读取目录超时，启用本地结构');
             }
 
             if (!Array.isArray(folders) || folders.length === 0) {
@@ -82,8 +1406,8 @@
             try {
                 let sortedFolders = folders
                     .filter(item => item.type === 'dir' || item.name)
-                    .sort((a, b) => a.name.localeCompare(b.name, 'zh-CN', {numeric: true}));
-                
+                    .sort((a, b) => a.name.localeCompare(b.name, 'zh-CN', { numeric: true }));
+
                 const promises = sortedFolders.map(async (folder) => {
                     const folderName = folder.name;
                     let files = [];
@@ -105,24 +1429,23 @@
                         else if (folderName.includes('05')) files = ['小女孩骑着七仔qzqz01.webp'];
                     }
 
-                    let images = files.filter(f => ['jpg','jpeg','png','webp'].includes(f.split('.').pop().toLowerCase()));
+                    let images = files.filter(f => ['jpg', 'jpeg', 'png', 'webp'].includes(f.split('.').pop().toLowerCase()));
                     if (images.length === 0) return null;
                     images.sort();
-                    
+
                     const firstImg = images[0];
                     const nameWithoutExt = firstImg.substring(0, firstImg.lastIndexOf('.'));
                     const match = nameWithoutExt.match(/([\u4e00-\u9fa5]+)([a-zA-Z0-9]*)$/);
-                    
+
                     let extractedName = folderName;
                     let extractedNum = '0000';
-                    
                     if (match) {
                         extractedName = match[1];
                         extractedNum = match[2] ? match[2].toUpperCase() : '0000';
                     }
-                    
+
                     const textData = textDataDict[extractedName] || defaultText;
-                    
+
                     const versions = images.map(imgName => {
                         const lower = imgName.toLowerCase();
                         const label = (lower.includes('横') || lower.includes('02')) ? '横版' : '竖版';
@@ -131,7 +1454,7 @@
                             label: label
                         };
                     });
-                    
+
                     return {
                         name: extractedName,
                         series: '神话系列',
@@ -143,22 +1466,22 @@
                         versions: versions
                     };
                 });
-                
+
                 works = (await Promise.all(promises)).filter(Boolean);
                 renderGallery();
             } catch (err) {
-                console.error('渲染画廊出现异常:', err);
+                console.error('渲染异常:', err);
             }
         }
 
         // ==========================================
-        // 界面渲染（不变）
+        // 首页网格渲染 (不变)
         // ==========================================
         function renderGallery() {
             const grid = document.getElementById('galleryGrid');
             const colCount = window.innerWidth <= 900 ? 2 : 3;
             let cols = Array.from({ length: colCount }, () => []);
-            
+
             works.forEach((w, i) => {
                 const cardHTML = `
                 <div class="art-card" style="animation-delay: ${i*0.1}s;" onclick="openLB(${i})">
@@ -174,10 +1497,9 @@
                     </div>
                     <button class="art-buy" onclick="event.stopPropagation(); openPurchase(${i},0)">购买收藏</button>
                 </div>`;
-                
                 cols[i % colCount].push(cardHTML);
             });
-            
+
             grid.innerHTML = cols.map(colHTML => `<div class="g-col">${colHTML.join('')}</div>`).join('');
 
             works.forEach((w, i) => {
@@ -187,9 +1509,7 @@
             });
         }
 
-        // ==========================================
-        // 视口变化（不变）
-        // ==========================================
+        // 自适应重绘 (仅宽度变化)
         let lastWindowWidth = window.innerWidth;
         window.addEventListener('resize', () => {
             clearTimeout(window.resizeTimer);
@@ -197,94 +1517,99 @@
                 if (window.innerWidth !== lastWindowWidth) {
                     lastWindowWidth = window.innerWidth;
                     if (works.length > 0) renderGallery();
+                    // 如果灯箱开着，且模式变化，可能需要重建，但用户一般不会缩放，忽略
                 }
             }, 300);
         });
 
         // ==========================================
-        // 灯箱核心（修改）
+        // 灯箱控制 (PC 和 手机 共用部分)
         // ==========================================
-        let touchStartY = 0;
-        let touchMoved = false;
-        let isExpanded = false; // 是否展开信息
+        let isMobile = false; // 是否启用手机模式
+        let mobileExpanded = false; // 手机信息是否展开
+        let touchStartY = 0,
+            touchMoveY = 0,
+            touchStartTime = 0;
+        let isDragging = false;
 
         function openLB(idx) {
             cur = idx;
             curVer = 0;
-            // 重置展开状态
-            isExpanded = false;
-            const stage = document.getElementById('lbStage');
-            stage.classList.remove('expanded');
-            // 填充数据
-            fillLB(cur, 0);
-            // 构建dots（但手机隐藏，仅保留电脑端）
-            buildDots();
-            renderVersionBar();
-            document.getElementById('lightbox').classList.add('active');
-            document.body.style.overflow = 'hidden';
-            const card = document.getElementById('lbCard');
-            card.className = 'lb-card'; 
-            void card.offsetWidth; 
-            card.classList.add('enter');
-            card.addEventListener('animationend', () => card.classList.remove('enter'), { once: true });
-            // 重置滚动位置
-            const infoInner = document.querySelector('#lbMobileInfo .lb-mobile-info-inner');
-            if (infoInner) infoInner.scrollTop = 0;
+            // 检测是否为手机端 (宽度 < 1100)
+            isMobile = window.innerWidth < 1100;
+
+            if (isMobile) {
+                // 手机模式：禁用左右切换，构建手机布局
+                setupMobileLightbox();
+                fillMobileInfo(idx, curVer);
+                // 设置图片
+                const w = works[idx];
+                const v = w.versions[curVer];
+                const lbImg = document.getElementById('lbImg'); // 复用 PC 的 img
+                setImageWithBlur(lbImg, v.src);
+                // 关闭动画复位
+                const card = document.getElementById('lbCard');
+                card.className = 'lb-card';
+                // 确保容器状态
+                const container = document.getElementById('lbMobileContainer');
+                if (container) {
+                    container.classList.remove('expanded');
+                    mobileExpanded = false;
+                }
+                // 显示灯箱
+                document.getElementById('lightbox').classList.add('active');
+                document.body.style.overflow = 'hidden';
+                // 无切换动画
+            } else {
+                // PC 模式：使用原有逻辑
+                fillLB(idx, 0);
+                buildDots();
+                renderVersionBar();
+                document.getElementById('lightbox').classList.add('active');
+                document.body.style.overflow = 'hidden';
+                const card = document.getElementById('lbCard');
+                card.className = 'lb-card';
+                void card.offsetWidth;
+                card.classList.add('enter');
+                card.addEventListener('animationend', () => card.classList.remove('enter'), { once: true });
+            }
         }
 
         function closeLB() {
             document.getElementById('lightbox').classList.remove('active');
             document.body.style.overflow = '';
-            // 重置展开状态
-            const stage = document.getElementById('lbStage');
-            stage.classList.remove('expanded');
-            isExpanded = false;
+            // 清除手机触摸事件绑定 (可选)
         }
 
+        // ─── PC 模式填充信息 ───
         function fillLB(idx, verIdx) {
             const w = works[idx];
             const v = w.versions[verIdx];
-            
             const lbImg = document.getElementById('lbImg');
             setImageWithBlur(lbImg, v.src);
 
-            // 电脑端面板
             document.getElementById('lbSeries').textContent = w.series;
             document.getElementById('lbGhost').textContent = w.num;
             document.getElementById('lbName').textContent = w.name;
             document.getElementById('lbDesc').textContent = w.desc;
             document.getElementById('lbChips').innerHTML = w.chips.map(c => `<span class="lb-chip">${c}</span>`).join('');
             document.getElementById('lbStory').textContent = w.story;
-
-            // 手机端信息
-            document.getElementById('lbSeriesMobile').textContent = w.series;
-            document.getElementById('lbNameMobile').textContent = w.name;
-            document.getElementById('lbDescMobile').textContent = w.desc;
-            document.getElementById('lbChipsMobile').innerHTML = w.chips.map(c => `<span class="lb-chip">${c}</span>`).join('');
-            document.getElementById('lbStoryMobile').textContent = w.story;
-
-            // 版本栏（电脑和手机）
-            renderVersionBar();
-            renderMobileVersionBar(verIdx);
-            // dots
-            document.querySelectorAll('.lb-dot').forEach((d,i) => d.classList.toggle('on', i===idx));
+            document.querySelectorAll('.lb-dot').forEach((d, i) => d.classList.toggle('on', i === idx));
+            document.querySelectorAll('.lb-ver-btn').forEach((b, i) => b.classList.toggle('active', i === verIdx));
         }
 
         function buildDots() {
-            document.getElementById('lbDots').innerHTML = works.map((_,i) => `<div class="lb-dot${i===cur?' on':''}" onclick="jumpTo(${i})"></div>`).join('');
+            document.getElementById('lbDots').innerHTML = works.map((_, i) =>
+                `<div class="lb-dot${i===cur?' on':''}" onclick="jumpTo(${i})"></div>`
+            ).join('');
         }
 
         function renderVersionBar() {
             const bar = document.getElementById('lbVersionBar');
             const w = works[cur];
-            bar.innerHTML = w.versions.length > 1 ? w.versions.map((v,i) => `<button class="lb-ver-btn${i===curVer?' active':''}" onclick="switchLBVersion(${i})">${v.label}</button>`).join('') : '';
-        }
-
-        function renderMobileVersionBar(activeIdx) {
-            const bar = document.getElementById('lbVersionBarMobile');
-            const w = works[cur];
-            if (w.versions.length <= 1) { bar.innerHTML = ''; return; }
-            bar.innerHTML = w.versions.map((v,i) => `<button class="lb-ver-btn${i===activeIdx?' active':''}" onclick="switchLBVersion(${i})">${v.label}</button>`).join('');
+            bar.innerHTML = w.versions.length > 1 ? w.versions.map((v, i) =>
+                `<button class="lb-ver-btn${i===curVer?' active':''}" onclick="switchLBVersion(${i})">${v.label}</button>`
+            ).join('') : '';
         }
 
         function switchLBVersion(verIdx) {
@@ -292,89 +1617,213 @@
             curVer = verIdx;
             const v = works[cur].versions[verIdx];
             setImageWithBlur(document.getElementById('lbImg'), v.src);
-            // 更新两个版本栏的高亮
-            document.querySelectorAll('#lbVersionBar .lb-ver-btn, #lbVersionBarMobile .lb-ver-btn').forEach((b,i) => b.classList.toggle('active', i===verIdx));
-        }
-
-        // 移除原有的 nav 和 jumpTo 函数（手机不需要）
-        // 但我们保留 nav 和 jumpTo 供电脑端使用（但手机端按钮隐藏，不会触发）
-        function nav(dir) { 
-            if (!busy) jumpTo((cur + dir + works.length) % works.length, dir); 
-        }
-        function jumpTo(next, dir) {
-            if (busy || next === cur) return;
-            busy = true;
-            const d = dir !== undefined ? dir : (next > cur ? 1 : -1);
-            const card = document.getElementById('lbCard');
-            const outC = d > 0 ? 'out-l' : 'out-r', inC = d > 0 ? 'in-r' : 'in-l';
-            card.className = 'lb-card ' + outC;
-            card.addEventListener('animationend', function h() {
-                card.removeEventListener('animationend', h);
-                cur = next; curVer = 0;
-                fillLB(cur, 0);
-                renderVersionBar();
-                card.className = 'lb-card'; void card.offsetWidth; card.classList.add(inC);
-                card.addEventListener('animationend', function h2() { card.removeEventListener('animationend', h2); card.classList.remove(inC); busy = false; });
-            });
-        }
-
-        // ==========================================
-        // 手机上下滑手势控制
-        // ==========================================
-        function handleTouchStart(e) {
-            const lightbox = document.getElementById('lightbox');
-            if (!lightbox.classList.contains('active')) return;
-            // 如果触摸在底部按钮或关闭按钮上，不处理
-            const target = e.target;
-            if (target.closest('.btn-collect-mobile') || target.closest('.lb-close')) return;
-            touchStartY = e.touches[0].clientY;
-            touchMoved = false;
-        }
-
-        function handleTouchMove(e) {
-            const lightbox = document.getElementById('lightbox');
-            if (!lightbox.classList.contains('active')) return;
-            const target = e.target;
-            if (target.closest('.btn-collect-mobile') || target.closest('.lb-close')) return;
-            const deltaY = e.touches[0].clientY - touchStartY;
-            if (Math.abs(deltaY) < 10) return;
-            touchMoved = true;
-            e.preventDefault(); // 阻止页面滚动
-            // 根据滑动方向调整，但这里我们只做阈值判断，不实时跟随，因为要简单。
-            // 但是我们可以在touchend时判断，不实时跟随，以免复杂。
-        }
-
-        function handleTouchEnd(e) {
-            const lightbox = document.getElementById('lightbox');
-            if (!lightbox.classList.contains('active')) return;
-            if (!touchMoved) return;
-            const target = e.target;
-            if (target.closest('.btn-collect-mobile') || target.closest('.lb-close')) return;
-            const deltaY = e.changedTouches[0].clientY - touchStartY;
-            const stage = document.getElementById('lbStage');
-            if (deltaY < -50) { // 上滑超过50px
-                // 展开信息
-                if (!isExpanded) {
-                    stage.classList.add('expanded');
-                    isExpanded = true;
-                }
-            } else if (deltaY > 50) { // 下滑超过50px
-                // 收起信息
-                if (isExpanded) {
-                    stage.classList.remove('expanded');
-                    isExpanded = false;
-                }
+            document.querySelectorAll('.lb-ver-btn').forEach((b, i) => b.classList.toggle('active', i === verIdx));
+            // 如果是手机模式，同步更新手机信息里的版本按钮
+            if (isMobile) {
+                document.querySelectorAll('.mi-ver-btn').forEach((b, i) => b.classList.toggle('active', i === verIdx));
+                // 同时更新图片
+                const img = document.querySelector('.lb-mobile-img-area #lbImg');
+                if (img) setImageWithBlur(img, v.src);
             }
         }
 
-        // 绑定触摸事件
-        document.addEventListener('touchstart', handleTouchStart, { passive: true });
-        document.addEventListener('touchmove', handleTouchMove, { passive: false });
-        document.addEventListener('touchend', handleTouchEnd, { passive: true });
+        function nav(dir) {
+            if (isMobile) return; // 手机禁用
+            if (!busy) jumpTo((cur + dir + works.length) % works.length, dir);
+        }
 
-        // ==========================================
-        // 购买弹窗（保持不变，但手机端按钮调用同样函数）
-        // ==========================================
+        function jumpTo(next, dir) {
+            if (busy || next === cur || isMobile) return; // 手机禁止切换
+            busy = true;
+            const d = dir !== undefined ? dir : (next > cur ? 1 : -1);
+            const card = document.getElementById('lbCard');
+            const outC = d > 0 ? 'out-l' : 'out-r',
+                inC = d > 0 ? 'in-r' : 'in-l';
+            card.className = 'lb-card ' + outC;
+            card.addEventListener('animationend', function h() {
+                card.removeEventListener('animationend', h);
+                cur = next;
+                curVer = 0;
+                fillLB(cur, 0);
+                renderVersionBar();
+                card.className = 'lb-card';
+                void card.offsetWidth;
+                card.classList.add(inC);
+                card.addEventListener('animationend', function h2() {
+                    card.removeEventListener('animationend', h2);
+                    card.classList.remove(inC);
+                    busy = false;
+                });
+            });
+        }
+
+        // ─── 手机模式专用 ───
+        function setupMobileLightbox() {
+            const stage = document.getElementById('lbStage');
+            // 清空 stage 原有内容（保留 lbCard 和 lbImg，但重构结构）
+            // 我们保留 lbCard 和 lbImg，将其移到新的 img-area 中
+            const existingCard = document.getElementById('lbCard');
+            const existingImg = document.getElementById('lbImg');
+
+            // 如果已经存在手机容器，则复用，避免重复创建
+            let container = document.getElementById('lbMobileContainer');
+            if (container) {
+                // 更新图片引用，因为 img 可能被移动，重新获取
+                return;
+            }
+
+            // 创建手机容器
+            container = document.createElement('div');
+            container.id = 'lbMobileContainer';
+            container.className = 'lb-mobile-container';
+
+            // 图片区域
+            const imgArea = document.createElement('div');
+            imgArea.className = 'lb-mobile-img-area';
+            // 将现有的 lbCard 移动到 imgArea
+            const card = document.getElementById('lbCard');
+            // 移除 card 原有类
+            card.className = 'lb-card';
+            // 将 card 从原位置移除并放到 imgArea
+            imgArea.appendChild(card);
+
+            // 信息区域
+            const infoArea = document.createElement('div');
+            infoArea.className = 'lb-mobile-info-area';
+            infoArea.id = 'lbMobileInfoArea';
+            // 填充信息内容（由 fillMobileInfo 负责）
+
+            container.appendChild(imgArea);
+            container.appendChild(infoArea);
+
+            // 清空 stage 原来的所有子节点 (保留可能存在的版本栏和dots，但手机隐藏)
+            // 保留 stage 本身，清空子节点
+            while (stage.firstChild) {
+                stage.removeChild(stage.firstChild);
+            }
+            stage.appendChild(container);
+
+            // 添加底部固定购买按钮 (如果尚未添加)
+            let buyFixed = document.querySelector('.lb-mobile-buy-fixed');
+            if (!buyFixed) {
+                buyFixed = document.createElement('div');
+                buyFixed.className = 'lb-mobile-buy-fixed';
+                const btn = document.createElement('button');
+                btn.textContent = '购买收藏';
+                btn.onclick = function() { openPurchaseFromLB(); };
+                buyFixed.appendChild(btn);
+                // 添加到 lightbox 中 (放在 stage 外部)
+                const lightbox = document.getElementById('lightbox');
+                lightbox.appendChild(buyFixed);
+            }
+
+            // 绑定触摸事件到 container
+            container.addEventListener('touchstart', onTouchStart, { passive: true });
+            container.addEventListener('touchmove', onTouchMove, { passive: false });
+            container.addEventListener('touchend', onTouchEnd, { passive: true });
+
+            // 填充信息
+            fillMobileInfo(cur, curVer);
+        }
+
+        function fillMobileInfo(idx, verIdx) {
+            const w = works[idx];
+            const infoArea = document.getElementById('lbMobileInfoArea');
+            if (!infoArea) return;
+
+            // 构建信息 HTML
+            const chipsHTML = w.chips.map(c => `<span class="mi-chip">${c}</span>`).join('');
+            const versionHTML = w.versions.length > 1 ?
+                `<div class="mi-version-bar">` +
+                w.versions.map((v, i) =>
+                    `<button class="mi-ver-btn${i===verIdx?' active':''}" onclick="switchLBVersion(${i})">${v.label}</button>`
+                ).join('') +
+                `</div>` :
+                '';
+
+            infoArea.innerHTML = `
+                <div class="info-inner">
+                    <div class="mi-title">${w.name}</div>
+                    <div class="mi-num">${w.num}</div>
+                    <div class="mi-desc">${w.desc}</div>
+                    <div class="mi-chips">${chipsHTML}</div>
+                    ${versionHTML}
+                    <div class="mi-story-title">设计故事</div>
+                    <div class="mi-story-text">${w.story}</div>
+                </div>
+            `;
+            // 设置图片 (已经在 openLB 中设置过了，但以防万一)
+            const img = document.querySelector('.lb-mobile-img-area #lbImg');
+            if (img) {
+                const v = w.versions[verIdx];
+                setImageWithBlur(img, v.src);
+            }
+        }
+
+        // ─── 手机触摸处理 ───
+        function onTouchStart(e) {
+            if (e.touches.length !== 1) return;
+            touchStartY = e.touches[0].clientY;
+            touchMoveY = touchStartY;
+            touchStartTime = Date.now();
+            isDragging = false;
+        }
+
+        function onTouchMove(e) {
+            if (e.touches.length !== 1) return;
+            const dy = e.touches[0].clientY - touchStartY;
+            touchMoveY = e.touches[0].clientY;
+            if (Math.abs(dy) > 10) {
+                isDragging = true;
+                e.preventDefault(); // 阻止页面滚动
+                // 可以在这里添加实时跟随效果，但为了简洁，我们只在 touchend 处理
+            }
+        }
+
+        function onTouchEnd(e) {
+            if (!isDragging) {
+                // 如果是点击（无滑动），不处理
+                return;
+            }
+            const dy = touchMoveY - touchStartY;
+            const dt = Date.now() - touchStartTime;
+            // 判断滑动方向：向下滑动为负（手指下滑），向上滑动为正
+            // 但我们需要：上滑（dy<0）展开信息，下滑（dy>0）收起
+            // 阈值：50px 或速度快
+            const threshold = 50;
+            const speed = Math.abs(dy) / dt; // px/ms
+
+            if (dy < -threshold || (dy < -20 && speed > 0.5)) {
+                // 上滑：展开
+                if (!mobileExpanded) {
+                    toggleMobileInfo(true);
+                }
+            } else if (dy > threshold || (dy > 20 && speed > 0.5)) {
+                // 下滑：收起
+                if (mobileExpanded) {
+                    toggleMobileInfo(false);
+                }
+            }
+            isDragging = false;
+        }
+
+        function toggleMobileInfo(expand) {
+            const container = document.getElementById('lbMobileContainer');
+            if (!container) return;
+            if (expand === mobileExpanded) return;
+            mobileExpanded = expand;
+            container.classList.toggle('expanded', expand);
+            // 如果展开，确保信息区域滚动到顶部
+            if (expand) {
+                const infoArea = document.getElementById('lbMobileInfoArea');
+                if (infoArea) infoArea.scrollTop = 0;
+            }
+        }
+
+        // 在 openLB 中已经调用了 setupMobileLightbox，并设置了初始 expanded=false
+        // 但还要处理从手机模式回到PC模式的清理 (略)
+
+        // ─── 购买弹窗 (不变) ───
         function openPurchase(artIdx, verIdx) {
             purchaseArtIdx = artIdx;
             purchaseVer = verIdx || 0;
@@ -389,58 +1838,72 @@
             renderPurchaseTiers();
             document.getElementById('qrWx').style.display = 'block';
             document.getElementById('qrAli').style.display = 'none';
-            document.querySelectorAll('.pay-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+            document.querySelectorAll('.pay-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
             document.getElementById('purchaseModal').classList.add('active');
             document.body.style.overflow = 'hidden';
         }
-        function openPurchaseFromLB() { openPurchase(cur, curVer); }
+
+        function openPurchaseFromLB() {
+            openPurchase(cur, curVer);
+        }
+
         function closePurchaseModal() {
             document.getElementById('purchaseModal').classList.remove('active');
             document.body.style.overflow = '';
         }
+
         function updatePurchaseThumb() {
             const w = works[purchaseArtIdx];
             const v = w.versions[purchaseVer];
             const thumbImg = document.getElementById('purchaseThumb');
             setImageWithBlur(thumbImg, v.src);
         }
+
         function renderPurchaseVersions() {
             const w = works[purchaseArtIdx];
             const container = document.getElementById('purchaseVersionSwitch');
             if (w.versions.length <= 1) { container.innerHTML = ''; return; }
-            container.innerHTML = w.versions.map((v,i) => `<button class="v-switch-btn${i===purchaseVer?' active':''}" onclick="switchPurchaseVersion(${i})">${v.label}</button>`).join('');
+            container.innerHTML = w.versions.map((v, i) =>
+                `<button class="v-switch-btn${i===purchaseVer?' active':''}" onclick="switchPurchaseVersion(${i})">${v.label}</button>`
+            ).join('');
         }
+
         function switchPurchaseVersion(idx) {
             if (idx === purchaseVer) return;
             purchaseVer = idx;
             updatePurchaseThumb();
-            document.querySelectorAll('.v-switch-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+            document.querySelectorAll('.v-switch-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
         }
+
         function renderPurchaseTiers() {
             const w = works[purchaseArtIdx];
             const container = document.getElementById('purchaseTiers');
             container.innerHTML = tierNames.map((name, i) => `
-                <div class="p-tier">
+                <div class="p-tier" onclick="selectPurchaseTier(${i})">
                     <div class="p-tier-name">${name}</div>
                     <div class="p-tier-spec">${i===0?'1080P 高清': i===1?'6寸精印含顺丰':'2K 超清无损'}</div>
                     <div class="p-tier-price">¥${w.prices[i]}</div>
                 </div>
             `).join('');
-        }
-        function selectPurchaseTier(i) {
-            purchaseTier = i;
-            document.querySelectorAll('.p-tier').forEach((t,j) => t.classList.toggle('on', j===i));
-        }
-        function switchPurchasePay(idx) {
-            purchasePay = idx;
-            document.getElementById('qrWx').style.display = idx===0 ? 'block' : 'none';
-            document.getElementById('qrAli').style.display = idx===1 ? 'block' : 'none';
-            document.querySelectorAll('.pay-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+            // 默认选中第一个
+            document.querySelectorAll('.p-tier').forEach((el, idx) => el.style.border = idx === 0 ? '1px solid var(--bamboo)' : '');
         }
 
-        // ==========================================
-        // 键盘事件（调整：手机端不响应左右箭头）
-        // ==========================================
+        function selectPurchaseTier(i) {
+            purchaseTier = i;
+            document.querySelectorAll('.p-tier').forEach((el, idx) => {
+                el.style.border = idx === i ? '1px solid var(--bamboo)' : 'none';
+            });
+        }
+
+        function switchPurchasePay(idx) {
+            purchasePay = idx;
+            document.getElementById('qrWx').style.display = idx === 0 ? 'block' : 'none';
+            document.getElementById('qrAli').style.display = idx === 1 ? 'block' : 'none';
+            document.querySelectorAll('.pay-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+        }
+
+        // ─── 键盘事件 (PC 保留，手机禁用左右键) ───
         document.addEventListener('keydown', e => {
             const purchaseActive = document.getElementById('purchaseModal').classList.contains('active');
             const lbActive = document.getElementById('lightbox').classList.contains('active');
@@ -449,33 +1912,37 @@
                 return;
             }
             if (!lbActive) return;
-            // 手机端禁用左右键切换（但保留电脑端）
-            if (window.innerWidth > 1100) {
-                if (e.key === 'ArrowLeft') nav(-1);
-                if (e.key === 'ArrowRight') nav(1);
+            if (isMobile) {
+                // 手机端只响应 Escape
+                if (e.key === 'Escape') closeLB();
+                return;
             }
+            if (e.key === 'ArrowLeft') nav(-1);
+            if (e.key === 'ArrowRight') nav(1);
             if (e.key === 'Escape') closeLB();
         });
 
-        // ==========================================
-        // 触控左右滑动（在手机端禁用）
-        // ==========================================
+        // ─── 触摸左右切换 (PC 保留，手机禁用) ───
         let tx = 0;
         document.getElementById('lightbox').addEventListener('touchstart', e => {
-            // 记录起始X，但手机端我们不做切换，所以忽略
+            if (isMobile) {
+                // 手机端交给内部触摸处理，这里不干扰
+                return;
+            }
             tx = e.touches[0].clientX;
         }, { passive: true });
+
         document.getElementById('lightbox').addEventListener('touchend', e => {
+            if (isMobile) return;
             if (document.getElementById('purchaseModal').classList.contains('active')) return;
-            // 手机端不执行左右切换
-            if (window.innerWidth > 1100) {
-                const dx = e.changedTouches[0].clientX - tx;
-                if (Math.abs(dx) > 55) nav(dx < 0 ? 1 : -1);
-            }
+            const dx = e.changedTouches[0].clientX - tx;
+            if (Math.abs(dx) > 55) nav(dx < 0 ? 1 : -1);
         });
 
-        // 页面启动
+        // ─── 启动 ───
         window.addEventListener('DOMContentLoaded', loadWorksFromGitHub);
+
+        // 额外：在手机模式下，如果灯箱已经打开但窗口宽度变化，简单处理：关闭灯箱重新打开？不处理，用户不会频繁缩放。
     </script>
 </body>
 </html>
