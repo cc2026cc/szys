@@ -7,9 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/blurhash@2.0.5/dist/blurhash.umd.js">
     </script>
     <style>
-        /* ═══════════════════════════════
-               全局重置 & 基础
-           ═══════════════════════════════ */
+        /* ===== 全局 ===== */
         * {
             margin: 0;
             padding: 0;
@@ -64,7 +62,7 @@
             background-size: 72px 72px;
         }
 
-        /* ═══ 顶部导航 ═══ */
+        /* ===== 顶部导航 ===== */
         .header {
             position: fixed;
             top: 0;
@@ -197,7 +195,7 @@
             letter-spacing: 1px;
         }
 
-        /* ═══ 分节标题 ═══ */
+        /* ===== 分节标题 ===== */
         .sec-head {
             position: relative;
             z-index: 1;
@@ -240,7 +238,7 @@
             padding-left: 10px;
         }
 
-        /* ═══ 作品网格 ═══ */
+        /* ===== 作品网格 ===== */
         .gallery {
             position: relative;
             z-index: 1;
@@ -402,9 +400,7 @@
             box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
         }
 
-        /* ═══════════════════════════════
-           灯箱 (PC & 手机共用基础)
-           ═══════════════════════════════ */
+        /* ===== 灯箱 (PC + 手机基础) ===== */
         .lightbox {
             position: fixed;
             inset: 0;
@@ -610,7 +606,7 @@
             box-shadow: 0 0 10px rgba(124, 159, 75, 0.9);
         }
 
-        /* PC 右侧信息面板 */
+        /* PC 右侧面板 */
         .lb-panel {
             width: 310px;
             flex-shrink: 0;
@@ -718,7 +714,6 @@
             transform: translateY(-1px);
         }
 
-        /* PC 关闭按钮 */
         .lb-close {
             position: absolute;
             top: 20px;
@@ -742,19 +737,13 @@
             color: var(--bamboo);
         }
 
-        /* ═══════════════════════════════
-           手机端专用样式 (宽度 < 1100px)
-           方案一：手势驱动型物理缩放
-           ═══════════════════════════════ */
+        /* ===== 手机端专用 (宽度 < 1100px) ===== */
         @media (max-width: 1100px) {
-
-            /* 隐藏 PC 导航和面板 */
             .lb-nav,
             .lb-panel {
                 display: none !important;
             }
 
-            /* 关闭按钮手机端加大 */
             .lb-close {
                 width: 48px;
                 height: 48px;
@@ -774,7 +763,6 @@
                 transform: scale(0.92);
             }
 
-            /* 手机 stage 全屏无内边距 */
             .lb-stage {
                 padding: 0 !important;
                 flex: 1;
@@ -784,17 +772,15 @@
                 position: relative;
             }
 
-            /* ── 手机容器 ── */
             .lb-mobile-container {
                 position: relative;
                 width: 100%;
                 height: 100%;
                 overflow: hidden;
                 touch-action: none;
-                /* 禁止浏览器默认手势 */;
             }
 
-            /* ── 图片区域 (全屏定位) ── */
+            /* 图片区域 (全屏定位) */
             .lb-mobile-img-area {
                 position: absolute;
                 top: 0;
@@ -830,7 +816,7 @@
                 display: block;
             }
 
-            /* ── 信息区域 (从底部滑出) ── */
+            /* 信息区域 (可滚动，独立 touch) */
             .lb-mobile-info-area {
                 position: absolute;
                 bottom: 0;
@@ -848,16 +834,16 @@
                 transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
+                touch-action: pan-y; /* 允许垂直滚动 */
                 padding: 0 20px 20px;
                 box-shadow: 0 -12px 60px rgba(0, 0, 0, 0.6);
+                opacity: 0;
+                transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
             }
-            /* 信息区域内部滚动容器 */
             .lb-mobile-info-area .info-inner {
                 padding-top: 20px;
                 padding-bottom: 90px;
-                /* 为底部按钮留空间 */;
             }
-            /* 拖拽指示条 (视觉提示) */
             .lb-mobile-info-area .info-grabber {
                 width: 36px;
                 height: 4px;
@@ -914,7 +900,6 @@
                 letter-spacing: 0.5px;
                 margin-bottom: 10px;
             }
-            /* 手机端版本切换 */
             .lb-mobile-info-area .mi-version-bar {
                 display: flex;
                 gap: 8px;
@@ -942,7 +927,7 @@
                 transform: scale(0.94);
             }
 
-            /* ── 底部购买按钮 (纤薄胶囊) ── */
+            /* 底部购买按钮 (纤薄胶囊) */
             .lb-mobile-buy-fixed {
                 position: fixed;
                 bottom: 0;
@@ -993,7 +978,6 @@
             .lb-mobile-buy-fixed button:active::after {
                 opacity: 1;
             }
-            /* 按钮内的小装饰点 */
             .lb-mobile-buy-fixed button .btn-dot {
                 display: inline-block;
                 width: 5px;
@@ -1005,21 +989,19 @@
                 opacity: 0.6;
             }
 
-            /* 手机端隐藏 PC 的版本栏和点号 */
             .lb-version-bar,
             .lb-dots {
                 display: none !important;
             }
 
-            /* 手机端展开状态：信息区域完全滑出 */
+            /* 展开状态：信息完全滑出 */
             .lb-mobile-container.expanded .lb-mobile-info-area {
                 transform: translateY(0);
+                opacity: 1;
             }
         }
 
-        /* ═══════════════════════════════
-           购买弹窗 (原样，已适配手机)
-           ═══════════════════════════════ */
+        /* ===== 购买弹窗 ===== */
         .purchase-modal {
             position: fixed;
             inset: 0;
@@ -1305,7 +1287,6 @@
             border-radius: 2px;
         }
 
-        /* 购买弹窗手机响应式 */
         @media (max-width: 850px) {
             .purchase-box {
                 flex-direction: column;
@@ -1429,13 +1410,11 @@
         <div style="font-size: 9px; letter-spacing: 2px; color: var(--t3);">精品限量作品 · 多种收藏规格</div>
     </footer>
 
-    <!-- ═══ 灯箱 ═══ -->
+    <!-- ===== 灯箱 ===== -->
     <div class="lightbox" id="lightbox">
         <div class="lb-bg" onclick="closeLB()"></div>
         <div class="lb-layout">
-            <!-- PC 左箭头 -->
             <div class="lb-nav"><button class="lb-nav-btn" onclick="nav(-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 18 9 12 15 6"></polyline></svg></button></div>
-            <!-- 中间舞台 -->
             <div class="lb-stage" id="lbStage">
                 <div class="lb-card-wrap" id="lbCardWrap">
                     <div class="lb-card" id="lbCard"><img id="lbImg" src="" alt="" /></div>
@@ -1443,9 +1422,7 @@
                 <div class="lb-version-bar" id="lbVersionBar"></div>
                 <div class="lb-dots" id="lbDots"></div>
             </div>
-            <!-- PC 右箭头 -->
             <div class="lb-nav"><button class="lb-nav-btn" onclick="nav(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"></polyline></svg></button></div>
-            <!-- PC 右侧面板 -->
             <div class="lb-panel" id="lbPanel">
                 <div class="lb-info">
                     <div class="lb-tag-row" id="lbSeries">神话系列</div>
@@ -1461,11 +1438,10 @@
                 <button class="btn-collect" onclick="openPurchaseFromLB()">购买收藏</button>
             </div>
         </div>
-        <!-- 关闭按钮 -->
         <button class="lb-close" onclick="closeLB()">✕</button>
     </div>
 
-    <!-- ═══ 购买弹窗 ═══ -->
+    <!-- ===== 购买弹窗 ===== -->
     <div class="purchase-modal" id="purchaseModal">
         <div class="purchase-bg" onclick="closePurchaseModal()"></div>
         <div class="purchase-box">
@@ -1503,7 +1479,7 @@
 
     <script>
         // ==========================================
-        // 核心配置区
+        // 核心配置
         // ==========================================
         const GITHUB_USERNAME = "cc2026cc";
         const REPO_NAME = "szys";
@@ -1519,7 +1495,6 @@
             purchaseTier = 0,
             purchasePay = 0;
 
-        // 作品文案
         const textDataDict = {
             "财神七仔": {
                 desc: '七仔化身财神，金红交织的数字笔触中，憨态与祥瑞融为一体，传递出独特的东方美学与新春祝愿。',
@@ -1550,7 +1525,7 @@
         }
 
         // ==========================================
-        // 从 GitHub 读取作品
+        // 加载作品
         // ==========================================
         async function loadWorksFromGitHub() {
             const grid = document.getElementById('galleryGrid');
@@ -1696,7 +1671,7 @@
         });
 
         // ==========================================
-        // 灯箱控制 (PC & 手机)
+        // 灯箱控制
         // ==========================================
         let isMobile = false;
         let mobileExpanded = false;
@@ -1708,6 +1683,7 @@
         let isDragging = false;
         let dragProgress = 0; // 0 ~ 1
         let isAnimating = false;
+        let touchOnInfoArea = false; // 触摸是否在信息区域内
 
         // 手机 DOM 引用
         let mobileContainer = null;
@@ -1732,16 +1708,14 @@
                 if (mobileContainer) {
                     mobileContainer.classList.remove('expanded');
                 }
-                // 重置图片变换
                 updateMobileTransform(0);
-                // 重置信息区域位置
                 if (mobileInfoArea) {
                     mobileInfoArea.style.transform = 'translateY(100%)';
+                    mobileInfoArea.style.opacity = '0';
                 }
                 document.getElementById('lightbox').classList.add('active');
                 document.body.style.overflow = 'hidden';
             } else {
-                // PC 模式
                 fillLB(idx, 0);
                 buildDots();
                 renderVersionBar();
@@ -1758,12 +1732,12 @@
         function closeLB() {
             document.getElementById('lightbox').classList.remove('active');
             document.body.style.overflow = '';
-            // 清理手机状态
             isDragging = false;
             isAnimating = false;
+            touchOnInfoArea = false;
         }
 
-        // ─── PC 模式 ───
+        // PC 模式
         function fillLB(idx, verIdx) {
             const w = works[idx];
             const v = w.versions[verIdx];
@@ -1837,14 +1811,13 @@
             });
         }
 
-        // ═══════════════════════════════════════════
+        // ==========================================
         // 手机模式：方案一 · 手势驱动型物理缩放
-        // ═══════════════════════════════════════════
+        // ==========================================
 
         function setupMobileLightbox() {
             const stage = document.getElementById('lbStage');
 
-            // 如果已存在手机容器，直接复用
             let container = document.getElementById('lbMobileContainer');
             if (container) {
                 mobileContainer = container;
@@ -1853,12 +1826,10 @@
                 return;
             }
 
-            // 创建容器
             container = document.createElement('div');
             container.id = 'lbMobileContainer';
             container.className = 'lb-mobile-container';
 
-            // 图片区域
             const imgArea = document.createElement('div');
             imgArea.className = 'lb-mobile-img-area';
             const card = document.getElementById('lbCard');
@@ -1866,19 +1837,16 @@
             imgArea.appendChild(card);
             container.appendChild(imgArea);
 
-            // 信息区域
             const infoArea = document.createElement('div');
             infoArea.className = 'lb-mobile-info-area';
             infoArea.id = 'lbMobileInfoArea';
             container.appendChild(infoArea);
 
-            // 清空 stage 并添加容器
             while (stage.firstChild) {
                 stage.removeChild(stage.firstChild);
             }
             stage.appendChild(container);
 
-            // 添加底部购买按钮 (如果尚未添加)
             let buyFixed = document.querySelector('.lb-mobile-buy-fixed');
             if (!buyFixed) {
                 buyFixed = document.createElement('div');
@@ -1894,17 +1862,15 @@
                 lightbox.appendChild(buyFixed);
             }
 
-            // 缓存引用
             mobileContainer = container;
             mobileImgCard = document.querySelector('.lb-mobile-img-area .lb-card');
             mobileInfoArea = document.getElementById('lbMobileInfoArea');
 
-            // 绑定触摸事件
+            // 绑定触摸事件（在容器上，但内部判断触摸点）
             container.addEventListener('touchstart', onTouchStart, { passive: true });
             container.addEventListener('touchmove', onTouchMove, { passive: false });
             container.addEventListener('touchend', onTouchEnd, { passive: true });
 
-            // 填充信息
             fillMobileInfo(cur, curVer);
         }
 
@@ -1942,29 +1908,46 @@
             }
         }
 
-        // ─── 手机触摸处理 ───
+        // ─── 手机触摸处理（修正方向 + 信息区独立滚动） ───
 
-        // 参数配置
-        const DRAG_THRESHOLD = 20; // 开始拖拽的最小位移
-        const EXPAND_THRESHOLD = 0.35; // 展开阈值 (进度 > 35% 则自动展开)
-        const MAX_DRAG_DIST = 0.55; // 最大拖动进度 (图片最小缩放比)
-        const SCALE_RANGE = 0.45; // 缩放范围: 从 1 到 (1 - SCALE_RANGE) = 0.55
-        const MOVE_RANGE = 0.25; // 图片上移范围 (占屏幕高度的百分比)
+        const DRAG_THRESHOLD = 20;
+        const EXPAND_THRESHOLD = 0.30;
+        const MAX_DRAG_DIST = 0.55;
+        const SCALE_RANGE = 0.45;
+        const MOVE_RANGE = 0.25;
 
         function onTouchStart(e) {
             if (e.touches.length !== 1) return;
-            // 如果正在动画中，中断并直接设置最终状态
+
+            // 检测触摸点是否在信息区域内
+            const touch = e.touches[0];
+            const infoEl = document.getElementById('lbMobileInfoArea');
+            if (infoEl) {
+                const rect = infoEl.getBoundingClientRect();
+                // 判断是否在信息区域内（考虑信息区域可能部分滑出）
+                if (touch.clientY >= rect.top && touch.clientY <= rect.bottom &&
+                    touch.clientX >= rect.left && touch.clientX <= rect.right) {
+                    touchOnInfoArea = true;
+                    // 允许信息区域自然滚动，不做任何干预
+                    return;
+                }
+            }
+            touchOnInfoArea = false;
+
+            // 如果在动画中，中断并直接设置最终状态
             if (isAnimating) {
                 isAnimating = false;
                 const target = mobileExpanded ? 1 : 0;
                 dragProgress = target;
                 updateMobileTransform(target);
                 if (mobileInfoArea) {
-                    mobileInfoArea.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+                    mobileInfoArea.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease';
                     mobileInfoArea.style.transform = mobileExpanded ? 'translateY(0)' : 'translateY(100%)';
+                    mobileInfoArea.style.opacity = mobileExpanded ? '1' : '0';
                 }
                 return;
             }
+
             touchStartY = e.touches[0].clientY;
             touchCurrentY = touchStartY;
             touchStartTime = Date.now();
@@ -1980,10 +1963,14 @@
 
         function onTouchMove(e) {
             if (e.touches.length !== 1) return;
+            // 如果触摸在信息区域，不拦截，让信息区域自然滚动
+            if (touchOnInfoArea) {
+                return;
+            }
+
             const dy = e.touches[0].clientY - touchStartY;
             touchCurrentY = e.touches[0].clientY;
 
-            // 判断是否为有效拖拽
             if (!isDragging) {
                 if (Math.abs(dy) > DRAG_THRESHOLD) {
                     isDragging = true;
@@ -1994,47 +1981,61 @@
 
             e.preventDefault();
 
-            // 计算进度: 向上滑动 dy < 0, progress 从 0 到 1
-            const maxDy = -window.innerHeight * 0.6;
-            let progress = Math.max(0, Math.min(1, -dy / maxDy));
-            // 添加阻尼: 超过 MAX_DRAG_DIST 后逐渐变缓
+            // 计算进度: 向下滑动 (dy > 0) 展开，向上滑动 (dy < 0) 收起
+            const maxDy = window.innerHeight * 0.6;
+            let progress = 0;
+            if (dy > 0) {
+                progress = Math.min(1, dy / maxDy);
+            } else {
+                // 如果当前已经展开，允许向上滑动收起
+                if (mobileExpanded) {
+                    progress = Math.max(0, 1 + (dy / maxDy));
+                } else {
+                    progress = 0;
+                }
+            }
+            // 阻尼处理
             if (progress > MAX_DRAG_DIST) {
                 progress = MAX_DRAG_DIST + (progress - MAX_DRAG_DIST) * 0.3;
             }
-            progress = Math.min(1, progress);
+            progress = Math.min(1, Math.max(0, progress));
 
             dragProgress = progress;
             updateMobileTransform(progress);
         }
 
         function onTouchEnd(e) {
+            // 如果触摸在信息区域，不处理
+            if (touchOnInfoArea) {
+                touchOnInfoArea = false;
+                return;
+            }
+
             if (!isDragging) {
-                // 不是拖拽，可能是点击，忽略
+                // 可能是一次点击，忽略
                 return;
             }
 
             const dy = touchCurrentY - touchStartY;
             const dt = Date.now() - touchStartTime;
-            const speed = Math.abs(dy) / dt; // px/ms
+            const speed = Math.abs(dy) / dt;
 
-            // 判断是否展开: 进度超过阈值 或 快速上滑
             let targetExpand = false;
+
+            // 基于当前进度和速度决定展开/收起
             if (dragProgress > EXPAND_THRESHOLD) {
                 targetExpand = true;
-            } else if (dragProgress > 0.2 && speed > 0.8) {
-                // 快速上滑且有一定进度
+            } else if (dragProgress > 0.15 && speed > 0.7 && dy > 0) {
                 targetExpand = true;
-            } else if (dragProgress < 0.1 && speed > 0.8 && dy < 0) {
-                // 快速上滑但进度很小，仍然展开
+            } else if (dy > 30 && speed > 0.5) {
                 targetExpand = true;
-            } else if (dy > 20 && speed > 0.5) {
-                // 快速下滑，收起
+            } else if (dy < -30 && speed > 0.5) {
                 targetExpand = false;
             } else {
                 targetExpand = mobileExpanded;
             }
 
-            // 如果进度已经很接近展开状态，直接展开
+            // 如果进度已经很高或很低，强制决定
             if (dragProgress > 0.7) targetExpand = true;
             if (dragProgress < 0.15) targetExpand = false;
 
@@ -2046,7 +2047,7 @@
                 mobileImgCard.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
             }
             if (mobileInfoArea) {
-                mobileInfoArea.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+                mobileInfoArea.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease';
             }
             if (mobileContainer) {
                 mobileContainer.classList.toggle('expanded', targetExpand);
@@ -2055,7 +2056,6 @@
             isAnimating = true;
             updateMobileTransform(targetProgress);
 
-            // 动画结束后清除标记
             setTimeout(() => {
                 isAnimating = false;
             }, 550);
@@ -2065,8 +2065,6 @@
         }
 
         function updateMobileTransform(progress) {
-            // progress: 0 ~ 1
-            // 图片: 从全屏 (scale=1, translateY=0) 到 顶部缩小 (scale=0.55, translateY=-屏幕高度*0.18)
             const scale = 1 - progress * SCALE_RANGE;
             const moveY = -progress * window.innerHeight * MOVE_RANGE;
 
@@ -2074,22 +2072,15 @@
                 mobileImgCard.style.transform = `translateY(${moveY}px) scale(${scale})`;
             }
 
-            // 信息区域: 从 translateY(100%) 到 translateY(0)
             if (mobileInfoArea) {
-                const infoProgress = Math.min(1, progress * 1.2); // 信息区稍微提前滑出
+                const infoProgress = Math.min(1, progress * 1.2);
                 const translateY = (1 - infoProgress) * 100;
                 mobileInfoArea.style.transform = `translateY(${translateY}%)`;
-                // 控制信息区域的可见性 (防止闪烁)
-                if (progress > 0.02) {
-                    mobileInfoArea.style.opacity = Math.min(1, (progress - 0.02) * 15);
-                } else {
-                    mobileInfoArea.style.opacity = 0;
-                }
+                mobileInfoArea.style.opacity = Math.min(1, (progress - 0.01) * 20);
             }
 
-            // 更新容器状态 (用于CSS辅助)
             if (mobileContainer) {
-                if (progress > 0.1) {
+                if (progress > 0.05) {
                     mobileContainer.classList.add('expanded');
                 } else {
                     mobileContainer.classList.remove('expanded');
@@ -2097,7 +2088,9 @@
             }
         }
 
-        // ─── 购买弹窗 ───
+        // ==========================================
+        // 购买弹窗
+        // ==========================================
         function openPurchase(artIdx, verIdx) {
             purchaseArtIdx = artIdx;
             purchaseVer = verIdx || 0;
@@ -2211,13 +2204,9 @@
         // ─── 启动 ───
         window.addEventListener('DOMContentLoaded', loadWorksFromGitHub);
 
-        // 清理手机容器（当窗口从手机切换到PC时）
+        // 窗口变化时更新手机状态
         window.addEventListener('resize', () => {
             if (window.innerWidth >= 1100) {
-                // 如果灯箱开着且是手机模式，关闭
-                if (document.getElementById('lightbox').classList.contains('active') && isMobile) {
-                    // 不自动关闭，而是让用户手动关闭，避免困惑
-                }
                 isMobile = false;
             } else {
                 isMobile = true;
