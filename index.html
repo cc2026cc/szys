@@ -1112,23 +1112,34 @@
         }
 
         // ==========================================
-        // 界面渲染与交互控制 (加入智能“发牌”排版算法)
+        // 界面渲染与交互控制 (智能排版 + 国内镜像代理自动加速)
         // ==========================================
         function renderGallery() {
             const grid = document.getElementById('galleryGrid');
             
             // 智能计算列数：电脑端 3 列，平板/手机端双列
             const colCount = window.innerWidth <= 900 ? 2 : 3;
-            
-            // 准备好列容器（像准备好几个空盒子）
             let cols = Array.from({ length: colCount }, () => []);
             
-            // 像“发牌”一样，把作品严格按照从左到右的顺序分发到各个列中
+            // 定义稳定的国内加速代理前缀
+            const proxyPrefix = "https://mirror.ghproxy.com/";
+            
+            // 按从左到右顺序分发作品
             works.forEach((w, i) => {
-                const thumb = w.versions[0].src;
+                let rawUrl = w.versions[0].src;
+                
+                // 【核心加速逻辑】：自动检测并拼接代理
+                // 如果链接里包含 GitHub 原生域名，且尚未添加代理，则自动加上代理前缀
+                if (rawUrl.includes("raw.githubusercontent.com") && !rawUrl.startsWith(proxyPrefix)) {
+                    rawUrl = proxyPrefix + rawUrl;
+                } else if (rawUrl.startsWith("http") && !rawUrl.includes("ghproxy")) {
+                    // 兼容其他可能被墙的外链图片
+                    rawUrl = proxyPrefix + rawUrl;
+                }
+
                 const cardHTML = `
                 <div class="art-card" style="animation-delay: ${i*0.1}s;" onclick="openLB(${i})">
-                    <div class="img-wrap"><img src="${thumb}" alt="${w.name}" loading="lazy" /></div>
+                    <div class="img-wrap"><img src="${rawUrl}" alt="${w.name}" loading="lazy" /></div>
                     <div class="art-overlay"></div>
                     <div class="art-num">${String(i+1).padStart(2,'0')}</div>
                     <div class="art-info">
@@ -1139,15 +1150,13 @@
                     <button class="art-buy" onclick="event.stopPropagation(); openPurchase(${i},0)">购买收藏</button>
                 </div>`;
                 
-                // 将当前作品放入对应的列中 (例如3列时：0进左, 1进中, 2进右, 3又进左...)
                 cols[i % colCount].push(cardHTML);
             });
             
-            // 将分发好的列输出到网页上
             grid.innerHTML = cols.map(colHTML => `<div class="g-col">${colHTML.join('')}</div>`).join('');
         }
 
-        // 监听屏幕大小变化（比如手机横屏），自动重新计算排版
+        // 监听屏幕大小变化，自动重新计算排版
         window.addEventListener('resize', () => {
             clearTimeout(window.resizeTimer);
             window.resizeTimer = setTimeout(() => {
