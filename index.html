@@ -978,19 +978,19 @@
 
     <script>
         // ==========================================
-        // 核心配置区（使用加速节点，保障国内无 VPN 正常访问）
+        // 核心配置区
         // ==========================================
         const GITHUB_USERNAME = "cc2026cc";   
         const REPO_NAME = "szys";               
-        // 使用针对 api.github.com 的镜像节点进行目录自动检索
-        const API_BASE = `https://api.jsdmirror.com/github/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/熊猫创意`;
+        const API_BASE = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/熊猫创意`;
 
-        // 动态数据源及变量
+        // 全局动态数据源与页面状态
         let works = []; 
         const tierNames = ['壁纸级数字版', '实体纸质版', '收藏级数字版'];
         let cur = 0, curVer = 0, busy = false;
         let purchaseArtIdx = 0, purchaseVer = 0, purchaseTier = 0, purchasePay = 0;
 
+        // 作品文案映射字典
         const textDataDict = {
             "财神七仔": {
                 desc: '七仔化身财神，金红交织的数字笔触中，憨态与祥瑞融为一体，传递出独特的东方美学与新春祝愿。',
@@ -1016,45 +1016,71 @@
             prices: [49, 119, 199]
         };
 
-        // 图片显示设置（直接使用相对路径，秒级加载）
+        // 清理后的原生图片直接设置（彻底移除 BlurHash 算法）
         function setImageWithBlur(imgElement, highResSrc) {
             if (!imgElement) return;
             imgElement.src = highResSrc;
         }
 
         // ==========================================
-        // 云端自动识别文件夹与动态加载
+        // 动态读取仓库目录与渲染
         // ==========================================
         async function loadWorksFromGitHub() {
             const grid = document.getElementById('galleryGrid');
-            grid.innerHTML = '<p style="color:#888; text-align:center; padding:40px; grid-column: span 12;">正在从云端读取最新作品...</p>';
+            grid.innerHTML = '<p style="color:#888; text-align:center; padding:40px; grid-column: span 12;">正在加载最新作品...</p>';
             
-            try {
-                const timestamp = new Date().getTime();
-                const repoRes = await fetch(`${API_BASE}?t=${timestamp}`);
+            let folders = [];
+            const timestamp = new Date().getTime();
 
-                if (!repoRes.ok) throw new Error('读取目录失败');
-                let folders = await repoRes.json();
-                
+            // 尝试通过 API 动态获取最新文件夹（上传新作品时自动识别）
+            try {
+                const repoRes = await fetch(`${API_BASE}?t=${timestamp}`);
+                if (repoRes.ok) {
+                    folders = await repoRes.json();
+                }
+            } catch (e) {
+                console.warn('动态读取目录超时，自动启用本地结构加载图片');
+            }
+
+            // 如果 API 被网络阻断，自动使用本地已知结构兜底，保证图片绝对能加载出
+            if (!Array.isArray(folders) || folders.length === 0) {
+                folders = [
+                    { name: '01财神七仔', type: 'dir' },
+                    { name: '02弥勒七仔', type: 'dir' },
+                    { name: '03如来七仔', type: 'dir' },
+                    { name: '04悟空七仔', type: 'dir' },
+                    { name: '05小女孩骑着七仔', type: 'dir' }
+                ];
+            }
+
+            try {
                 let sortedFolders = folders
-                    .filter(item => item.type === 'dir')
+                    .filter(item => item.type === 'dir' || item.name)
                     .sort((a, b) => a.name.localeCompare(b.name, 'zh-CN', {numeric: true}));
                 
                 const promises = sortedFolders.map(async (folder) => {
                     const folderName = folder.name;
-                    const folderUrl = `${API_BASE}/${encodeURIComponent(folderName)}?t=${timestamp}`;
-                    const fileRes = await fetch(folderUrl);
-                    if (!fileRes.ok) return null;
-                    const files = await fileRes.json();
-                    
-                    let images = [];
-                    for (let file of files) {
-                        const ext = file.name.split('.').pop().toLowerCase();
-                        if (['jpg','jpeg','png','webp'].includes(ext)) {
-                            images.push(file.name);
+                    let files = [];
+
+                    try {
+                        const folderUrl = `${API_BASE}/${encodeURIComponent(folderName)}?t=${timestamp}`;
+                        const fileRes = await fetch(folderUrl);
+                        if (fileRes.ok) {
+                            const fileData = await fileRes.json();
+                            files = fileData.map(f => f.name);
                         }
+                    } catch (e) {}
+
+                    // 网络差获取不到子文件列表时的默认保底文件名映射
+                    if (files.length === 0) {
+                        if (folderName.includes('01')) files = ['20260804财神七仔qsq01.webp', '20260804财神版七仔02.webp'];
+                        else if (folderName.includes('02')) files = ['弥勒七仔mlq01.webp'];
+                        else if (folderName.includes('03')) files = ['如来七仔rlq01.webp'];
+                        else if (folderName.includes('04')) files = ['悟空七仔wqkz01.webp'];
+                        else if (folderName.includes('05')) files = ['小女孩骑着七仔qzqz01.webp'];
                     }
-                    
+
+                    let images = files.filter(f => ['jpg','jpeg','png','webp'].includes(f.split('.').pop().toLowerCase()));
                     if (images.length === 0) return null;
                     images.sort();
                     
@@ -1075,7 +1101,7 @@
                     const versions = images.map(imgName => {
                         const lower = imgName.toLowerCase();
                         const label = (lower.includes('横') || lower.includes('02')) ? '横版' : '竖版';
-                        // 使用网页本地的相对路径展示图片，保证速度最高
+                        // 使用 GitHub Pages 本地的相对路径直接读取静态图片
                         return {
                             src: `./熊猫创意/${folderName}/${imgName}`,
                             label: label
@@ -1095,15 +1121,9 @@
                 });
                 
                 works = (await Promise.all(promises)).filter(Boolean);
-                
-                if (works.length === 0) {
-                    grid.innerHTML = '<p style="color:#888; text-align:center; grid-column: span 12;">暂无作品，请在 GitHub 上传图片。</p>';
-                } else {
-                    renderGallery();
-                }
+                renderGallery();
             } catch (err) {
-                grid.innerHTML = '<p style="color:#c44; text-align:center; grid-column: span 12;">网络连接较慢，请稍后刷新重试。</p>';
-                console.error(err);
+                console.error('渲染画廊出现异常:', err);
             }
         }
 
