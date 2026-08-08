@@ -253,7 +253,7 @@
             display: flex;
             flex-direction: column;
             gap: 18px;
-            width: 0;
+            width: 0; /* 强制等分列宽，防止某些宽图撑破布局 */
         }
         .art-card {
             position: relative;
@@ -273,32 +273,19 @@
             border-color: rgba(124, 159, 75, 0.35);
             box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65), 0 0 40px rgba(124, 159, 75, 0.06);
         }
-        
-        /* 增加平滑过度与容器预占位支持 */
         .img-wrap {
             position: relative;
             overflow: hidden;
             width: 100%;
-            background: #11111d;
-            min-height: 200px; /* 默认保底高度，防止没图时被塌陷成条状 */
         }
         .img-wrap img {
             display: block;
             width: 100%;
             height: auto;
-            transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease, opacity 0.6s ease;
+            transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s;
             filter: brightness(0.9) saturate(0.95);
         }
-        .img-wrap img.blur-loading {
-            filter: blur(20px) scale(1.08); /* 加载前高斯模糊并适度放大隐藏边缘 */
-            opacity: 0.8;
-        }
-        .img-wrap img.blur-loaded {
-            filter: brightness(0.9) saturate(0.95);
-            opacity: 1;
-        }
-
-        .art-card:hover .img-wrap img.blur-loaded {
+        .art-card:hover .img-wrap img {
             transform: scale(1.05);
             filter: brightness(1.02) saturate(1.1);
         }
@@ -406,7 +393,9 @@
             box-shadow: 0 4px 14px rgba(0,0,0,0.35);
         }
 
-        /* ═══ 灯箱 ═══ */
+        /* ═══════════════════════════════
+           灯箱
+        ═══════════════════════════════ */
         .lightbox {
             position: fixed;
             inset: 0;
@@ -461,17 +450,7 @@
             object-fit: contain; border-radius: 4px;
             border: 1px solid rgba(124, 159, 75, 0.35);
             box-shadow: 0 48px 130px rgba(0, 0, 0, .85), 0 0 80px rgba(124, 159, 75, 0.06);
-            transition: filter 0.5s ease, opacity 0.5s ease;
         }
-        .lb-card img.blur-loading {
-            filter: blur(25px);
-            opacity: 0.7;
-        }
-        .lb-card img.blur-loaded {
-            filter: blur(0);
-            opacity: 1;
-        }
-
         @keyframes zoomIn {
             from { transform: scale(0.88); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
@@ -510,6 +489,7 @@
         .lb-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.3); cursor: pointer; transition: all .3s; }
         .lb-dot.on { background: var(--bamboo); width: 10px; height: 10px; border-color: var(--bamboo); box-shadow: 0 0 10px rgba(124, 159, 75, 0.9); }
 
+        /* 右侧信息面板 */
         .lb-panel {
             width: 310px; flex-shrink: 0; padding: 0 36px 0 8px;
             display: flex; flex-direction: column; justify-content: center;
@@ -555,7 +535,7 @@
         }
         .lb-close:hover { border-color: var(--bamboo); color: var(--bamboo); }
 
-        /* ═══ 购买弹窗 ═══ */
+        /* ═══ 购买弹窗 (横版+毛玻璃) ═══ */
         .purchase-modal {
             position: fixed;
             inset: 0;
@@ -648,11 +628,7 @@
             width: 100%;
             height: auto;
             display: block;
-            transition: filter 0.5s ease, opacity 0.5s ease;
         }
-        .purchase-thumb img.blur-loading { filter: blur(15px); opacity: 0.8; }
-        .purchase-thumb img.blur-loaded { filter: blur(0); opacity: 1; }
-
         .purchase-name {
             font-size: 18px;
             font-weight: 600;
@@ -876,6 +852,7 @@
             .header { padding: 0 20px; }
             .gallery { padding: 0 16px 80px; }
             .sec-head { padding: 90px 20px 0; margin-bottom: 36px; }
+            /* 调整平板和手机端的间距 */
             .g-grid { gap: 14px; }
             .g-col { gap: 14px; }
             .lb-nav { width: 48px; }
@@ -1009,6 +986,7 @@
         const RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/main/熊猫创意`;
         const JSON_HASH_URL = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/main/blurhash.json`;
 
+        // 全局 BlurHash 字典存储
         let blurHashData = {};
 
         // ==========================================
@@ -1065,24 +1043,22 @@
             }
         }
 
-        // 渐进式渲染核心：先贴入生成好的 Base64 模糊底图，高清加载完成后平滑淡入
+        // 高清图片渐进加载封装（先显示 BlurHash 占位，高清加载完后平滑过渡）
         function setImageWithBlur(imgElement, highResSrc, hash) {
             if (!imgElement) return;
-            
             const blurUrl = getBlurDataURL(hash);
             
             if (blurUrl) {
                 imgElement.src = blurUrl;
-                imgElement.classList.remove('blur-loaded');
-                imgElement.classList.add('blur-loading');
+                imgElement.style.filter = 'blur(10px)';
+                imgElement.style.transition = 'filter 0.5s ease, transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)';
             }
 
             const tempImg = new Image();
             tempImg.src = highResSrc;
             tempImg.onload = () => {
                 imgElement.src = highResSrc;
-                imgElement.classList.remove('blur-loading');
-                imgElement.classList.add('blur-loaded');
+                imgElement.style.filter = 'none';
             };
         }
 
@@ -1147,17 +1123,12 @@
                     const versions = images.map(imgName => {
                         const lower = imgName.toLowerCase();
                         const label = (lower.includes('横') || lower.includes('02')) ? '横版' : '竖版';
-                        
-                        // 包含智能前缀模糊匹配（兼容 熊猫创意/01财神七仔 和 01财神七仔 两种 JSON 存取 Key）
-                        const relativePath1 = `熊猫创意/${folderName}/${imgName}`;
-                        const relativePath2 = `${folderName}/${imgName}`;
-                        
-                        const hashObj = blurHashData[relativePath1] || blurHashData[relativePath2] || {};
-                        
+                        const relativePath = `${folderName}/${imgName}`;
+                        const hashObj = blurHashData[relativePath] || {};
                         return {
                             src: `${RAW_BASE}/${encodeURIComponent(folderName)}/${encodeURIComponent(imgName)}`,
                             label: label,
-                            hash: hashObj.blurhash || (typeof hashObj === 'string' ? hashObj : '')
+                            hash: hashObj.blurhash || ''
                         };
                     });
                     
@@ -1198,7 +1169,7 @@
                 const cardHTML = `
                 <div class="art-card" style="animation-delay: ${i*0.1}s;" onclick="openLB(${i})">
                     <div class="img-wrap">
-                        <img id="card-img-${i}" class="blur-loading" alt="${w.name}" loading="lazy" />
+                        <img id="card-img-${i}" alt="${w.name}" loading="lazy" />
                     </div>
                     <div class="art-overlay"></div>
                     <div class="art-num">${String(i+1).padStart(2,'0')}</div>
@@ -1215,7 +1186,7 @@
             
             grid.innerHTML = cols.map(colHTML => `<div class="g-col">${colHTML.join('')}</div>`).join('');
 
-            // 渲染完毕后，逐个响应式加载模糊图与高清图
+            // 渲染完毕后，逐个加载模糊代码与高清图
             works.forEach((w, i) => {
                 const imgEl = document.getElementById(`card-img-${i}`);
                 const firstVer = w.versions[0];
@@ -1250,6 +1221,7 @@
             const w = works[idx];
             const v = w.versions[verIdx];
             
+            // 使用 BlurHash 渐进加载灯箱图
             const lbImg = document.getElementById('lbImg');
             setImageWithBlur(lbImg, v.src, v.hash);
 
