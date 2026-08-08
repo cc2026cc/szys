@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>熊猫创意 · 数字艺术作品展</title>
-    <!-- 引入 BlurHash JS 解码库 (保留但不使用) -->
-    <script src="https://cdn.jsdelivr.net/npm/blurhash@2.0.5/dist/blurhash.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/blurhash@2.0.5/dist/blurhash.umd.js">
+    </script>
     <style>
+        /* ═══════════════════════════════
+               全局重置 & 基础
+           ═══════════════════════════════ */
         * {
             margin: 0;
             padding: 0;
@@ -266,8 +269,14 @@
             animation: fadeUp 0.7s ease both;
         }
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(22px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(22px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         .art-card:hover {
             border-color: rgba(124, 159, 75, 0.35);
@@ -357,7 +366,7 @@
             color: var(--t1);
             margin-bottom: 3px;
             line-height: 1.3;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
         }
         .art-meta-text {
             font-size: 10px;
@@ -383,19 +392,19 @@
             font-family: inherit;
             border-radius: 4px;
             transition: all 0.25s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             line-height: 1.2;
         }
         .art-buy:hover {
             background: rgba(220, 180, 100, 0.35);
             border-color: rgba(220, 180, 100, 0.8);
             color: #ffffff;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
         }
 
         /* ═══════════════════════════════
            灯箱 (PC & 手机共用基础)
-        ═══════════════════════════════ */
+           ═══════════════════════════════ */
         .lightbox {
             position: fixed;
             inset: 0;
@@ -404,7 +413,10 @@
             pointer-events: none;
             transition: opacity 0.45s ease;
         }
-        .lightbox.active { opacity: 1; pointer-events: auto; }
+        .lightbox.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
         .lb-bg {
             position: absolute;
             inset: 0;
@@ -419,7 +431,6 @@
             display: flex;
             align-items: stretch;
         }
-        /* PC 导航按钮 */
         .lb-nav {
             width: 88px;
             flex-shrink: 0;
@@ -428,18 +439,25 @@
             justify-content: center;
         }
         .lb-nav-btn {
-            width: 44px; height: 44px;
-            border: 1px solid rgba(255,255,255,0.12);
+            width: 44px;
+            height: 44px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
             background: rgba(15, 15, 25, 0.45);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             color: #c9a84c;
             cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: all 0.25s;
             border-radius: 50%;
         }
-        .lb-nav-btn svg { width: 20px; height: 20px; stroke: currentColor; }
+        .lb-nav-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+        }
         .lb-nav-btn:hover {
             border-color: var(--bamboo);
             background: rgba(124, 159, 75, 0.2);
@@ -456,7 +474,6 @@
             overflow: hidden;
             position: relative;
         }
-        /* PC 图片容器 */
         .lb-card-wrap {
             display: flex;
             align-items: center;
@@ -480,34 +497,72 @@
             border: 1px solid rgba(124, 159, 75, 0.35);
             box-shadow: 0 48px 130px rgba(0, 0, 0, .85), 0 0 80px rgba(124, 159, 75, 0.06);
         }
-        /* 动画 (PC) */
         @keyframes zoomIn {
-            from { transform: scale(0.88); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+            from {
+                transform: scale(0.88);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
-        .lb-card.enter { animation: zoomIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .lb-card.enter {
+            animation: zoomIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
         @keyframes outLeft {
-            0% { transform: translateX(0) scale(1); opacity: 1; }
-            100% { transform: translateX(-45%) scale(0.93); opacity: 0; }
+            0% {
+                transform: translateX(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(-45%) scale(0.93);
+                opacity: 0;
+            }
         }
         @keyframes outRight {
-            0% { transform: translateX(0) scale(1); opacity: 1; }
-            100% { transform: translateX(45%) scale(0.93); opacity: 0; }
+            0% {
+                transform: translateX(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(45%) scale(0.93);
+                opacity: 0;
+            }
         }
         @keyframes inFromRight {
-            0% { transform: translateX(45%) scale(0.93); opacity: 0; }
-            100% { transform: translateX(0) scale(1); opacity: 1; }
+            0% {
+                transform: translateX(45%) scale(0.93);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(0) scale(1);
+                opacity: 1;
+            }
         }
         @keyframes inFromLeft {
-            0% { transform: translateX(-45%) scale(0.93); opacity: 0; }
-            100% { transform: translateX(0) scale(1); opacity: 1; }
+            0% {
+                transform: translateX(-45%) scale(0.93);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(0) scale(1);
+                opacity: 1;
+            }
         }
-        .lb-card.out-l { animation: outLeft 0.3s cubic-bezier(0.4, 0, 1, 1) forwards; }
-        .lb-card.out-r { animation: outRight 0.3s cubic-bezier(0.4, 0, 1, 1) forwards; }
-        .lb-card.in-r { animation: inFromRight 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .lb-card.in-l { animation: inFromLeft 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .lb-card.out-l {
+            animation: outLeft 0.3s cubic-bezier(0.4, 0, 1, 1) forwards;
+        }
+        .lb-card.out-r {
+            animation: outRight 0.3s cubic-bezier(0.4, 0, 1, 1) forwards;
+        }
+        .lb-card.in-r {
+            animation: inFromRight 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .lb-card.in-l {
+            animation: inFromLeft 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
 
-        /* PC 版本切换 & 点号 */
         .lb-version-bar {
             display: flex;
             gap: 10px;
@@ -539,16 +594,18 @@
             margin-top: 20px;
         }
         .lb-dot {
-            width: 8px; height: 8px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.25);
-            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             cursor: pointer;
             transition: all .3s;
         }
         .lb-dot.on {
             background: var(--bamboo);
-            width: 10px; height: 10px;
+            width: 10px;
+            height: 10px;
             border-color: var(--bamboo);
             box-shadow: 0 0 10px rgba(124, 159, 75, 0.9);
         }
@@ -562,7 +619,9 @@
             flex-direction: column;
             justify-content: center;
         }
-        .lb-info { margin-bottom: 24px; }
+        .lb-info {
+            margin-bottom: 24px;
+        }
         .lb-tag-row {
             display: flex;
             align-items: center;
@@ -574,7 +633,12 @@
             position: relative;
             z-index: 2;
         }
-        .lb-tag-row::before { content: ''; width: 18px; height: 1px; background: var(--bamboo); }
+        .lb-tag-row::before {
+            content: '';
+            width: 18px;
+            height: 1px;
+            background: var(--bamboo);
+        }
         .lb-ghost-num {
             font-size: 88px;
             font-weight: 200;
@@ -654,7 +718,7 @@
             transform: translateY(-1px);
         }
 
-        /* PC 关闭按钮 (桌面) */
+        /* PC 关闭按钮 */
         .lb-close {
             position: absolute;
             top: 20px;
@@ -678,33 +742,39 @@
             color: var(--bamboo);
         }
 
-        /* =============================================
-               手机端专用样式 (屏幕宽度 < 1100px)
-           ============================================= */
+        /* ═══════════════════════════════
+           手机端专用样式 (宽度 < 1100px)
+           方案一：手势驱动型物理缩放
+           ═══════════════════════════════ */
         @media (max-width: 1100px) {
+
             /* 隐藏 PC 导航和面板 */
             .lb-nav,
             .lb-panel {
                 display: none !important;
             }
-            /* 关闭按钮在手机端更大，放右上角 */
+
+            /* 关闭按钮手机端加大 */
             .lb-close {
                 width: 48px;
                 height: 48px;
                 font-size: 20px;
                 top: 12px;
                 right: 12px;
-                background: rgba(0, 0, 0, 0.5);
-                border-color: rgba(255, 255, 255, 0.2);
+                background: rgba(0, 0, 0, 0.55);
+                border-color: rgba(255, 255, 255, 0.15);
                 color: #fff;
                 border-radius: 50%;
                 z-index: 30;
+                backdrop-filter: blur(8px);
             }
-            .lb-close:hover {
+            .lb-close:active {
                 border-color: var(--bamboo);
                 color: var(--bamboo);
+                transform: scale(0.92);
             }
-            /* 手机端 stage 占满全屏，padding 取消 */
+
+            /* 手机 stage 全屏无内边距 */
             .lb-stage {
                 padding: 0 !important;
                 flex: 1;
@@ -713,27 +783,30 @@
                 overflow: hidden;
                 position: relative;
             }
-            /* 手机容器 – flex 列，撑满 stage */
+
+            /* ── 手机容器 ── */
             .lb-mobile-container {
-                display: flex;
-                flex-direction: column;
+                position: relative;
                 width: 100%;
                 height: 100%;
-                position: relative;
                 overflow: hidden;
-                touch-action: none; /* 禁止浏览器默认手势 */
+                touch-action: none;
+                /* 禁止浏览器默认手势 */;
             }
-            /* 图片区域：flex 1 默认撑满 */
+
+            /* ── 图片区域 (全屏定位) ── */
             .lb-mobile-img-area {
-                flex: 1 0 auto;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                overflow: hidden;
-                transition: flex 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-                min-height: 0;
-                position: relative;
-                width: 100%;
+                pointer-events: none;
+                z-index: 5;
+                will-change: transform;
             }
             .lb-mobile-img-area .lb-card {
                 width: 100%;
@@ -741,6 +814,9 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                transform: translateY(0) scale(1);
+                will-change: transform;
+                transition: none;
             }
             .lb-mobile-img-area .lb-card img {
                 max-width: 100vw;
@@ -751,39 +827,51 @@
                 border: none;
                 box-shadow: none;
                 border-radius: 0;
+                display: block;
             }
-            /* 信息区域：默认高度 0，不可见，不可滚动 */
+
+            /* ── 信息区域 (从底部滑出) ── */
             .lb-mobile-info-area {
-                flex: 0 0 0;
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 10;
+                max-height: 78%;
+                background: rgba(8, 8, 15, 0.94);
+                backdrop-filter: blur(20px) saturate(1.4);
+                -webkit-backdrop-filter: blur(20px) saturate(1.4);
+                border-top: 1px solid rgba(124, 159, 75, 0.2);
+                border-radius: 16px 16px 0 0;
+                transform: translateY(100%);
+                will-change: transform;
+                transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
-                transition: flex 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-                background: rgba(8, 8, 15, 0.92);
-                backdrop-filter: blur(12px);
-                -webkit-backdrop-filter: blur(12px);
-                border-top: 1px solid rgba(124, 159, 75, 0.2);
-                padding: 0 18px 20px;
-                color: var(--t1);
-                scroll-behavior: smooth;
-                min-height: 0;
+                padding: 0 20px 20px;
+                box-shadow: 0 -12px 60px rgba(0, 0, 0, 0.6);
             }
-            /* 信息区域展开时 flex:1 占用剩余空间 */
-            .lb-mobile-container.expanded .lb-mobile-img-area {
-                flex: 0 0 30% !important;
-            }
-            .lb-mobile-container.expanded .lb-mobile-info-area {
-                flex: 1 1 70% !important;
-            }
-            /* 信息内容样式 */
+            /* 信息区域内部滚动容器 */
             .lb-mobile-info-area .info-inner {
-                padding-top: 16px;
-                padding-bottom: 10px;
+                padding-top: 20px;
+                padding-bottom: 90px;
+                /* 为底部按钮留空间 */;
+            }
+            /* 拖拽指示条 (视觉提示) */
+            .lb-mobile-info-area .info-grabber {
+                width: 36px;
+                height: 4px;
+                border-radius: 3px;
+                background: rgba(255, 255, 255, 0.2);
+                margin: 0 auto 16px;
+                flex-shrink: 0;
             }
             .lb-mobile-info-area .mi-title {
                 font-size: 22px;
                 font-weight: 600;
                 letter-spacing: 3px;
-                margin-bottom: 4px;
+                color: var(--t1);
+                margin-bottom: 2px;
             }
             .lb-mobile-info-area .mi-num {
                 font-size: 12px;
@@ -802,7 +890,7 @@
                 display: flex;
                 gap: 8px;
                 flex-wrap: wrap;
-                margin-bottom: 16px;
+                margin-bottom: 14px;
             }
             .lb-mobile-info-area .mi-chip {
                 padding: 4px 12px;
@@ -816,7 +904,7 @@
                 font-size: 10px;
                 letter-spacing: 4px;
                 color: var(--bamboo);
-                margin: 12px 0 6px;
+                margin: 10px 0 6px;
                 text-transform: uppercase;
             }
             .lb-mobile-info-area .mi-story-text {
@@ -824,13 +912,14 @@
                 color: var(--t2);
                 line-height: 1.9;
                 letter-spacing: 0.5px;
-                margin-bottom: 14px;
+                margin-bottom: 10px;
             }
-            /* 手机端版本切换按钮（在信息区内） */
+            /* 手机端版本切换 */
             .lb-mobile-info-area .mi-version-bar {
                 display: flex;
                 gap: 8px;
-                margin: 8px 0 4px;
+                margin: 6px 0 10px;
+                flex-wrap: wrap;
             }
             .lb-mobile-info-area .mi-ver-btn {
                 padding: 5px 14px;
@@ -841,7 +930,7 @@
                 letter-spacing: 1px;
                 cursor: pointer;
                 transition: all 0.3s;
-                border-radius: 2px;
+                border-radius: 3px;
                 font-family: inherit;
             }
             .lb-mobile-info-area .mi-ver-btn.active {
@@ -849,46 +938,88 @@
                 color: var(--bamboo);
                 background: rgba(124, 159, 75, 0.08);
             }
-            /* 手机端底部固定购买按钮 */
+            .lb-mobile-info-area .mi-ver-btn:active {
+                transform: scale(0.94);
+            }
+
+            /* ── 底部购买按钮 (纤薄胶囊) ── */
             .lb-mobile-buy-fixed {
                 position: fixed;
                 bottom: 0;
                 left: 0;
                 right: 0;
                 z-index: 25;
-                padding: 12px 20px 20px;
-                background: linear-gradient(to top, rgba(4, 4, 10, 0.9) 60%, transparent);
+                padding: 12px 20px 28px;
+                background: linear-gradient(to top, rgba(4, 4, 10, 0.92) 50%, transparent);
                 pointer-events: none;
+                display: flex;
+                justify-content: center;
             }
             .lb-mobile-buy-fixed button {
-                width: 100%;
-                padding: 16px;
-                background: linear-gradient(135deg, var(--bamboo) 0%, #9bbf6a 100%);
-                border: none;
-                border-radius: 6px;
-                color: #0a0f05;
-                font-size: 16px;
-                font-weight: 700;
-                letter-spacing: 6px;
+                width: 76%;
+                max-width: 400px;
+                padding: 13px 0;
+                background: rgba(20, 20, 30, 0.6);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                border: 1px solid rgba(201, 168, 76, 0.35);
+                border-radius: 50px;
+                color: var(--gold-l);
+                font-size: 17px;
+                font-weight: 600;
+                letter-spacing: 4px;
                 cursor: pointer;
                 font-family: inherit;
                 pointer-events: auto;
-                box-shadow: 0 4px 20px rgba(124, 159, 75, 0.4);
-                transition: all 0.3s;
+                transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), 0 0 40px rgba(124, 159, 75, 0.04);
+                position: relative;
+                overflow: hidden;
+            }
+            .lb-mobile-buy-fixed button::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                border-radius: 50px;
+                background: linear-gradient(135deg, rgba(124, 159, 75, 0.08), rgba(201, 168, 76, 0.05));
+                opacity: 0;
+                transition: opacity 0.4s;
             }
             .lb-mobile-buy-fixed button:active {
-                transform: scale(0.97);
+                transform: scale(0.96);
+                border-color: var(--bamboo);
+                box-shadow: 0 4px 32px rgba(124, 159, 75, 0.25);
             }
+            .lb-mobile-buy-fixed button:active::after {
+                opacity: 1;
+            }
+            /* 按钮内的小装饰点 */
+            .lb-mobile-buy-fixed button .btn-dot {
+                display: inline-block;
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background: var(--gold-l);
+                margin: 0 6px 0 0;
+                vertical-align: middle;
+                opacity: 0.6;
+            }
+
             /* 手机端隐藏 PC 的版本栏和点号 */
             .lb-version-bar,
             .lb-dots {
                 display: none !important;
             }
+
+            /* 手机端展开状态：信息区域完全滑出 */
+            .lb-mobile-container.expanded .lb-mobile-info-area {
+                transform: translateY(0);
+            }
         }
 
-        /* =============================================
-               购买弹窗 (原样，已适配手机)
-           ============================================= */
+        /* ═══════════════════════════════
+           购买弹窗 (原样，已适配手机)
+           ═══════════════════════════════ */
         .purchase-modal {
             position: fixed;
             inset: 0;
@@ -925,7 +1056,7 @@
             display: flex;
             gap: 28px;
             align-items: stretch;
-            box-shadow: 0 40px 120px rgba(0,0,0,0.8);
+            box-shadow: 0 40px 120px rgba(0, 0, 0, 0.8);
             transform: scale(0.92);
             transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -962,7 +1093,7 @@
             align-items: center;
             gap: 14px;
             width: 170px;
-            border-right: 1px solid rgba(255,255,255,0.08);
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
             padding-right: 28px;
         }
         .purchase-thumb {
@@ -970,7 +1101,7 @@
             height: auto;
             border-radius: 8px;
             overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             background: var(--bg2);
             display: flex;
             align-items: flex-start;
@@ -1023,8 +1154,15 @@
             justify-content: center;
         }
         @keyframes softPulse {
-            0%, 100% { box-shadow: 0 0 8px rgba(255, 200, 80, 0.3); border-color: rgba(255, 200, 80, 0.4); }
-            50% { box-shadow: 0 0 20px rgba(255, 200, 80, 0.7), 0 0 40px rgba(255, 200, 80, 0.3); border-color: rgba(255, 200, 80, 0.8); }
+            0%,
+            100% {
+                box-shadow: 0 0 8px rgba(255, 200, 80, 0.3);
+                border-color: rgba(255, 200, 80, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(255, 200, 80, 0.7), 0 0 40px rgba(255, 200, 80, 0.3);
+                border-color: rgba(255, 200, 80, 0.8);
+            }
         }
         .purchase-note-highlight {
             padding: 12px 14px;
@@ -1067,6 +1205,10 @@
             padding: 14px 10px;
             text-align: center;
             position: relative;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            transition: all 0.25s;
         }
         .p-tier:not(:last-child)::after {
             content: '';
@@ -1077,6 +1219,9 @@
             width: 2px;
             height: 36px;
             background: rgba(255, 255, 255, 0.25);
+        }
+        .p-tier:active {
+            transform: scale(0.96);
         }
         .p-tier-name {
             font-size: 11px;
@@ -1160,7 +1305,7 @@
             border-radius: 2px;
         }
 
-        /* 购买弹窗手机响应式 (原样保留) */
+        /* 购买弹窗手机响应式 */
         @media (max-width: 850px) {
             .purchase-box {
                 flex-direction: column;
@@ -1174,6 +1319,8 @@
                 flex-direction: row;
                 gap: 16px;
                 align-items: center;
+                border-right: none;
+                padding-right: 0;
             }
             .purchase-thumb {
                 width: 100px;
@@ -1183,24 +1330,55 @@
                 flex-direction: column;
                 gap: 8px;
             }
+            .p-tier:not(:last-child)::after {
+                display: none;
+            }
             .qr-code-img {
                 width: 110px;
                 height: 110px;
             }
+            .purchase-name {
+                font-size: 16px;
+            }
         }
 
-        /* 首页响应式 (原样) */
+        /* 首页响应式 */
         @media (max-width: 900px) {
-            .header { padding: 0 20px; }
-            .gallery { padding: 0 16px 80px; }
-            .sec-head { padding: 90px 20px 0; margin-bottom: 36px; }
-            .g-grid { gap: 14px; }
-            .g-col { gap: 14px; }
+            .header {
+                padding: 0 20px;
+            }
+            .gallery {
+                padding: 0 16px 80px;
+            }
+            .sec-head {
+                padding: 90px 20px 0;
+                margin-bottom: 36px;
+            }
+            .g-grid {
+                gap: 14px;
+            }
+            .g-col {
+                gap: 14px;
+            }
         }
         @media (max-width: 600px) {
-            .sec-head { padding: 80px 12px 0; }
-            .gallery { padding: 0 10px 60px; }
-            .footer { padding: 36px 16px; flex-direction: column; gap: 10px; text-align: center; }
+            .sec-head {
+                padding: 80px 12px 0;
+            }
+            .gallery {
+                padding: 0 10px 60px;
+            }
+            .footer {
+                padding: 36px 16px;
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            .lb-mobile-buy-fixed button {
+                width: 88%;
+                padding: 12px 0;
+                font-size: 15px;
+            }
         }
     </style>
 </head>
@@ -1259,11 +1437,9 @@
             <div class="lb-nav"><button class="lb-nav-btn" onclick="nav(-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 18 9 12 15 6"></polyline></svg></button></div>
             <!-- 中间舞台 -->
             <div class="lb-stage" id="lbStage">
-                <!-- PC 原有内容会被替换，但保留容器 -->
                 <div class="lb-card-wrap" id="lbCardWrap">
                     <div class="lb-card" id="lbCard"><img id="lbImg" src="" alt="" /></div>
                 </div>
-                <!-- PC 版本栏 & 点号 -->
                 <div class="lb-version-bar" id="lbVersionBar"></div>
                 <div class="lb-dots" id="lbDots"></div>
             </div>
@@ -1285,7 +1461,7 @@
                 <button class="btn-collect" onclick="openPurchaseFromLB()">购买收藏</button>
             </div>
         </div>
-        <!-- 关闭按钮 (PC / 手机共用) -->
+        <!-- 关闭按钮 -->
         <button class="lb-close" onclick="closeLB()">✕</button>
     </div>
 
@@ -1327,7 +1503,7 @@
 
     <script>
         // ==========================================
-        // 核心配置区 (不变)
+        // 核心配置区
         // ==========================================
         const GITHUB_USERNAME = "cc2026cc";
         const REPO_NAME = "szys";
@@ -1343,7 +1519,7 @@
             purchaseTier = 0,
             purchasePay = 0;
 
-        // 作品文案 (不变)
+        // 作品文案
         const textDataDict = {
             "财神七仔": {
                 desc: '七仔化身财神，金红交织的数字笔触中，憨态与祥瑞融为一体，传递出独特的东方美学与新春祝愿。',
@@ -1368,14 +1544,13 @@
             prices: [49, 119, 199]
         };
 
-        // 图片加载辅助 (不变)
         function setImageWithBlur(imgElement, highResSrc) {
             if (!imgElement) return;
             imgElement.src = highResSrc;
         }
 
         // ==========================================
-        // 从 GitHub 读取作品 (不变)
+        // 从 GitHub 读取作品
         // ==========================================
         async function loadWorksFromGitHub() {
             const grid = document.getElementById('galleryGrid');
@@ -1475,7 +1650,7 @@
         }
 
         // ==========================================
-        // 首页网格渲染 (不变)
+        // 首页网格渲染
         // ==========================================
         function renderGallery() {
             const grid = document.getElementById('galleryGrid');
@@ -1509,7 +1684,6 @@
             });
         }
 
-        // 自适应重绘 (仅宽度变化)
         let lastWindowWidth = window.innerWidth;
         window.addEventListener('resize', () => {
             clearTimeout(window.resizeTimer);
@@ -1517,51 +1691,57 @@
                 if (window.innerWidth !== lastWindowWidth) {
                     lastWindowWidth = window.innerWidth;
                     if (works.length > 0) renderGallery();
-                    // 如果灯箱开着，且模式变化，可能需要重建，但用户一般不会缩放，忽略
                 }
             }, 300);
         });
 
         // ==========================================
-        // 灯箱控制 (PC 和 手机 共用部分)
+        // 灯箱控制 (PC & 手机)
         // ==========================================
-        let isMobile = false; // 是否启用手机模式
-        let mobileExpanded = false; // 手机信息是否展开
-        let touchStartY = 0,
-            touchMoveY = 0,
-            touchStartTime = 0;
+        let isMobile = false;
+        let mobileExpanded = false;
+
+        // 手机触摸状态
+        let touchStartY = 0;
+        let touchCurrentY = 0;
+        let touchStartTime = 0;
         let isDragging = false;
+        let dragProgress = 0; // 0 ~ 1
+        let isAnimating = false;
+
+        // 手机 DOM 引用
+        let mobileContainer = null;
+        let mobileImgCard = null;
+        let mobileInfoArea = null;
 
         function openLB(idx) {
             cur = idx;
             curVer = 0;
-            // 检测是否为手机端 (宽度 < 1100)
             isMobile = window.innerWidth < 1100;
 
             if (isMobile) {
-                // 手机模式：禁用左右切换，构建手机布局
                 setupMobileLightbox();
-                fillMobileInfo(idx, curVer);
-                // 设置图片
-                const w = works[idx];
+                fillMobileInfo(cur, curVer);
+                const w = works[cur];
                 const v = w.versions[curVer];
-                const lbImg = document.getElementById('lbImg'); // 复用 PC 的 img
+                const lbImg = document.getElementById('lbImg');
                 setImageWithBlur(lbImg, v.src);
-                // 关闭动画复位
-                const card = document.getElementById('lbCard');
-                card.className = 'lb-card';
-                // 确保容器状态
-                const container = document.getElementById('lbMobileContainer');
-                if (container) {
-                    container.classList.remove('expanded');
-                    mobileExpanded = false;
+                // 重置状态
+                mobileExpanded = false;
+                dragProgress = 0;
+                if (mobileContainer) {
+                    mobileContainer.classList.remove('expanded');
                 }
-                // 显示灯箱
+                // 重置图片变换
+                updateMobileTransform(0);
+                // 重置信息区域位置
+                if (mobileInfoArea) {
+                    mobileInfoArea.style.transform = 'translateY(100%)';
+                }
                 document.getElementById('lightbox').classList.add('active');
                 document.body.style.overflow = 'hidden';
-                // 无切换动画
             } else {
-                // PC 模式：使用原有逻辑
+                // PC 模式
                 fillLB(idx, 0);
                 buildDots();
                 renderVersionBar();
@@ -1578,10 +1758,12 @@
         function closeLB() {
             document.getElementById('lightbox').classList.remove('active');
             document.body.style.overflow = '';
-            // 清除手机触摸事件绑定 (可选)
+            // 清理手机状态
+            isDragging = false;
+            isAnimating = false;
         }
 
-        // ─── PC 模式填充信息 ───
+        // ─── PC 模式 ───
         function fillLB(idx, verIdx) {
             const w = works[idx];
             const v = w.versions[verIdx];
@@ -1618,22 +1800,20 @@
             const v = works[cur].versions[verIdx];
             setImageWithBlur(document.getElementById('lbImg'), v.src);
             document.querySelectorAll('.lb-ver-btn').forEach((b, i) => b.classList.toggle('active', i === verIdx));
-            // 如果是手机模式，同步更新手机信息里的版本按钮
             if (isMobile) {
                 document.querySelectorAll('.mi-ver-btn').forEach((b, i) => b.classList.toggle('active', i === verIdx));
-                // 同时更新图片
                 const img = document.querySelector('.lb-mobile-img-area #lbImg');
                 if (img) setImageWithBlur(img, v.src);
             }
         }
 
         function nav(dir) {
-            if (isMobile) return; // 手机禁用
+            if (isMobile) return;
             if (!busy) jumpTo((cur + dir + works.length) % works.length, dir);
         }
 
         function jumpTo(next, dir) {
-            if (busy || next === cur || isMobile) return; // 手机禁止切换
+            if (busy || next === cur || isMobile) return;
             busy = true;
             const d = dir !== undefined ? dir : (next > cur ? 1 : -1);
             const card = document.getElementById('lbCard');
@@ -1657,22 +1837,23 @@
             });
         }
 
-        // ─── 手机模式专用 ───
+        // ═══════════════════════════════════════════
+        // 手机模式：方案一 · 手势驱动型物理缩放
+        // ═══════════════════════════════════════════
+
         function setupMobileLightbox() {
             const stage = document.getElementById('lbStage');
-            // 清空 stage 原有内容（保留 lbCard 和 lbImg，但重构结构）
-            // 我们保留 lbCard 和 lbImg，将其移到新的 img-area 中
-            const existingCard = document.getElementById('lbCard');
-            const existingImg = document.getElementById('lbImg');
 
-            // 如果已经存在手机容器，则复用，避免重复创建
+            // 如果已存在手机容器，直接复用
             let container = document.getElementById('lbMobileContainer');
             if (container) {
-                // 更新图片引用，因为 img 可能被移动，重新获取
+                mobileContainer = container;
+                mobileImgCard = document.querySelector('.lb-mobile-img-area .lb-card');
+                mobileInfoArea = document.getElementById('lbMobileInfoArea');
                 return;
             }
 
-            // 创建手机容器
+            // 创建容器
             container = document.createElement('div');
             container.id = 'lbMobileContainer';
             container.className = 'lb-mobile-container';
@@ -1680,44 +1861,45 @@
             // 图片区域
             const imgArea = document.createElement('div');
             imgArea.className = 'lb-mobile-img-area';
-            // 将现有的 lbCard 移动到 imgArea
             const card = document.getElementById('lbCard');
-            // 移除 card 原有类
             card.className = 'lb-card';
-            // 将 card 从原位置移除并放到 imgArea
             imgArea.appendChild(card);
+            container.appendChild(imgArea);
 
             // 信息区域
             const infoArea = document.createElement('div');
             infoArea.className = 'lb-mobile-info-area';
             infoArea.id = 'lbMobileInfoArea';
-            // 填充信息内容（由 fillMobileInfo 负责）
-
-            container.appendChild(imgArea);
             container.appendChild(infoArea);
 
-            // 清空 stage 原来的所有子节点 (保留可能存在的版本栏和dots，但手机隐藏)
-            // 保留 stage 本身，清空子节点
+            // 清空 stage 并添加容器
             while (stage.firstChild) {
                 stage.removeChild(stage.firstChild);
             }
             stage.appendChild(container);
 
-            // 添加底部固定购买按钮 (如果尚未添加)
+            // 添加底部购买按钮 (如果尚未添加)
             let buyFixed = document.querySelector('.lb-mobile-buy-fixed');
             if (!buyFixed) {
                 buyFixed = document.createElement('div');
                 buyFixed.className = 'lb-mobile-buy-fixed';
                 const btn = document.createElement('button');
-                btn.textContent = '购买收藏';
-                btn.onclick = function() { openPurchaseFromLB(); };
+                btn.innerHTML = '<span class="btn-dot"></span> 购买收藏';
+                btn.onclick = function(e) {
+                    e.stopPropagation();
+                    openPurchaseFromLB();
+                };
                 buyFixed.appendChild(btn);
-                // 添加到 lightbox 中 (放在 stage 外部)
                 const lightbox = document.getElementById('lightbox');
                 lightbox.appendChild(buyFixed);
             }
 
-            // 绑定触摸事件到 container
+            // 缓存引用
+            mobileContainer = container;
+            mobileImgCard = document.querySelector('.lb-mobile-img-area .lb-card');
+            mobileInfoArea = document.getElementById('lbMobileInfoArea');
+
+            // 绑定触摸事件
             container.addEventListener('touchstart', onTouchStart, { passive: true });
             container.addEventListener('touchmove', onTouchMove, { passive: false });
             container.addEventListener('touchend', onTouchEnd, { passive: true });
@@ -1731,7 +1913,6 @@
             const infoArea = document.getElementById('lbMobileInfoArea');
             if (!infoArea) return;
 
-            // 构建信息 HTML
             const chipsHTML = w.chips.map(c => `<span class="mi-chip">${c}</span>`).join('');
             const versionHTML = w.versions.length > 1 ?
                 `<div class="mi-version-bar">` +
@@ -1743,6 +1924,7 @@
 
             infoArea.innerHTML = `
                 <div class="info-inner">
+                    <div class="info-grabber"></div>
                     <div class="mi-title">${w.name}</div>
                     <div class="mi-num">${w.num}</div>
                     <div class="mi-desc">${w.desc}</div>
@@ -1752,7 +1934,7 @@
                     <div class="mi-story-text">${w.story}</div>
                 </div>
             `;
-            // 设置图片 (已经在 openLB 中设置过了，但以防万一)
+            // 设置图片
             const img = document.querySelector('.lb-mobile-img-area #lbImg');
             if (img) {
                 const v = w.versions[verIdx];
@@ -1761,69 +1943,161 @@
         }
 
         // ─── 手机触摸处理 ───
+
+        // 参数配置
+        const DRAG_THRESHOLD = 20; // 开始拖拽的最小位移
+        const EXPAND_THRESHOLD = 0.35; // 展开阈值 (进度 > 35% 则自动展开)
+        const MAX_DRAG_DIST = 0.55; // 最大拖动进度 (图片最小缩放比)
+        const SCALE_RANGE = 0.45; // 缩放范围: 从 1 到 (1 - SCALE_RANGE) = 0.55
+        const MOVE_RANGE = 0.25; // 图片上移范围 (占屏幕高度的百分比)
+
         function onTouchStart(e) {
             if (e.touches.length !== 1) return;
+            // 如果正在动画中，中断并直接设置最终状态
+            if (isAnimating) {
+                isAnimating = false;
+                const target = mobileExpanded ? 1 : 0;
+                dragProgress = target;
+                updateMobileTransform(target);
+                if (mobileInfoArea) {
+                    mobileInfoArea.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+                    mobileInfoArea.style.transform = mobileExpanded ? 'translateY(0)' : 'translateY(100%)';
+                }
+                return;
+            }
             touchStartY = e.touches[0].clientY;
-            touchMoveY = touchStartY;
+            touchCurrentY = touchStartY;
             touchStartTime = Date.now();
             isDragging = false;
+            // 移除过渡动画，实现实时跟手
+            if (mobileImgCard) {
+                mobileImgCard.style.transition = 'none';
+            }
+            if (mobileInfoArea) {
+                mobileInfoArea.style.transition = 'none';
+            }
         }
 
         function onTouchMove(e) {
             if (e.touches.length !== 1) return;
             const dy = e.touches[0].clientY - touchStartY;
-            touchMoveY = e.touches[0].clientY;
-            if (Math.abs(dy) > 10) {
-                isDragging = true;
-                e.preventDefault(); // 阻止页面滚动
-                // 可以在这里添加实时跟随效果，但为了简洁，我们只在 touchend 处理
+            touchCurrentY = e.touches[0].clientY;
+
+            // 判断是否为有效拖拽
+            if (!isDragging) {
+                if (Math.abs(dy) > DRAG_THRESHOLD) {
+                    isDragging = true;
+                } else {
+                    return;
+                }
             }
+
+            e.preventDefault();
+
+            // 计算进度: 向上滑动 dy < 0, progress 从 0 到 1
+            const maxDy = -window.innerHeight * 0.6;
+            let progress = Math.max(0, Math.min(1, -dy / maxDy));
+            // 添加阻尼: 超过 MAX_DRAG_DIST 后逐渐变缓
+            if (progress > MAX_DRAG_DIST) {
+                progress = MAX_DRAG_DIST + (progress - MAX_DRAG_DIST) * 0.3;
+            }
+            progress = Math.min(1, progress);
+
+            dragProgress = progress;
+            updateMobileTransform(progress);
         }
 
         function onTouchEnd(e) {
             if (!isDragging) {
-                // 如果是点击（无滑动），不处理
+                // 不是拖拽，可能是点击，忽略
                 return;
             }
-            const dy = touchMoveY - touchStartY;
+
+            const dy = touchCurrentY - touchStartY;
             const dt = Date.now() - touchStartTime;
-            // 判断滑动方向：向下滑动为负（手指下滑），向上滑动为正
-            // 但我们需要：上滑（dy<0）展开信息，下滑（dy>0）收起
-            // 阈值：50px 或速度快
-            const threshold = 50;
             const speed = Math.abs(dy) / dt; // px/ms
 
-            if (dy < -threshold || (dy < -20 && speed > 0.5)) {
-                // 上滑：展开
-                if (!mobileExpanded) {
-                    toggleMobileInfo(true);
-                }
-            } else if (dy > threshold || (dy > 20 && speed > 0.5)) {
-                // 下滑：收起
-                if (mobileExpanded) {
-                    toggleMobileInfo(false);
-                }
+            // 判断是否展开: 进度超过阈值 或 快速上滑
+            let targetExpand = false;
+            if (dragProgress > EXPAND_THRESHOLD) {
+                targetExpand = true;
+            } else if (dragProgress > 0.2 && speed > 0.8) {
+                // 快速上滑且有一定进度
+                targetExpand = true;
+            } else if (dragProgress < 0.1 && speed > 0.8 && dy < 0) {
+                // 快速上滑但进度很小，仍然展开
+                targetExpand = true;
+            } else if (dy > 20 && speed > 0.5) {
+                // 快速下滑，收起
+                targetExpand = false;
+            } else {
+                targetExpand = mobileExpanded;
             }
+
+            // 如果进度已经很接近展开状态，直接展开
+            if (dragProgress > 0.7) targetExpand = true;
+            if (dragProgress < 0.15) targetExpand = false;
+
+            mobileExpanded = targetExpand;
+            const targetProgress = targetExpand ? 1 : 0;
+
+            // 启用过渡动画
+            if (mobileImgCard) {
+                mobileImgCard.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+            }
+            if (mobileInfoArea) {
+                mobileInfoArea.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+            }
+            if (mobileContainer) {
+                mobileContainer.classList.toggle('expanded', targetExpand);
+            }
+
+            isAnimating = true;
+            updateMobileTransform(targetProgress);
+
+            // 动画结束后清除标记
+            setTimeout(() => {
+                isAnimating = false;
+            }, 550);
+
             isDragging = false;
+            dragProgress = targetProgress;
         }
 
-        function toggleMobileInfo(expand) {
-            const container = document.getElementById('lbMobileContainer');
-            if (!container) return;
-            if (expand === mobileExpanded) return;
-            mobileExpanded = expand;
-            container.classList.toggle('expanded', expand);
-            // 如果展开，确保信息区域滚动到顶部
-            if (expand) {
-                const infoArea = document.getElementById('lbMobileInfoArea');
-                if (infoArea) infoArea.scrollTop = 0;
+        function updateMobileTransform(progress) {
+            // progress: 0 ~ 1
+            // 图片: 从全屏 (scale=1, translateY=0) 到 顶部缩小 (scale=0.55, translateY=-屏幕高度*0.18)
+            const scale = 1 - progress * SCALE_RANGE;
+            const moveY = -progress * window.innerHeight * MOVE_RANGE;
+
+            if (mobileImgCard) {
+                mobileImgCard.style.transform = `translateY(${moveY}px) scale(${scale})`;
+            }
+
+            // 信息区域: 从 translateY(100%) 到 translateY(0)
+            if (mobileInfoArea) {
+                const infoProgress = Math.min(1, progress * 1.2); // 信息区稍微提前滑出
+                const translateY = (1 - infoProgress) * 100;
+                mobileInfoArea.style.transform = `translateY(${translateY}%)`;
+                // 控制信息区域的可见性 (防止闪烁)
+                if (progress > 0.02) {
+                    mobileInfoArea.style.opacity = Math.min(1, (progress - 0.02) * 15);
+                } else {
+                    mobileInfoArea.style.opacity = 0;
+                }
+            }
+
+            // 更新容器状态 (用于CSS辅助)
+            if (mobileContainer) {
+                if (progress > 0.1) {
+                    mobileContainer.classList.add('expanded');
+                } else {
+                    mobileContainer.classList.remove('expanded');
+                }
             }
         }
 
-        // 在 openLB 中已经调用了 setupMobileLightbox，并设置了初始 expanded=false
-        // 但还要处理从手机模式回到PC模式的清理 (略)
-
-        // ─── 购买弹窗 (不变) ───
+        // ─── 购买弹窗 ───
         function openPurchase(artIdx, verIdx) {
             purchaseArtIdx = artIdx;
             purchaseVer = verIdx || 0;
@@ -1879,20 +2153,19 @@
             const w = works[purchaseArtIdx];
             const container = document.getElementById('purchaseTiers');
             container.innerHTML = tierNames.map((name, i) => `
-                <div class="p-tier" onclick="selectPurchaseTier(${i})">
-                    <div class="p-tier-name">${name}</div>
-                    <div class="p-tier-spec">${i===0?'1080P 高清': i===1?'6寸精印含顺丰':'2K 超清无损'}</div>
-                    <div class="p-tier-price">¥${w.prices[i]}</div>
-                </div>
-            `).join('');
-            // 默认选中第一个
-            document.querySelectorAll('.p-tier').forEach((el, idx) => el.style.border = idx === 0 ? '1px solid var(--bamboo)' : '');
+                    <div class="p-tier" onclick="selectPurchaseTier(${i})" style="${i===0?'border:1px solid var(--bamboo);':''}">
+                        <div class="p-tier-name">${name}</div>
+                        <div class="p-tier-spec">${i===0?'1080P 高清': i===1?'6寸精印含顺丰':'2K 超清无损'}</div>
+                        <div class="p-tier-price">¥${w.prices[i]}</div>
+                    </div>
+                `).join('');
+            purchaseTier = 0;
         }
 
         function selectPurchaseTier(i) {
             purchaseTier = i;
             document.querySelectorAll('.p-tier').forEach((el, idx) => {
-                el.style.border = idx === i ? '1px solid var(--bamboo)' : 'none';
+                el.style.border = idx === i ? '1px solid var(--bamboo)' : '1px solid transparent';
             });
         }
 
@@ -1903,7 +2176,7 @@
             document.querySelectorAll('.pay-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
         }
 
-        // ─── 键盘事件 (PC 保留，手机禁用左右键) ───
+        // ─── 键盘事件 ───
         document.addEventListener('keydown', e => {
             const purchaseActive = document.getElementById('purchaseModal').classList.contains('active');
             const lbActive = document.getElementById('lightbox').classList.contains('active');
@@ -1913,7 +2186,6 @@
             }
             if (!lbActive) return;
             if (isMobile) {
-                // 手机端只响应 Escape
                 if (e.key === 'Escape') closeLB();
                 return;
             }
@@ -1922,13 +2194,10 @@
             if (e.key === 'Escape') closeLB();
         });
 
-        // ─── 触摸左右切换 (PC 保留，手机禁用) ───
+        // ─── PC 触摸左右切换 ───
         let tx = 0;
         document.getElementById('lightbox').addEventListener('touchstart', e => {
-            if (isMobile) {
-                // 手机端交给内部触摸处理，这里不干扰
-                return;
-            }
+            if (isMobile) return;
             tx = e.touches[0].clientX;
         }, { passive: true });
 
@@ -1942,7 +2211,18 @@
         // ─── 启动 ───
         window.addEventListener('DOMContentLoaded', loadWorksFromGitHub);
 
-        // 额外：在手机模式下，如果灯箱已经打开但窗口宽度变化，简单处理：关闭灯箱重新打开？不处理，用户不会频繁缩放。
+        // 清理手机容器（当窗口从手机切换到PC时）
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 1100) {
+                // 如果灯箱开着且是手机模式，关闭
+                if (document.getElementById('lightbox').classList.contains('active') && isMobile) {
+                    // 不自动关闭，而是让用户手动关闭，避免困惑
+                }
+                isMobile = false;
+            } else {
+                isMobile = true;
+            }
+        });
     </script>
 </body>
 </html>
