@@ -1112,7 +1112,7 @@
         }
 
         // ==========================================
-        // 界面渲染与交互控制 (智能排版 + 国内镜像代理自动加速)
+        // 界面渲染与交互控制 (加入镜像容错 + 自动回退机制)
         // ==========================================
         function renderGallery() {
             const grid = document.getElementById('galleryGrid');
@@ -1121,25 +1121,27 @@
             const colCount = window.innerWidth <= 900 ? 2 : 3;
             let cols = Array.from({ length: colCount }, () => []);
             
-            // 定义稳定的国内加速代理前缀
-            const proxyPrefix = "https://mirror.ghproxy.com/";
-            
-            // 按从左到右顺序分发作品
             works.forEach((w, i) => {
-                let rawUrl = w.versions[0].src;
+                const rawUrl = w.versions[0].src;
+                let proxyUrl = rawUrl;
                 
-                // 【核心加速逻辑】：自动检测并拼接代理
-                // 如果链接里包含 GitHub 原生域名，且尚未添加代理，则自动加上代理前缀
-                if (rawUrl.includes("raw.githubusercontent.com") && !rawUrl.startsWith(proxyPrefix)) {
-                    rawUrl = proxyPrefix + rawUrl;
-                } else if (rawUrl.startsWith("http") && !rawUrl.includes("ghproxy")) {
-                    // 兼容其他可能被墙的外链图片
-                    rawUrl = proxyPrefix + rawUrl;
+                // 【核心修复】：更温和精准的替换逻辑，不再暴力拼接
+                if (rawUrl.includes("raw.githubusercontent.com")) {
+                    // 使用目前最稳定的 kkgithub 原生镜像直接替换域名
+                    proxyUrl = rawUrl.replace("raw.githubusercontent.com", "raw.kkgithub.com");
+                } else if (rawUrl.includes("github.com")) {
+                    // 备用方案，仅针对明确的 GitHub 域名进行代理
+                    proxyUrl = "https://ghproxy.net/" + rawUrl;
                 }
 
                 const cardHTML = `
                 <div class="art-card" style="animation-delay: ${i*0.1}s;" onclick="openLB(${i})">
-                    <div class="img-wrap"><img src="${rawUrl}" alt="${w.name}" loading="lazy" /></div>
+                    <div class="img-wrap">
+                        <!-- 【容错机制】：如果 proxyUrl(镜像) 被 VPN 拦截或挂了，瞬间自动执行 onerror 切换回 rawUrl(原图) -->
+                        <img src="${proxyUrl}" 
+                             onerror="this.onerror=null; this.src='${rawUrl}';" 
+                             alt="${w.name}" loading="lazy" />
+                    </div>
                     <div class="art-overlay"></div>
                     <div class="art-num">${String(i+1).padStart(2,'0')}</div>
                     <div class="art-info">
