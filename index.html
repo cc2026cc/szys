@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>熊猫创意 · 数字艺术作品展</title>
+    <!-- 引入 BlurHash JS 解码库 -->
+    <script src="https://cdn.jsdelivr.net/npm/blurhash@2.0.5/dist/blurhash.umd.js"></script>
     <style>
         * {
             margin: 0;
@@ -976,22 +978,25 @@
 
     <script>
         // ==========================================
-        // 核心配置区 (确保这里的账号和仓库名是你的)
+        // 核心配置区
         // ==========================================
         const GITHUB_USERNAME = "cc2026cc";   
         const REPO_NAME = "szys";               
         const API_BASE = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/熊猫创意`;
         const RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/main/熊猫创意`;
+        const JSON_HASH_URL = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/main/blurhash.json`;
+
+        // 全局 BlurHash 字典存储
+        let blurHashData = {};
 
         // ==========================================
         // 动态数据源及变量
         // ==========================================
-        let works = []; // 初始清空，等待从云端加载
+        let works = []; 
         const tierNames = ['壁纸级数字版', '实体纸质版', '收藏级数字版'];
         let cur = 0, curVer = 0, busy = false;
         let purchaseArtIdx = 0, purchaseVer = 0, purchaseTier = 0, purchasePay = 0;
 
-        // 【文案字典】保留了你为前三个作品写的精美文案
         const textDataDict = {
             "财神七仔": {
                 desc: '七仔化身财神，金红交织的数字笔触中，憨态与祥瑞融为一体，传递出独特的东方美学与新春祝愿。',
@@ -1010,7 +1015,6 @@
             }
         };
 
-        // 如果是新加的作品，会默认使用下面的文案
         const defaultText = {
             desc: '七仔主题数字艺术作品，融合东方美学与数字绘画，记录每一刻灵感。',
             story: '此作品的创作背景与幕后故事正在由作者精心整理中，敬请期待。',
@@ -1019,87 +1023,129 @@
         };
 
         // ==========================================
-        // 云端加载与名称提取逻辑 (全新升级)
+        // BlurHash 解码辅助函数
+        // ==========================================
+        function getBlurDataURL(hash, width = 32, height = 32) {
+            if (!hash || typeof blurhash === 'undefined') return '';
+            try {
+                const pixels = blurhash.decode(hash, width, height);
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                const imageData = ctx.createImageData(width, height);
+                imageData.data.set(pixels);
+                ctx.putImageData(imageData, 0, 0);
+                return canvas.toDataURL();
+            } catch (e) {
+                console.warn('BlurHash 解码失败:', hash, e);
+                return '';
+            }
+        }
+
+        // 高清图片渐进加载封装（先显示 BlurHash 占位，高清加载完后平滑过渡）
+        function setImageWithBlur(imgElement, highResSrc, hash) {
+            if (!imgElement) return;
+            const blurUrl = getBlurDataURL(hash);
+            
+            if (blurUrl) {
+                imgElement.src = blurUrl;
+                imgElement.style.filter = 'blur(10px)';
+                imgElement.style.transition = 'filter 0.5s ease, transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)';
+            }
+
+            const tempImg = new Image();
+            tempImg.src = highResSrc;
+            tempImg.onload = () => {
+                imgElement.src = highResSrc;
+                imgElement.style.filter = 'none';
+            };
+        }
+
+        // ==========================================
+        // 云端加载与数据解析
         // ==========================================
         async function loadWorksFromGitHub() {
             const grid = document.getElementById('galleryGrid');
             grid.innerHTML = '<p style="color:#888; text-align:center; padding:40px; grid-column: span 12;">正在从云端加载最新作品...</p>';
             
             try {
-                // 1. 生成时间戳，打破 GitHub API 缓存限制，确保每次都读取最新内容
                 const timestamp = new Date().getTime();
-                const res = await fetch(`${API_BASE}?t=${timestamp}`);
-                if (!res.ok) throw new Error('无法访问仓库');
-                let folders = await res.json();
+
+                // 1. 并行读取 blurhash.json 和 GitHub 目录数据
+                const [hashRes, repoRes] = await Promise.all([
+                    fetch(`${JSON_HASH_URL}?t=${timestamp}`).catch(() => null),
+                    fetch(`${API_BASE}?t=${timestamp}`)
+                ]);
+
+                if (hashRes && hashRes.ok) {
+                    blurHashData = await hashRes.json();
+                }
+
+                if (!repoRes.ok) throw new Error('无法访问仓库');
+                let folders = await repoRes.json();
                 
-                // 【新增逻辑】只保留文件夹，并根据文件夹名称的数字进行智能自然排序
                 let sortedFolders = folders
                     .filter(item => item.type === 'dir')
                     .sort((a, b) => a.name.localeCompare(b.name, 'zh-CN', {numeric: true}));
                 
                 const promises = sortedFolders.map(async (folder) => {
-                        const folderName = folder.name;
-                        const folderUrl = `${API_BASE}/${encodeURIComponent(folderName)}?t=${timestamp}`;
-                        const fileRes = await fetch(folderUrl);
-                        const files = await fileRes.json();
-                        
-                        // 只提取里面的图片文件
-                        let images = [];
-                        for (let file of files) {
-                            const ext = file.name.split('.').pop().toLowerCase();
-                            if (['jpg','jpeg','png','webp'].includes(ext)) {
-                                images.push(file.name);
-                            }
+                    const folderName = folder.name;
+                    const folderUrl = `${API_BASE}/${encodeURIComponent(folderName)}?t=${timestamp}`;
+                    const fileRes = await fetch(folderUrl);
+                    const files = await fileRes.json();
+                    
+                    let images = [];
+                    for (let file of files) {
+                        const ext = file.name.split('.').pop().toLowerCase();
+                        if (['jpg','jpeg','png','webp'].includes(ext)) {
+                            images.push(file.name);
                         }
-                        
-                        if (images.length === 0) return null; // 文件夹里没图片就跳过
-                        images.sort();
-                        
-                        // 2. 核心修改：从第一张图片文件名精准提取汉字和编号
-                        const firstImg = images[0];
-                        const nameWithoutExt = firstImg.substring(0, firstImg.lastIndexOf('.')); // 去除 .jpg
-                        
-                        // 正则说明：匹配最后的连续汉字(作为名称)，以及它后面的字母数字(作为编号)
-                        const match = nameWithoutExt.match(/([\u4e00-\u9fa5]+)([a-zA-Z0-9]*)$/);
-                        
-                        let extractedName = folderName;
-                        let extractedNum = '0000';
-                        
-                        if (match) {
-                            extractedName = match[1]; // 纯汉字，例如 "财神七仔" 或 "悟空七仔"
-                            extractedNum = match[2] ? match[2].toUpperCase() : '0000'; // 后面的字母数字，例如 "QSQ01"
-                        }
-                        
-                        // 匹配你原来写的文案，如果没有就用默认文案
-                        const textData = textDataDict[extractedName] || defaultText;
-                        
-                        // 构建多版本列表（竖版/横版）
-                        const versions = images.map(imgName => {
-                            const lower = imgName.toLowerCase();
-                            // 如果名字里包含横版，或者你之前那张 02.jpg，就判定为横版
-                            const label = (lower.includes('横') || lower.includes('02')) ? '横版' : '竖版';
-                            return {
-                                src: `${RAW_BASE}/${encodeURIComponent(folderName)}/${encodeURIComponent(imgName)}`,
-                                label: label
-                            };
-                        });
-                        
+                    }
+                    
+                    if (images.length === 0) return null;
+                    images.sort();
+                    
+                    const firstImg = images[0];
+                    const nameWithoutExt = firstImg.substring(0, firstImg.lastIndexOf('.'));
+                    const match = nameWithoutExt.match(/([\u4e00-\u9fa5]+)([a-zA-Z0-9]*)$/);
+                    
+                    let extractedName = folderName;
+                    let extractedNum = '0000';
+                    
+                    if (match) {
+                        extractedName = match[1];
+                        extractedNum = match[2] ? match[2].toUpperCase() : '0000';
+                    }
+                    
+                    const textData = textDataDict[extractedName] || defaultText;
+                    
+                    const versions = images.map(imgName => {
+                        const lower = imgName.toLowerCase();
+                        const label = (lower.includes('横') || lower.includes('02')) ? '横版' : '竖版';
+                        const relativePath = `${folderName}/${imgName}`;
+                        const hashObj = blurHashData[relativePath] || {};
                         return {
-                            name: extractedName,
-                            series: '神话系列',
-                            num: extractedNum,
-                            desc: textData.desc,
-                            story: textData.story,
-                            chips: textData.chips,
-                            prices: textData.prices || defaultText.prices,
-                            versions: versions
+                            src: `${RAW_BASE}/${encodeURIComponent(folderName)}/${encodeURIComponent(imgName)}`,
+                            label: label,
+                            hash: hashObj.blurhash || ''
                         };
                     });
+                    
+                    return {
+                        name: extractedName,
+                        series: '神话系列',
+                        num: extractedNum,
+                        desc: textData.desc,
+                        story: textData.story,
+                        chips: textData.chips,
+                        prices: textData.prices || defaultText.prices,
+                        versions: versions
+                    };
+                });
                 
-                // 等待所有文件夹解析完毕
                 works = (await Promise.all(promises)).filter(Boolean);
                 
-                // 渲染界面
                 if (works.length === 0) {
                     grid.innerHTML = '<p style="color:#888; text-align:center; grid-column: span 12;">暂无作品，请在 GitHub 上传图片。</p>';
                 } else {
@@ -1112,23 +1158,19 @@
         }
 
         // ==========================================
-        // 界面渲染与交互控制 (加入智能“发牌”排版算法)
+        // 界面渲染与交互控制
         // ==========================================
         function renderGallery() {
             const grid = document.getElementById('galleryGrid');
-            
-            // 智能计算列数：电脑端 3 列，平板/手机端双列
             const colCount = window.innerWidth <= 900 ? 2 : 3;
-            
-            // 准备好列容器（像准备好几个空盒子）
             let cols = Array.from({ length: colCount }, () => []);
             
-            // 像“发牌”一样，把作品严格按照从左到右的顺序分发到各个列中
             works.forEach((w, i) => {
-                const thumb = w.versions[0].src;
                 const cardHTML = `
                 <div class="art-card" style="animation-delay: ${i*0.1}s;" onclick="openLB(${i})">
-                    <div class="img-wrap"><img src="${thumb}" alt="${w.name}" loading="lazy" /></div>
+                    <div class="img-wrap">
+                        <img id="card-img-${i}" alt="${w.name}" loading="lazy" />
+                    </div>
                     <div class="art-overlay"></div>
                     <div class="art-num">${String(i+1).padStart(2,'0')}</div>
                     <div class="art-info">
@@ -1139,15 +1181,19 @@
                     <button class="art-buy" onclick="event.stopPropagation(); openPurchase(${i},0)">购买收藏</button>
                 </div>`;
                 
-                // 将当前作品放入对应的列中 (例如3列时：0进左, 1进中, 2进右, 3又进左...)
                 cols[i % colCount].push(cardHTML);
             });
             
-            // 将分发好的列输出到网页上
             grid.innerHTML = cols.map(colHTML => `<div class="g-col">${colHTML.join('')}</div>`).join('');
+
+            // 渲染完毕后，逐个加载模糊代码与高清图
+            works.forEach((w, i) => {
+                const imgEl = document.getElementById(`card-img-${i}`);
+                const firstVer = w.versions[0];
+                setImageWithBlur(imgEl, firstVer.src, firstVer.hash);
+            });
         }
 
-        // 监听屏幕大小变化（比如手机横屏），自动重新计算排版
         window.addEventListener('resize', () => {
             clearTimeout(window.resizeTimer);
             window.resizeTimer = setTimeout(() => {
@@ -1174,7 +1220,11 @@
         function fillLB(idx, verIdx) {
             const w = works[idx];
             const v = w.versions[verIdx];
-            document.getElementById('lbImg').src = v.src;
+            
+            // 使用 BlurHash 渐进加载灯箱图
+            const lbImg = document.getElementById('lbImg');
+            setImageWithBlur(lbImg, v.src, v.hash);
+
             document.getElementById('lbSeries').textContent = w.series;
             document.getElementById('lbGhost').textContent = w.num;
             document.getElementById('lbName').textContent = w.name;
@@ -1195,7 +1245,8 @@
         function switchLBVersion(verIdx) {
             if (busy || verIdx === curVer) return;
             curVer = verIdx;
-            document.getElementById('lbImg').src = works[cur].versions[verIdx].src;
+            const v = works[cur].versions[verIdx];
+            setImageWithBlur(document.getElementById('lbImg'), v.src, v.hash);
             document.querySelectorAll('.lb-ver-btn').forEach((b,i) => b.classList.toggle('active', i===verIdx));
         }
         function nav(dir) { if (!busy) jumpTo((cur + dir + works.length) % works.length, dir); }
@@ -1242,7 +1293,9 @@
         }
         function updatePurchaseThumb() {
             const w = works[purchaseArtIdx];
-            document.getElementById('purchaseThumb').src = w.versions[purchaseVer].src;
+            const v = w.versions[purchaseVer];
+            const thumbImg = document.getElementById('purchaseThumb');
+            setImageWithBlur(thumbImg, v.src, v.hash);
         }
         function renderPurchaseVersions() {
             const w = works[purchaseArtIdx];
@@ -1278,7 +1331,7 @@
             document.querySelectorAll('.pay-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
         }
 
-        /* ─── 键盘 ─── */
+        /* ─── 键盘与触控 ─── */
         document.addEventListener('keydown', e => {
             const purchaseActive = document.getElementById('purchaseModal').classList.contains('active');
             const lbActive = document.getElementById('lightbox').classList.contains('active');
@@ -1300,7 +1353,7 @@
             if (Math.abs(dx) > 55) nav(dx < 0 ? 1 : -1);
         });
 
-        // 页面启动时，执行从云端拉取数据的函数
+        // 页面启动
         window.addEventListener('DOMContentLoaded', loadWorksFromGitHub);
     </script>
 </body>
