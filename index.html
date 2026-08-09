@@ -981,40 +981,38 @@
                 margin-bottom: 10px;
             }
 
-            /* ---- 底部购买按钮 (固定，动态跟随滑动渐变显示) ---- */
+            /* ---- 底部购买按钮 (固定始终显示，精致紧凑) ---- */
             .lb-mobile-buy-fixed {
                 position: fixed;
                 bottom: 0;
                 left: 0;
                 right: 0;
                 z-index: 25;
-                padding: 12px 20px 28px;
-                background: linear-gradient(to top, rgba(4, 4, 10, 0.92) 50%, transparent);
-                pointer-events: none;
+                padding: 12px 20px 20px;
+                background: linear-gradient(to top, rgba(4, 4, 10, 0.88) 0%, transparent 100%);
+                pointer-events: auto;
                 display: flex;
                 justify-content: center;
-                opacity: 0;
-                transition: opacity 0.15s ease-out;
+                opacity: 1;
                 -webkit-tap-highlight-color: transparent !important;
             }
             .lb-mobile-buy-fixed button {
-                width: 76%;
-                max-width: 400px;
-                padding: 13px 0;
-                background: rgba(20, 20, 30, 0.6);
+                width: auto;
+                padding: 8px 22px;
+                background: rgba(20, 20, 30, 0.75);
                 backdrop-filter: blur(16px);
                 -webkit-backdrop-filter: blur(16px);
-                border: 1px solid rgba(201, 168, 76, 0.35);
-                border-radius: 50px;
+                border: 1px solid rgba(201, 168, 76, 0.4);
+                border-radius: 30px;
                 color: var(--gold-l);
-                font-size: 17px;
+                font-size: 13px;
                 font-weight: 600;
-                letter-spacing: 4px;
+                letter-spacing: 2px;
                 cursor: pointer;
                 font-family: inherit;
                 pointer-events: auto;
                 transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-                box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), 0 0 40px rgba(124, 159, 75, 0.04);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 20px rgba(124, 159, 75, 0.1);
                 position: relative;
                 overflow: hidden;
                 -webkit-tap-highlight-color: transparent !important;
@@ -1024,28 +1022,18 @@
                 content: '';
                 position: absolute;
                 inset: 0;
-                border-radius: 50px;
-                background: linear-gradient(135deg, rgba(124, 159, 75, 0.08), rgba(201, 168, 76, 0.05));
+                border-radius: 30px;
+                background: linear-gradient(135deg, rgba(124, 159, 75, 0.12), rgba(201, 168, 76, 0.08));
                 opacity: 0;
                 transition: opacity 0.4s;
             }
             .lb-mobile-buy-fixed button:active {
-                transform: scale(0.96);
+                transform: scale(0.95);
                 border-color: var(--bamboo);
-                box-shadow: 0 4px 32px rgba(124, 159, 75, 0.25);
+                box-shadow: 0 4px 28px rgba(124, 159, 75, 0.3);
             }
             .lb-mobile-buy-fixed button:active::after {
                 opacity: 1;
-            }
-            .lb-mobile-buy-fixed button .btn-dot {
-                display: inline-block;
-                width: 5px;
-                height: 5px;
-                border-radius: 50%;
-                background: var(--gold-l);
-                margin: 0 6px 0 0;
-                vertical-align: middle;
-                opacity: 0.6;
             }
 
             /* ===== 手机端首页缩略图毛玻璃缩小 ===== */
@@ -1116,15 +1104,15 @@
                     font-size: 12px;
                 }
                 .lb-mobile-buy-fixed button {
-                    width: 88%;
-                    padding: 12px 0;
-                    font-size: 15px;
+                    width: auto;
+                    padding: 7px 18px;
+                    font-size: 12px;
                 }
             }
         }
 
         /* ============================================================
-           购买弹窗 (无改动)
+           购买弹窗
            ============================================================ */
         .purchase-modal {
             position: fixed;
@@ -1215,8 +1203,9 @@
             width: 100%;
         }
         .purchase-thumb {
-            width: 140px;
+            width: auto;
             height: auto;
+            max-width: 140px;
             max-height: 180px;
             border-radius: 8px;
             overflow: hidden;
@@ -1227,8 +1216,9 @@
             justify-content: center;
         }
         .purchase-thumb img {
-            width: 100%;
+            width: auto;
             height: auto;
+            max-width: 140px;
             max-height: 180px;
             object-fit: contain;
             display: block;
@@ -1654,9 +1644,9 @@
                 text-align: center;
             }
             .lb-mobile-buy-fixed button {
-                width: 88%;
-                padding: 12px 0;
-                font-size: 15px;
+                width: auto;
+                padding: 7px 18px;
+                font-size: 12px;
             }
             .wechat-btn {
                 padding: 4px 10px 4px 8px;
@@ -2256,7 +2246,7 @@
                 buyFixed = document.createElement('div');
                 buyFixed.className = 'lb-mobile-buy-fixed';
                 const btn = document.createElement('button');
-                btn.innerHTML = '<span class="btn-dot"></span> 购买收藏';
+                btn.innerHTML = '购买收藏';
                 btn.onclick = function(e) {
                     e.stopPropagation();
                     openPurchaseFromLB();
@@ -2516,26 +2506,9 @@
         }
 
         function checkBuyButtonVisibility() {
-            if (!mobileBuyFixed || !mobileInfoArea) return;
-
-            // 1. 手指上滑时，从 0% 透明到 100% 不透明跟随 dragProgress 实时渐变
-            let opacity = Math.min(1, Math.max(0, dragProgress / BUY_SHOW_PROGRESS));
-
-            // 2. 当文字内容最后一行触及/超过购买按钮顶部，或发生向上滚动时，购买按钮始终保持 100% 显示
-            const infoInner = mobileInfoArea.querySelector('.info-inner');
-            if (infoInner) {
-                const lastChild = infoInner.lastElementChild || infoInner;
-                const lastRect = lastChild.getBoundingClientRect();
-                const buyRect = mobileBuyFixed.getBoundingClientRect();
-                const buyTop = buyRect.top || (window.innerHeight - 80);
-
-                if (lastRect.bottom >= buyTop - 15 || mobileInfoArea.scrollTop > 0) {
-                    opacity = 1;
-                }
-            }
-
-            mobileBuyFixed.style.opacity = opacity;
-            mobileBuyFixed.style.pointerEvents = opacity > 0.05 ? 'auto' : 'none';
+            if (!mobileBuyFixed) return;
+            mobileBuyFixed.style.opacity = '1';
+            mobileBuyFixed.style.pointerEvents = 'auto';
         }
 
         // ==========================================
