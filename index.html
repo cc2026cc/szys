@@ -2017,30 +2017,44 @@
             const dt = Date.now() - touchStartTime;
             const speed = Math.abs(dy) / dt;
 
-            let targetExpand = false;
+            let targetExpand = mobileExpanded; // 默认保持当前状态
 
-            // 根据最终进度和速度决定展开/收起
-            if (dragProgress > EXPAND_THRESHOLD) {
-                targetExpand = true;
-            } else if (dragProgress > 0.15 && speed > 0.7 && dy < 0) {
-                // 快速上滑
-                targetExpand = true;
-            } else if (dy < -30 && speed > 0.5) {
-                targetExpand = true;
-            } else if (dy > 30 && speed > 0.5) {
-                targetExpand = false;
+            // ─── 对称阈值逻辑 ───
+            // 展开阈值 30%，收起阈值也是 30%（完全对称）
+            const THRESHOLD = 0.30;
+
+            if (mobileExpanded) {
+                // 当前是展开状态：进度低于阈值 → 收起，高于阈值 → 保持展开
+                if (dragProgress < THRESHOLD) {
+                    targetExpand = false;
+                } else {
+                    targetExpand = true;
+                }
+                // 快速下滑（dy > 0）辅助触发收起
+                if (dy > 20 && speed > 0.6) {
+                    targetExpand = false;
+                }
             } else {
-                targetExpand = mobileExpanded;
+                // 当前是收起状态：进度高于阈值 → 展开，低于阈值 → 保持收起
+                if (dragProgress > THRESHOLD) {
+                    targetExpand = true;
+                } else {
+                    targetExpand = false;
+                }
+                // 快速上滑（dy < 0）辅助触发展开
+                if (dy < -20 && speed > 0.6) {
+                    targetExpand = true;
+                }
             }
 
-            // 极端情况强制
-            if (dragProgress > 0.7) targetExpand = true;
-            if (dragProgress < 0.15) targetExpand = false;
+            // 极端情况兜底：进度极高或极低时强制判定
+            if (dragProgress > 0.70) targetExpand = true;
+            if (dragProgress < 0.08) targetExpand = false;
 
             mobileExpanded = targetExpand;
             const targetProgress = targetExpand ? 1 : 0;
 
-            // 启用过渡
+            // 启用过渡动画
             if (mobileImgCard) {
                 mobileImgCard.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
             }
