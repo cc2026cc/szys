@@ -297,6 +297,7 @@
             filter: brightness(1.02) saturate(1.1);
         }
 
+        /* 缩略图底部毛玻璃（手机端缩小高度） */
         .art-overlay {
             position: absolute;
             bottom: 0;
@@ -400,7 +401,7 @@
             box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
         }
 
-        /* ===== 灯箱 (PC + 手机基础) ===== */
+        /* ===== 灯箱 ===== */
         .lightbox {
             position: fixed;
             inset: 0;
@@ -780,7 +781,7 @@
                 touch-action: none;
             }
 
-            /* 图片区域 (全屏定位) */
+            /* 图片区域 */
             .lb-mobile-img-area {
                 position: absolute;
                 top: 0;
@@ -790,9 +791,9 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                pointer-events: none;
                 z-index: 5;
                 will-change: transform;
+                cursor: pointer;  /* 点击恢复全屏 */
             }
             .lb-mobile-img-area .lb-card {
                 width: 100%;
@@ -819,11 +820,44 @@
                 max-height: 100%;
             }
 
-            /* 手机版版本切换按钮 (常驻在图片右下角) */
+            /* 全屏时的方向箭头（两个上箭头） */
+            .lb-mobile-arrows {
+                position: absolute;
+                bottom: 100px;  /* 在购买按钮上方 */
+                left: 0;
+                right: 0;
+                text-align: center;
+                z-index: 8;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.5s ease;
+                font-size: 28px;
+                font-weight: 300;
+                color: rgba(255, 255, 255, 0.35);
+                letter-spacing: 16px;
+                line-height: 1;
+            }
+            .lb-mobile-arrows span {
+                display: inline-block;
+                animation: arrowPulse 2.4s ease-in-out infinite alternate;
+            }
+            .lb-mobile-arrows span:last-child {
+                animation-delay: 1.2s;
+            }
+            @keyframes arrowPulse {
+                0% { opacity: 0.2; text-shadow: 0 0 8px rgba(255,255,255,0.05); }
+                100% { opacity: 0.7; text-shadow: 0 0 18px rgba(124,159,75,0.25); }
+            }
+            /* 箭头在展开时隐藏 */
+            .lb-mobile-container.expanded .lb-mobile-arrows {
+                opacity: 0 !important;
+                pointer-events: none;
+            }
+
+            /* 手机版版本切换按钮 (竖向排列) */
             .lb-mobile-version-switch {
                 position: absolute;
                 bottom: 90px;
-                /* 在购买按钮上方 */;
                 right: 16px;
                 z-index: 15;
                 display: flex;
@@ -857,7 +891,7 @@
                 transform: scale(0.92);
             }
 
-            /* 信息区域 (可滚动) */
+            /* 信息区域 */
             .lb-mobile-info-area {
                 position: absolute;
                 bottom: 0;
@@ -932,7 +966,6 @@
                 letter-spacing: 0.5px;
                 margin-bottom: 10px;
             }
-            /* 信息区内不再显示版本按钮，因为已经移到图片区 */
 
             /* 底部购买按钮 */
             .lb-mobile-buy-fixed {
@@ -1004,6 +1037,45 @@
             .lb-mobile-container.expanded .lb-mobile-info-area {
                 transform: translateY(0);
                 opacity: 1;
+            }
+
+            /* ===== 手机端首页缩略图毛玻璃缩小 ===== */
+            .art-overlay {
+                height: 46px;  /* 原76px × 0.6 ≈ 46px */
+            }
+            .art-info {
+                padding: 8px 12px 8px 10px;
+                right: 70px;  /* 缩小右边距，适应小按钮 */
+            }
+            .art-series {
+                font-size: 7px;
+                letter-spacing: 2px;
+                margin-bottom: 2px;
+            }
+            .art-series::before {
+                width: 10px;
+            }
+            .art-title-text {
+                font-size: 12px;
+                letter-spacing: 2px;
+                margin-bottom: 1px;
+            }
+            .art-meta-text {
+                font-size: 8px;
+                letter-spacing: 1px;
+            }
+            .art-buy {
+                padding: 4px 10px;
+                font-size: 8px;
+                bottom: 12px;
+                right: 10px;
+            }
+            .art-num {
+                width: 22px;
+                height: 22px;
+                font-size: 8px;
+                top: 8px;
+                right: 8px;
             }
         }
 
@@ -1193,10 +1265,9 @@
             padding: 14px 10px;
             text-align: center;
             position: relative;
-            cursor: pointer;
-            border: 1px solid transparent;
-            border-radius: 4px;
-            transition: all 0.25s;
+            cursor: default;  /* 取消按钮效果 */
+            border: none;
+            transition: none;
         }
         .p-tier:not(:last-child)::after {
             content: '';
@@ -1207,9 +1278,6 @@
             width: 2px;
             height: 36px;
             background: rgba(255, 255, 255, 0.25);
-        }
-        .p-tier:active {
-            transform: scale(0.96);
         }
         .p-tier-name {
             font-size: 11px;
@@ -1313,12 +1381,33 @@
                 width: 100px;
                 height: 100px;
             }
+            /* 手机端价格横向排列，取消按钮效果，用竖线分隔 */
             .tier-row {
-                flex-direction: column;
-                gap: 8px;
+                flex-direction: row;
+                gap: 0;
+                justify-content: space-around;
+            }
+            .p-tier {
+                flex: 1;
+                padding: 10px 6px;
+                border: none !important;
+                cursor: default;
             }
             .p-tier:not(:last-child)::after {
-                display: none;
+                content: '';
+                position: absolute;
+                right: 0;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 2px;
+                height: 30px;
+                background: rgba(255, 255, 255, 0.2);
+            }
+            .p-tier-name {
+                font-size: 10px;
+            }
+            .p-tier-price {
+                font-size: 16px;
             }
             .qr-code-img {
                 width: 110px;
@@ -1370,6 +1459,11 @@
                 bottom: 80px;
                 right: 12px;
             }
+            .lb-mobile-arrows {
+                bottom: 90px;
+                font-size: 24px;
+                letter-spacing: 12px;
+            }
         }
     </style>
 </head>
@@ -1392,7 +1486,7 @@
             </svg>
             <div class="wechat-words">
                 <span class="wechat-tag">微信客服</span>
-                <span class="wechat-id">PandaArt_7</span>
+                <span class="wechat-id">CJQ678</span>
             </div>
         </div>
     </header>
@@ -1701,6 +1795,7 @@
         let mobileImgCard = null;
         let mobileInfoArea = null;
         let mobileVersionSwitch = null;
+        let mobileArrows = null;
 
         function openLB(idx) {
             cur = idx;
@@ -1725,7 +1820,10 @@
                     mobileInfoArea.style.transform = 'translateY(100%)';
                     mobileInfoArea.style.opacity = '0';
                 }
-                // 更新版本切换按钮
+                // 显示箭头（全屏时）
+                if (mobileArrows) {
+                    mobileArrows.style.opacity = '1';
+                }
                 renderMobileVersionSwitch();
                 document.getElementById('lightbox').classList.add('active');
                 document.body.style.overflow = 'hidden';
@@ -1789,12 +1887,9 @@
             setImageWithBlur(document.getElementById('lbImg'), v.src);
             document.querySelectorAll('.lb-ver-btn').forEach((b, i) => b.classList.toggle('active', i === verIdx));
             if (isMobile) {
-                // 更新图片
                 const img = document.querySelector('.lb-mobile-img-area #lbImg');
                 if (img) setImageWithBlur(img, v.src);
-                // 更新按钮高亮
                 renderMobileVersionSwitch();
-                // 重置图片缩放位置（保持当前进度）
                 updateMobileTransform(dragProgress);
             }
         }
@@ -1841,7 +1936,18 @@
                 mobileContainer = container;
                 mobileImgCard = document.querySelector('.lb-mobile-img-area .lb-card');
                 mobileInfoArea = document.getElementById('lbMobileInfoArea');
-                // 重建版本切换按钮
+                mobileVersionSwitch = document.getElementById('lbMobileVersionSwitch');
+                mobileArrows = document.querySelector('.lb-mobile-arrows');
+                // 重新绑定点击事件（图片区域点击收起）
+                const imgArea = document.querySelector('.lb-mobile-img-area');
+                if (imgArea) {
+                    imgArea.onclick = function(e) {
+                        if (mobileExpanded) {
+                            // 点击图片收起信息
+                            collapseMobileInfo();
+                        }
+                    };
+                }
                 renderMobileVersionSwitch();
                 return;
             }
@@ -1852,12 +1958,24 @@
 
             const imgArea = document.createElement('div');
             imgArea.className = 'lb-mobile-img-area';
+            // 点击图片收起（如果已展开）
+            imgArea.onclick = function(e) {
+                if (mobileExpanded) {
+                    collapseMobileInfo();
+                }
+            };
             const card = document.getElementById('lbCard');
             card.className = 'lb-card';
             imgArea.appendChild(card);
             container.appendChild(imgArea);
 
-            // 版本切换按钮容器 (放在图片区域之上)
+            // 方向箭头
+            const arrows = document.createElement('div');
+            arrows.className = 'lb-mobile-arrows';
+            arrows.innerHTML = '<span>↑</span><span>↑</span>';
+            container.appendChild(arrows);
+
+            // 版本切换按钮
             const verSwitch = document.createElement('div');
             verSwitch.className = 'lb-mobile-version-switch';
             verSwitch.id = 'lbMobileVersionSwitch';
@@ -1892,6 +2010,7 @@
             mobileImgCard = document.querySelector('.lb-mobile-img-area .lb-card');
             mobileInfoArea = document.getElementById('lbMobileInfoArea');
             mobileVersionSwitch = document.getElementById('lbMobileVersionSwitch');
+            mobileArrows = document.querySelector('.lb-mobile-arrows');
 
             // 绑定触摸事件
             container.addEventListener('touchstart', onTouchStart, { passive: true });
@@ -1902,13 +2021,37 @@
             renderMobileVersionSwitch();
         }
 
+        // 收起信息（恢复全屏）
+        function collapseMobileInfo() {
+            if (!mobileExpanded) return;
+            mobileExpanded = false;
+            const targetProgress = 0;
+            if (mobileImgCard) {
+                mobileImgCard.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+            }
+            if (mobileInfoArea) {
+                mobileInfoArea.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease';
+            }
+            if (mobileContainer) {
+                mobileContainer.classList.remove('expanded');
+            }
+            if (mobileArrows) {
+                mobileArrows.style.opacity = '1';
+            }
+            isAnimating = true;
+            updateMobileTransform(0);
+            setTimeout(() => {
+                isAnimating = false;
+            }, 550);
+            dragProgress = 0;
+        }
+
         function fillMobileInfo(idx, verIdx) {
             const w = works[idx];
             const infoArea = document.getElementById('lbMobileInfoArea');
             if (!infoArea) return;
 
             const chipsHTML = w.chips.map(c => `<span class="mi-chip">${c}</span>`).join('');
-            // 不再在信息区显示版本切换，已移到图片区域
 
             infoArea.innerHTML = `
                 <div class="info-inner">
@@ -1973,6 +2116,9 @@
                     mobileInfoArea.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease';
                     mobileInfoArea.style.transform = mobileExpanded ? 'translateY(0)' : 'translateY(100%)';
                     mobileInfoArea.style.opacity = mobileExpanded ? '1' : '0';
+                }
+                if (mobileArrows) {
+                    mobileArrows.style.opacity = mobileExpanded ? '0' : '1';
                 }
                 return;
             }
@@ -2077,6 +2223,9 @@
             if (mobileContainer) {
                 mobileContainer.classList.toggle('expanded', targetExpand);
             }
+            if (mobileArrows) {
+                mobileArrows.style.opacity = targetExpand ? '0' : '1';
+            }
 
             isAnimating = true;
             updateMobileTransform(targetProgress);
@@ -2090,9 +2239,7 @@
         }
 
         function updateMobileTransform(progress) {
-            // 计算图片缩放和位移，确保居中
             const scale = 1 - progress * SCALE_RANGE;
-            // 位移：让图片上移并保持垂直居中
             const moveY = -progress * window.innerHeight * MOVE_RANGE;
 
             if (mobileImgCard) {
@@ -2173,20 +2320,12 @@
             const w = works[purchaseArtIdx];
             const container = document.getElementById('purchaseTiers');
             container.innerHTML = tierNames.map((name, i) => `
-                    <div class="p-tier" onclick="selectPurchaseTier(${i})" style="${i===0?'border:1px solid var(--bamboo);':''}">
+                    <div class="p-tier">
                         <div class="p-tier-name">${name}</div>
                         <div class="p-tier-spec">${i===0?'1080P 高清': i===1?'6寸精印含顺丰':'2K 超清无损'}</div>
                         <div class="p-tier-price">¥${w.prices[i]}</div>
                     </div>
                 `).join('');
-            purchaseTier = 0;
-        }
-
-        function selectPurchaseTier(i) {
-            purchaseTier = i;
-            document.querySelectorAll('.p-tier').forEach((el, idx) => {
-                el.style.border = idx === i ? '1px solid var(--bamboo)' : '1px solid transparent';
-            });
         }
 
         function switchPurchasePay(idx) {
