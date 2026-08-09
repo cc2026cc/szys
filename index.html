@@ -753,15 +753,15 @@
             top: 20px;
             right: 20px;
             z-index: 20;
-            width: 40px;
-            height: 40px;
-            border: 1px solid var(--b-sub);
-            background: rgba(4, 4, 10, .55);
-            color: var(--t2);
+            width: 32px;
+            height: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(4, 4, 10, 0.35);
+            color: rgba(255, 255, 255, 0.45);
             cursor: pointer;
-            font-size: 15px;
+            font-size: 14px;
             backdrop-filter: blur(10px);
-            border-radius: 2px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -777,14 +777,14 @@
         @media (max-width: 1100px) {
 
             .lb-close {
-                width: 48px;
-                height: 48px;
-                font-size: 20px;
+                width: 34px;
+                height: 34px;
+                font-size: 15px;
                 top: 12px;
                 right: 12px;
-                background: rgba(0, 0, 0, 0.55);
-                border-color: rgba(255, 255, 255, 0.15);
-                color: #fff;
+                background: rgba(0, 0, 0, 0.32);
+                border-color: rgba(255, 255, 255, 0.1);
+                color: rgba(255, 255, 255, 0.5);
                 border-radius: 50%;
                 z-index: 30;
                 backdrop-filter: blur(8px);
@@ -1456,7 +1456,7 @@
                 width: 100%;
                 flex-direction: row;
                 gap: 16px;
-                align-items: center;
+                align-items: flex-start;
                 border-right: none;
                 padding-right: 0;
             }
@@ -2230,10 +2230,11 @@
 
                 stage.appendChild(container);
 
-                // 绑定触摸事件
+                // 绑定触摸事件与内部滚动监听
                 container.addEventListener('touchstart', onTouchStart, { passive: true });
                 container.addEventListener('touchmove', onTouchMove, { passive: false });
                 container.addEventListener('touchend', onTouchEnd, { passive: true });
+                infoArea.addEventListener('scroll', checkBuyButtonVisibility, { passive: true });
             }
 
             // 缓存引用
@@ -2508,13 +2509,33 @@
                 }
             }
 
-            if (mobileBuyFixed) {
-                if (progress >= BUY_SHOW_PROGRESS) {
+            checkBuyButtonVisibility();
+        }
+
+        function checkBuyButtonVisibility() {
+            if (!mobileBuyFixed || !mobileInfoArea) return;
+
+            // 条件1：拖拽进度超过设定阈值
+            if (dragProgress >= BUY_SHOW_PROGRESS) {
+                mobileBuyFixed.classList.add('visible');
+                return;
+            }
+
+            // 条件2：当文字内容的最后一行高度/位置超过购买按钮顶部（或面板发生向上滚动）时，保持购买按钮一直显示
+            const infoInner = mobileInfoArea.querySelector('.info-inner');
+            if (infoInner) {
+                const lastChild = infoInner.lastElementChild || infoInner;
+                const lastRect = lastChild.getBoundingClientRect();
+                const buyRect = mobileBuyFixed.getBoundingClientRect();
+                const buyTop = buyRect.top || (window.innerHeight - 80);
+
+                if (lastRect.bottom <= buyTop + 20 || mobileInfoArea.scrollTop > 0) {
                     mobileBuyFixed.classList.add('visible');
-                } else {
-                    mobileBuyFixed.classList.remove('visible');
+                    return;
                 }
             }
+
+            mobileBuyFixed.classList.remove('visible');
         }
 
         // ==========================================
