@@ -2305,9 +2305,9 @@
                 container.innerHTML = '';
                 return;
             }
-            const labelMap = { '竖版': '竖', '横版': '横' };
+            // 确保上方第一个按钮固定显示“竖”，下方第二个按钮固定显示“横”
             container.innerHTML = w.versions.map((v, i) =>
-                `<button class="${i===curVer?'active':''}" onclick="switchLBVersion(${i})">${labelMap[v.label] || v.label}</button>`
+                `<button class="${i===curVer?'active':''}" onclick="switchLBVersion(${i})">${i === 0 ? '竖' : '横'}</button>`
             ).join('');
         }
 
@@ -2319,16 +2319,22 @@
             if (e.touches.length !== 1) return;
 
             const touch = e.touches[0];
+            touchStartY = touch.clientY;
+            touchCurrentY = touchStartY;
+            touchStartTime = Date.now();
+            isDragging = false;
+            startProgress = dragProgress;
+            touchOnInfoArea = false;
+
             const infoEl = document.getElementById('lbMobileInfoArea');
             if (infoEl) {
                 const rect = infoEl.getBoundingClientRect();
+                // 判断触摸点是否在文字面板区域内
                 if (touch.clientY >= rect.top && touch.clientY <= rect.bottom &&
                     touch.clientX >= rect.left && touch.clientX <= rect.right) {
                     touchOnInfoArea = true;
-                    return;
                 }
             }
-            touchOnInfoArea = false;
 
             if (isAnimating) {
                 isAnimating = false;
@@ -2338,11 +2344,6 @@
                 return;
             }
 
-            touchStartY = e.touches[0].clientY;
-            touchCurrentY = touchStartY;
-            touchStartTime = Date.now();
-            isDragging = false;
-            startProgress = dragProgress;
             if (mobileImgCard) {
                 mobileImgCard.style.transition = 'none';
             }
@@ -2353,12 +2354,36 @@
 
         function onTouchMove(e) {
             if (e.touches.length !== 1) return;
-            if (touchOnInfoArea) {
-                return;
-            }
 
             const dy = e.touches[0].clientY - touchStartY;
             touchCurrentY = e.touches[0].clientY;
+
+            // 如果触摸在文字面板区域
+            if (touchOnInfoArea) {
+                const infoEl = document.getElementById('lbMobileInfoArea');
+                let shouldIntercept = false;
+                
+                // 逻辑1：如果文字区域还没完全顶满屏幕（进度 < 1），向上滑（dy < 0）直接接管，把图片顶小
+                if (dy < 0 && startProgress < 1) {
+                    shouldIntercept = true;
+                }
+                // 逻辑2：如果在文字区域向下滑（dy > 0），且文字已经滚动到了最顶部（不可再向上滚动），接管滑动，把图片拉大
+                else if (dy > 0 && infoEl.scrollTop <= 0) {
+                    shouldIntercept = true;
+                }
+
+                if (!shouldIntercept) {
+                    // 条件不满足，说明用户在正常阅读并滚动长文本，不拦截原生滚动
+                    return;
+                }
+            }
+
+            // 如果浏览器认为当前手势已经被原生滚动接管（通常在快速连续滑动时发生），则放弃接管避免画面冲突
+            if (!e.cancelable) {
+                return;
+            }
+            // 阻止原生默认滚动，开始我们的缩放动画
+            e.preventDefault();
 
             if (!isDragging) {
                 if (Math.abs(dy) > DRAG_THRESHOLD) {
@@ -2367,8 +2392,6 @@
                     return;
                 }
             }
-
-            e.preventDefault();
 
             const maxDy = window.innerHeight * 0.6;
             const delta = -dy / maxDy;
@@ -2380,10 +2403,13 @@
         }
 
         function onTouchEnd(e) {
-            if (touchOnInfoArea) {
+            // 如果触摸在文字区，但并没有触发拖拽阈值（比如只是点击，或进行了原生滚动）
+            if (touchOnInfoArea && !isDragging) {
                 touchOnInfoArea = false;
                 return;
             }
+
+            touchOnInfoArea = false;
 
             if (!isDragging) {
                 return;
