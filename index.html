@@ -1208,7 +1208,8 @@
             flex-direction: column;
             align-items: flex-start;
             gap: 14px;
-            width: 170px;
+            min-width: 170px;
+            width: auto;
             border-right: 1px solid rgba(255, 255, 255, 0.08);
             padding-right: 28px;
         }
@@ -1219,9 +1220,10 @@
             width: 100%;
         }
         .purchase-thumb {
-            width: 140px;
-            height: auto;
-            max-height: 180px;
+            height: 180px;
+            width: auto;
+            min-width: 100px;
+            max-width: 280px;
             border-radius: 8px;
             overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1229,11 +1231,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
+            transition: width 0.3s ease;
         }
         .purchase-thumb img {
-            width: 100%;
-            height: auto;
-            max-height: 180px;
+            height: 100%;
+            width: auto;
             object-fit: contain;
             display: block;
         }
@@ -1270,6 +1273,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            text-align: center;
             line-height: 1;
             padding: 0;
             margin: 0;
@@ -1461,9 +1465,11 @@
                 padding-right: 0;
             }
             .purchase-thumb {
-                width: 100px;
-                height: auto;
-                max-height: 140px;
+                height: 120px;
+                width: auto;
+                min-width: 80px;
+                max-width: 220px;
+                flex-shrink: 0;
             }
             .purchase-info-col {
                 display: flex;
@@ -1942,19 +1948,25 @@
 
                     const versions = images.map(imgName => {
                         const lower = imgName.toLowerCase();
-                        const label = (lower.includes('横') || lower.includes('02')) ? '横版' : '竖版';
+                        const isCross = lower.includes('横') || lower.includes('02') || lower.includes('h');
                         return {
                             src: `./熊猫创意/${folderName}/${imgName}`,
-                            label: label
+                            label: isCross ? '横版' : '竖版'
                         };
                     });
                     
-                    // 强制排序：确保“竖版”永远在数组的第一个位置（即上方）
+                    // 强制排序：确保“竖版”永远在数组的第一个位置（索引 0）
                     versions.sort((a, b) => {
                         if (a.label === '竖版' && b.label !== '竖版') return -1;
                         if (a.label !== '竖版' && b.label === '竖版') return 1;
                         return 0;
                     });
+
+                    // 兼容将来 GitHub 新增文件夹：只要包含 2 张及以上图片，自动确保 index 0 为竖版，index 1 为横版
+                    if (versions.length >= 2 && versions[0].label === versions[1].label) {
+                        versions[0].label = '竖版';
+                        versions[1].label = '横版';
+                    }
 
                     return {
                         name: extractedName,
@@ -2509,7 +2521,22 @@
                 }
             }
 
-            checkBuyButtonVisibility();
+            // 手指开始上滑，购买收藏按钮从 0% 到 100% 跟随手指透明度实时渐变
+            if (mobileBuyFixed) {
+                if (isDragging) {
+                    mobileBuyFixed.style.transition = 'none';
+                } else {
+                    mobileBuyFixed.style.transition = 'opacity 0.4s ease';
+                }
+                
+                // 根据上滑进度实时设置透明度
+                mobileBuyFixed.style.opacity = progress;
+                if (progress > 0.02) {
+                    mobileBuyFixed.style.pointerEvents = 'auto';
+                } else {
+                    mobileBuyFixed.style.pointerEvents = 'none';
+                }
+            }
         }
 
         function checkBuyButtonVisibility() {
@@ -2592,9 +2619,9 @@
         function renderPurchaseVersions() {
             const w = works[purchaseArtIdx];
             const container = document.getElementById('purchaseVersionSwitch');
-            if (w.versions.length <= 1) { container.innerHTML = ''; return; }
+            if (!w || !w.versions || w.versions.length <= 1) { container.innerHTML = ''; return; }
             container.innerHTML = w.versions.map((v, i) =>
-                `<button class="v-switch-btn${i===purchaseVer?' active':''}" onclick="switchPurchaseVersion(${i})">${v.label === '竖版' ? '竖' : (v.label === '横版' ? '横' : v.label.charAt(0))}</button>`
+                `<button class="v-switch-btn${i===purchaseVer?' active':''}" onclick="switchPurchaseVersion(${i})">${i === 0 ? '竖' : '横'}</button>`
             ).join('');
         }
 
