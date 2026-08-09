@@ -1890,7 +1890,6 @@
 
             infoArea.innerHTML = `
                 <div class="info-inner">
-                    <div class="info-grabber"></div>
                     <div class="mi-title">${w.name}</div>
                     <div class="mi-num">${w.num}</div>
                     <div class="mi-desc">${w.desc}</div>
@@ -2019,36 +2018,35 @@
 
             let targetExpand = mobileExpanded; // 默认保持当前状态
 
-            // ─── 对称阈值逻辑 ───
-            // 展开阈值 30%，收起阈值也是 30%（完全对称）
-            const THRESHOLD = 0.30;
+            // ─── 不对称阈值（展开 30%，收起 18%，收起更轻松） ───
+            const EXPAND_THRESHOLD = 0.30;
+            const COLLAPSE_THRESHOLD = 0.18;
 
             if (mobileExpanded) {
-                // 当前是展开状态：进度低于阈值 → 收起，高于阈值 → 保持展开
-                if (dragProgress < THRESHOLD) {
+                // 当前是展开状态：进度低于 18% 或快速下滑 → 收起
+                if (dragProgress < COLLAPSE_THRESHOLD) {
                     targetExpand = false;
                 } else {
                     targetExpand = true;
                 }
-                // 快速下滑（dy > 0）辅助触发收起
-                if (dy > 20 && speed > 0.6) {
+                // 快速下滑辅助（速度 > 0.4，位移 > 10px）
+                if (dy > 10 && speed > 0.4) {
                     targetExpand = false;
                 }
             } else {
-                // 当前是收起状态：进度高于阈值 → 展开，低于阈值 → 保持收起
-                if (dragProgress > THRESHOLD) {
+                // 当前是收起状态：进度高于 30% 或快速上滑 → 展开
+                if (dragProgress > EXPAND_THRESHOLD) {
                     targetExpand = true;
                 } else {
                     targetExpand = false;
                 }
-                // 快速上滑（dy < 0）辅助触发展开
-                if (dy < -20 && speed > 0.6) {
+                if (dy < -10 && speed > 0.4) {
                     targetExpand = true;
                 }
             }
 
-            // 极端情况兜底：进度极高或极低时强制判定
-            if (dragProgress > 0.70) targetExpand = true;
+            // 极端情况兜底（进度极高或极低时强制判定）
+            if (dragProgress > 0.65) targetExpand = true;
             if (dragProgress < 0.08) targetExpand = false;
 
             mobileExpanded = targetExpand;
