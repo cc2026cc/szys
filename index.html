@@ -2305,18 +2305,24 @@
                 container.innerHTML = '';
                 return;
             }
-            // 确保上方第一个按钮固定显示“竖”，下方第二个按钮固定显示“横”
+            // 适当放大横竖版切换按钮的字体（设为 14px）
             container.innerHTML = w.versions.map((v, i) =>
-                `<button class="${i===curVer?'active':''}" onclick="switchLBVersion(${i})">${i === 0 ? '竖' : '横'}</button>`
+                `<button class="${i===curVer?'active':''}" style="font-size: 14px;" onclick="switchLBVersion(${i})">${i === 0 ? '竖' : '横'}</button>`
             ).join('');
         }
 
-        // ─── 触摸处理 ───
+        // ─── 触摸处理（已优化防抖与 rAF 渲染，解决滑动抽搐） ───
 
         const DRAG_THRESHOLD = 10;
+        let rafId = null; // 用于渲染节流
 
         function onTouchStart(e) {
             if (e.touches.length !== 1) return;
+
+            // 修正：如果正在动画中，清除状态但不直接 return，确保下一次触摸能正确捕获起点
+            if (isAnimating) {
+                isAnimating = false;
+            }
 
             const touch = e.touches[0];
             touchStartY = touch.clientY;
@@ -2329,19 +2335,10 @@
             const infoEl = document.getElementById('lbMobileInfoArea');
             if (infoEl) {
                 const rect = infoEl.getBoundingClientRect();
-                // 判断触摸点是否在文字面板区域内
                 if (touch.clientY >= rect.top && touch.clientY <= rect.bottom &&
                     touch.clientX >= rect.left && touch.clientX <= rect.right) {
                     touchOnInfoArea = true;
                 }
-            }
-
-            if (isAnimating) {
-                isAnimating = false;
-                const target = mobileExpanded ? 1 : 0;
-                dragProgress = target;
-                updateMobileTransform(target);
-                return;
             }
 
             if (mobileImgCard) {
@@ -2358,31 +2355,24 @@
             const dy = e.touches[0].clientY - touchStartY;
             touchCurrentY = e.touches[0].clientY;
 
-            // 如果触摸在文字面板区域
             if (touchOnInfoArea) {
                 const infoEl = document.getElementById('lbMobileInfoArea');
                 let shouldIntercept = false;
                 
-                // 逻辑1：如果文字区域还没完全顶满屏幕（进度 < 1），向上滑（dy < 0）直接接管，把图片顶小
                 if (dy < 0 && startProgress < 1) {
                     shouldIntercept = true;
-                }
-                // 逻辑2：如果在文字区域向下滑（dy > 0），且文字已经滚动到了最顶部（不可再向上滚动），接管滑动，把图片拉大
-                else if (dy > 0 && infoEl.scrollTop <= 0) {
+                } else if (dy > 0 && infoEl && infoEl.scrollTop <= 0) {
                     shouldIntercept = true;
                 }
 
                 if (!shouldIntercept) {
-                    // 条件不满足，说明用户在正常阅读并滚动长文本，不拦截原生滚动
                     return;
                 }
             }
 
-            // 如果浏览器认为当前手势已经被原生滚动接管（通常在快速连续滑动时发生），则放弃接管避免画面冲突
             if (!e.cancelable) {
                 return;
             }
-            // 阻止原生默认滚动，开始我们的缩放动画
             e.preventDefault();
 
             if (!isDragging) {
@@ -2393,17 +2383,25 @@
                 }
             }
 
-            const maxDy = window.innerHeight * 0.6;
-            const delta = -dy / maxDy;
-            let progress = startProgress + delta;
-            progress = Math.min(1, Math.max(0, progress));
+            // 使用 requestAnimationFrame 节流，避免连续滑动时的视觉抖动和抽搐
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(() => {
+                const maxDy = window.innerHeight * 0.6;
+                const delta = -dy / maxDy;
+                let progress = startProgress + delta;
+                progress = Math.min(1, Math.max(0, progress));
 
-            dragProgress = progress;
-            updateMobileTransform(progress);
+                dragProgress = progress;
+                updateMobileTransform(progress);
+            });
         }
 
         function onTouchEnd(e) {
-            // 如果触摸在文字区，但并没有触发拖拽阈值（比如只是点击，或进行了原生滚动）
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+            }
+
             if (touchOnInfoArea && !isDragging) {
                 touchOnInfoArea = false;
                 return;
