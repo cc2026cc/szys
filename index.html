@@ -1124,23 +1124,27 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.4s;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
         }
         .purchase-modal.active {
             opacity: 1;
             pointer-events: auto;
         }
         .purchase-bg {
-            position: absolute;
+            position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.45);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
+            background: rgba(4, 4, 10, 0.92);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
         }
         .purchase-box {
             position: relative;
             z-index: 1;
             width: 820px;
             max-width: 96vw;
+            margin: auto;
             background: rgba(15, 15, 20, 0.85);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
@@ -1823,7 +1827,7 @@
         const API_BASE = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/熊猫创意`;
 
         let works = [];
-        const tierNames = ['壁纸级数字版', '实体纸质版', '收藏级数字版'];
+        const tierNames = ['壁纸级数字版', '6寸艺术微喷实体', '收藏级 A3 实体装裱'];
         let cur = 0,
             curVer = 0,
             busy = false;
@@ -1853,7 +1857,7 @@
             desc: '七仔主题数字艺术作品，融合东方美学与数字绘画，记录每一刻灵感。',
             story: '此作品的创作背景与幕后故事正在由作者精心整理中，敬请期待。',
             chips: ['数字艺术', '七仔', '插画'],
-            prices: [49, 119, 199]
+            prices: [19.9, 89, 799]
         };
 
         function setImageWithBlur(imgElement, highResSrc) {
@@ -2584,7 +2588,7 @@
             container.innerHTML = tierNames.map((name, i) => `
                     <div class="p-tier">
                         <div class="p-tier-name">${name}</div>
-                        <div class="p-tier-spec">${i===0?'1080P 高清': i===1?'6寸精印含顺丰':'2K 超清无损'}</div>
+                        <div class="p-tier-spec">${i===0?'1080P 高清原图': i===1?'带实木相框装裱':'艺术微喷实木装裱'}</div>
                         <div class="p-tier-price">¥${w.prices[i]}</div>
                     </div>
                 `).join('');
@@ -2648,6 +2652,14 @@
 
         // 点击微信二维码弹窗背景关闭
         document.querySelector('.wx-qr-bg').addEventListener('click', closeWxQR);
+
+        // 拦截付款弹窗背景的手势滑动，防止移动端背景滚动穿透
+        const purchaseBgEl = document.querySelector('.purchase-bg');
+        if (purchaseBgEl) {
+            purchaseBgEl.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+            }, { passive: false });
+        }
     </script>
 </body>
 </html>
