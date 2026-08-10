@@ -110,27 +110,25 @@
         }
         .logo {
             display: flex;
-            align-items: center;
-            gap: 14px;
-            height: 40px;
+            align-items: stretch;
+            gap: 12px;
         }
-        .logo-icon {
-            width: 32px;
-            height: 32px;
+        .logo-img {
+            height: 100%;
+            width: auto;
+            object-fit: contain;
             flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
         .logo-words {
             display: flex;
             flex-direction: column;
-            line-height: 1.2;
+            justify-content: space-between;
         }
         .logo-cn {
             font-size: 16px;
             font-weight: 700;
             letter-spacing: 6px;
+            line-height: 1;
             background: linear-gradient(90deg, var(--gold-l) 0%, var(--bamboo) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -140,7 +138,8 @@
             font-size: 9px;
             letter-spacing: 3px;
             color: var(--t2);
-            margin-top: 1px;
+            line-height: 1;
+            margin-top: 2px;
         }
 
         .wechat-btn {
@@ -1655,13 +1654,8 @@
             .logo-en {
                 font-size: 8px;
             }
-            .logo-icon {
-                width: 26px;
-                height: 26px;
-            }
             .logo {
-                gap: 10px;
-                height: 34px;
+                gap: 8px;
             }
             .header {
                 height: 56px;
@@ -1676,27 +1670,7 @@
 
     <header class="header">
         <div class="logo">
-            <svg class="logo-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <!-- 1. 左侧大圆耳连背部与臀部底弧 -->
-                <path d="M 11.5 14 C 10 10 14.5 5 18 9" stroke="var(--bamboo)" stroke-width="1.7" stroke-linecap="round"/>
-                <path d="M 11.5 14 C 7.5 20 7.5 27 19.5 28.5" stroke="var(--bamboo)" stroke-width="1.7" stroke-linecap="round"/>
-
-                <!-- 2. 头顶弧、右侧小圆耳与脸颊下巴弧线 -->
-                <path d="M 19.5 9 C 21.5 8.2 23.5 8.5 25 10" stroke="var(--gold-l)" stroke-width="1.7" stroke-linecap="round"/>
-                <path d="M 25 10 C 27.5 6.8 29.5 8.2 28.2 11.8" stroke="var(--bamboo)" stroke-width="1.7" stroke-linecap="round"/>
-                <path d="M 28.2 11.8 C 29.8 15.5 27.2 18.8 24.8 18.5" stroke="var(--gold-l)" stroke-width="1.7" stroke-linecap="round"/>
-
-                <!-- 3. 肩颈向下倾斜弧线 -->
-                <path d="M 18.2 10.2 C 20.5 13.5 25 18 26.5 23" stroke="var(--bamboo)" stroke-width="1.7" stroke-linecap="round"/>
-
-                <!-- 4. 腿部/脚掌折叠弧线 -->
-                <path d="M 18.5 25.5 C 18.5 20.8 25.5 20.5 28.2 22.2 C 29.8 23.8 28.8 26.8 25.8 27.5" stroke="var(--bamboo)" stroke-width="1.7" stroke-linecap="round"/>
-
-                <!-- 5. 传神的倾斜眼圈与横椭圆小鼻子 -->
-                <ellipse cx="20.5" cy="14.2" rx="1.1" ry="1.7" fill="var(--bamboo)" transform="rotate(-18 20.5 14.2)"/>
-                <ellipse cx="25" cy="15.2" rx="1.1" ry="1.8" fill="var(--bamboo)" transform="rotate(18 25 15.2)"/>
-                <ellipse cx="23" cy="17.2" rx="1.4" ry="0.8" fill="var(--gold-l)"/>
-            </svg>
+            <img class="logo-img" src="熊猫logo.webp" alt="熊猫创意 Logo">
             <div class="logo-words">
                 <span class="logo-cn">熊猫创意</span>
                 <span class="logo-en">PANDA CREATION</span>
