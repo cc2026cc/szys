@@ -1827,7 +1827,7 @@
         const API_BASE = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/熊猫创意`;
 
         let works = [];
-        const tierNames = ['壁纸级数字版', '6寸艺术微喷实体', '收藏级 A3 实体装裱'];
+        const tierNames = ['壁纸级数字版', '6寸艺术微喷实体', '16寸收藏级艺术微喷'];
         let cur = 0,
             curVer = 0,
             busy = false;
@@ -2588,7 +2588,7 @@
             container.innerHTML = tierNames.map((name, i) => `
                     <div class="p-tier">
                         <div class="p-tier-name">${name}</div>
-                        <div class="p-tier-spec">${i===0?'1080P 高清原图': i===1?'带实木相框装裱':'艺术微喷实木装裱'}</div>
+                        <div class="p-tier-spec">${i===0?'1080P 高清原图': i===1?'带实木相框装裱':'艺术微喷实体装裱'}</div>
                         <div class="p-tier-price">¥${w.prices[i]}</div>
                     </div>
                 `).join('');
