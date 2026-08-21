@@ -301,13 +301,13 @@
                 display: none !important;
             }
 
-            /* 新增的低饱和度褐色小条 (仅无TXT时显示) */
+            /* 手机端精简工具条（半透明毛玻璃效果） */
             .lb-mobile-simple-bar {
                 display: none; position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
-                width: 88%; height: 58px; background: rgba(90, 75, 65, 0.85);
-                backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 8px; z-index: 20;
+                width: 88%; height: 58px; background: rgba(20, 20, 30, 0.55);
+                backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-radius: 12px; z-index: 20;
                 padding: 0 16px; justify-content: space-between; align-items: center;
-                box-shadow: 0 8px 30px rgba(0,0,0,0.6); border: 1px solid rgba(255, 255, 255, 0.08);
+                box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.15);
             }
             .lb-mobile-container.no-story-mode .lb-mobile-simple-bar { display: flex; }
             .lb-mobile-simple-bar .ms-title {
@@ -547,11 +547,9 @@
                     <div class="lb-tag-row" id="lbSeries">神话系列</div>
                     <div class="lb-ghost-num" id="lbGhost">01</div>
                     <div class="lb-art-name" id="lbName">财神七仔</div>
-                    <div class="lb-art-desc" id="lbDesc"></div>
-                    <div class="lb-art-chips" id="lbChips"></div>
                 </div>
                 <div class="lb-story">
-                    <div class="lb-story-title">设计故事</div>
+                    <div class="lb-story-title">创作故事</div>
                     <div class="lb-story-text" id="lbStory">故事的细节将在此呈现。</div>
                 </div>
                 <button class="btn-collect" onclick="openPurchaseFromLB()">购买收藏</button>
@@ -909,21 +907,12 @@
             document.getElementById('lbGhost').textContent = w.num;
             document.getElementById('lbName').textContent = w.name;
             
-            const lbDesc = document.getElementById('lbDesc');
-            const lbChips = document.getElementById('lbChips');
             const lbStoryArea = document.querySelector('.lb-story');
 
-            // 需求：如果没有 txt 文档，PC端取消作品下方的文字、文字标签及创作故事
             if (w.hasStory) {
-                lbDesc.textContent = w.desc;
-                lbChips.innerHTML = w.chips.map(c => `<span class="lb-chip">${c}</span>`).join('');
                 document.getElementById('lbStory').textContent = w.story;
-                lbDesc.style.display = 'block';
-                lbChips.style.display = 'flex';
                 lbStoryArea.style.display = 'block';
             } else {
-                lbDesc.style.display = 'none';
-                lbChips.style.display = 'none';
                 lbStoryArea.style.display = 'none';
             }
             
@@ -1042,24 +1031,7 @@
 
             mobileImg.onload = updateImgRatio;
 
-            let buyFixed = document.querySelector('.lb-mobile-buy-fixed');
-            if (!buyFixed) {
-                buyFixed = document.createElement('div');
-                buyFixed.className = 'lb-mobile-buy-fixed';
-                const btn = document.createElement('button');
-                btn.innerHTML = '购买收藏';
-                btn.onclick = function(e) {
-                    e.stopPropagation();
-                    openPurchaseFromLB();
-                };
-                buyFixed.appendChild(btn);
-                const lightbox = document.getElementById('lightbox');
-                lightbox.appendChild(buyFixed);
-            }
-            mobileBuyFixed = buyFixed;
-
             mobileContainer.style.display = 'block';
-            if (mobileBuyFixed) mobileBuyFixed.style.display = 'flex';
         }
 
         function updateImgRatio() {
@@ -1112,7 +1084,6 @@
             
             if (!infoArea || !container) return;
 
-            // 需求：如果没有 TXT 文档，改变交互和UI
             if (!w.hasStory) {
                 container.classList.add('no-story-mode');
                 if(simpleBar) {
@@ -1123,15 +1094,13 @@
                 }
             } else {
                 container.classList.remove('no-story-mode');
-                const chipsHTML = w.chips.map(c => `<span class="mi-chip">${c}</span>`).join('');
                 infoArea.innerHTML = `
                     <div class="info-inner">
                         <div class="mi-title">${w.name}</div>
                         <div class="mi-num">${w.num}</div>
-                        <div class="mi-desc">${w.desc}</div>
-                        <div class="mi-chips">${chipsHTML}</div>
-                        <div class="mi-story-title">设计故事</div>
+                        <div class="mi-story-title">创作故事</div>
                         <div class="mi-story-text">${w.story}</div>
+                        <button class="btn-collect" style="width:100%; padding:12px; margin-top:16px;" onclick="openPurchaseFromLB()">购买收藏</button>
                     </div>
                 `;
             }
