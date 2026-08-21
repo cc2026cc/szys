@@ -698,18 +698,30 @@
                         if (fileRes.ok) {
                             const fileData = await fileRes.json();
                             files = fileData.map(f => f.name);
-                            // 核心：检测当前目录下是否存在 .txt 文件
-                            hasTxt = files.some(f => f.toLowerCase().endsWith('.txt'));
                         }
                     } catch (e) {}
 
                     if (files.length === 0) {
                         // 模拟数据 fallback：给部分模拟数据假定存在 txt 方便离线测试
-                        if (folderName.includes('01')) { files = ['20260804财神七仔qsq01.webp', '20260804财神版七仔02.webp']; hasTxt = true; }
-                        else if (folderName.includes('02')) { files = ['弥勒七仔mlq01.webp']; hasTxt = true; }
-                        else if (folderName.includes('03')) { files = ['如来七仔rlq01.webp']; hasTxt = false; }
-                        else if (folderName.includes('04')) { files = ['悟空七仔wqkz01.webp']; hasTxt = false; }
-                        else if (folderName.includes('05')) { files = ['小女孩骑着七仔qzqz01.webp']; hasTxt = false; }
+                        if (folderName.includes('01')) { files = ['20260804财神七仔qsq01.webp', '20260804财神版七仔02.webp']; }
+                        else if (folderName.includes('02')) { files = ['弥勒七仔mlq01.webp']; }
+                        else if (folderName.includes('03')) { files = ['如来七仔rlq01.webp']; }
+                        else if (folderName.includes('04')) { files = ['悟空七仔wqkz01.webp']; }
+                        else if (folderName.includes('05')) { files = ['小女孩骑着七仔qzqz01.webp']; }
+                    }
+
+                    // 异步读取目录下的 TXT 文件内容
+                    let txtContent = '';
+                    const txtFile = files.find(f => f.toLowerCase().endsWith('.txt'));
+                    if (txtFile) {
+                        try {
+                            const txtRes = await fetch(`./熊猫创意/${encodeURIComponent(folderName)}/${encodeURIComponent(txtFile)}?t=${timestamp}`);
+                            if (txtRes.ok) {
+                                txtContent = (await txtRes.text()).trim();
+                            }
+                        } catch (e) {
+                            console.warn('读取TXT文档失败:', e);
+                        }
                     }
 
                     let images = files.filter(f => ['jpg', 'jpeg', 'png', 'webp'].includes(f.split('.').pop().toLowerCase()));
@@ -728,20 +740,13 @@
                     }
 
                     const textData = textDataDict[extractedName] || defaultText;
-
-                    // 动态读取作品根目录下的 TXT 文档文本内容
-                    let storyTxt = textData.story;
-                    if (hasTxt) {
-                        const txtFileName = files.find(f => f.toLowerCase().endsWith('.txt'));
-                        if (txtFileName) {
-                            try {
-                                const txtUrl = `./熊猫创意/${encodeURIComponent(folderName)}/${encodeURIComponent(txtFileName)}?t=${timestamp}`;
-                                const txtRes = await fetch(txtUrl);
-                                if (txtRes.ok) {
-                                    storyTxt = await txtRes.text();
-                                }
-                            } catch (e) {}
-                        }
+                    
+                    // 若存在 TXT 文件且有内容则优先使用 TXT 内容，否则使用配置中的故事文字
+                    const finalStory = txtContent || textData.story;
+                    if (txtContent) {
+                        hasTxt = true;
+                    } else {
+                        hasTxt = files.some(f => f.toLowerCase().endsWith('.txt'));
                     }
 
                     const versions = images.map(imgName => {
@@ -762,7 +767,7 @@
                         series: '神话系列',
                         num: extractedNum,
                         desc: textData.desc,
-                        story: storyTxt,
+                        story: finalStory,
                         chips: textData.chips,
                         prices: textData.prices || defaultText.prices,
                         versions: versions,
@@ -854,6 +859,11 @@
             curVer = 0;
             isMobile = window.innerWidth < 1100;
 
+            // 打开大图时向浏览器历史压入一条记录，用于手机端侧滑返回
+            if (!history.state || !history.state.lightbox) {
+                history.pushState({ lightbox: true }, '');
+            }
+
             if (isMobile) {
                 document.getElementById('lightbox').classList.add('is-mobile');
                 setupMobileLightbox();
@@ -901,8 +911,11 @@
             document.getElementById('lightbox').classList.remove('is-mobile');
         }
 
-        function closeLB() {
-            document.getElementById('lightbox').classList.remove('active');
+        function closeLB(fromPopState = false) {
+            const lb = document.getElementById('lightbox');
+            if (!lb || !lb.classList.contains('active')) return;
+
+            lb.classList.remove('active');
             document.body.style.overflow = '';
             isDragging = false;
             isAnimating = false;
@@ -910,6 +923,11 @@
             
             if (isMobile) {
                 cleanupMobileContainer();
+            }
+
+            // 如果是用户主动点击关闭按钮而非手机返回键，则退回刚才压入的历史记录
+            if (!fromPopState && history.state && history.state.lightbox) {
+                history.back();
             }
         }
 
@@ -998,18 +1016,6 @@
         // ==========================================
         // 手机模式
         // ==========================================
-        let touchStartX = 0;
-        let touchCurrentX = 0;
-        let touchStartY = 0;
-        let touchCurrentY = 0;
-        let touchStartTime = 0;
-        let isDragging = false;
-        let dragProgress = 0;
-        let isAnimating = false;
-        let touchOnInfoArea = false;
-        let startProgress = 0;
-        let isHorizontalSwipe = false;
-
         function setupMobileLightbox() {
             const stage = document.getElementById('lbStage');
             let container = document.getElementById('lbMobileContainer');
@@ -1153,17 +1159,17 @@
 
         function onTouchStart(e) {
             if (e.touches.length !== 1) return;
+            const container = document.getElementById('lbMobileContainer');
+            // 需求拦截：如果不存在 txt(处于no-story-mode)，直接禁止上滑动效果，固定居中
+            if (container && container.classList.contains('no-story-mode')) return;
 
             if (isAnimating) isAnimating = false;
 
             const touch = e.touches[0];
-            touchStartX = touch.clientX;
-            touchCurrentX = touchStartX;
             touchStartY = touch.clientY;
             touchCurrentY = touchStartY;
             touchStartTime = Date.now();
             isDragging = false;
-            isHorizontalSwipe = false;
             startProgress = dragProgress;
             touchOnInfoArea = false;
 
@@ -1181,28 +1187,11 @@
 
         function onTouchMove(e) {
             if (e.touches.length !== 1) return;
-            const touch = e.touches[0];
-            const dx = touch.clientX - touchStartX;
-            const dy = touch.clientY - touchStartY;
-            touchCurrentX = touch.clientX;
-            touchCurrentY = touch.clientY;
-
-            // 优先捕获向左滑动（水平位移大于垂直位移，且方向为左）
-            if (!isDragging && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > DRAG_THRESHOLD) {
-                if (dx < 0) {
-                    isHorizontalSwipe = true;
-                    isDragging = true;
-                }
-            }
-
-            if (isHorizontalSwipe) {
-                // 拦截浏览器默认的滑动手势，防止导致网页退出
-                if (e.cancelable) e.preventDefault();
-                return;
-            }
-
             const container = document.getElementById('lbMobileContainer');
             if (container && container.classList.contains('no-story-mode')) return;
+
+            const dy = e.touches[0].clientY - touchStartY;
+            touchCurrentY = e.touches[0].clientY;
 
             if (touchOnInfoArea) {
                 const infoEl = document.getElementById('lbMobileInfoArea');
@@ -1232,18 +1221,6 @@
         }
 
         function onTouchEnd(e) {
-            if (isHorizontalSwipe) {
-                const dx = touchCurrentX - touchStartX;
-                const dt = Date.now() - touchStartTime;
-                // 当左滑距离超过 40px 或快速左滑时，直接退出大图返回首页缩略图
-                if (dx < -40 || (dx < -20 && dt < 250)) {
-                    closeLB();
-                }
-                isHorizontalSwipe = false;
-                isDragging = false;
-                return;
-            }
-
             const container = document.getElementById('lbMobileContainer');
             if (container && container.classList.contains('no-story-mode')) return;
 
@@ -1433,6 +1410,28 @@
             if (document.getElementById('purchaseModal').classList.contains('active')) return;
             const dx = e.changedTouches[0].clientX - tx;
             if (Math.abs(dx) > 55) nav(dx < 0 ? 1 : -1);
+        });
+
+        // ─── 手机端侧滑/返回键拦截处理 ───
+        window.addEventListener('popstate', () => {
+            const purchaseModal = document.getElementById('purchaseModal');
+            const wxQrModal = document.getElementById('wxQrModal');
+            const lightbox = document.getElementById('lightbox');
+
+            // 若弹窗开启，优先关闭购买弹窗
+            if (purchaseModal && purchaseModal.classList.contains('active')) {
+                closePurchaseModal();
+                return;
+            }
+            // 若微信客服二维码开启，关闭客服弹窗
+            if (wxQrModal && wxQrModal.classList.contains('active')) {
+                closeWxQR();
+                return;
+            }
+            // 若大图灯箱开启，关闭大图返回首页
+            if (lightbox && lightbox.classList.contains('active')) {
+                closeLB(true);
+            }
         });
 
         // ─── 启动 ───
