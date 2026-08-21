@@ -2082,7 +2082,7 @@
                         const lower = imgName.toLowerCase();
                         const label = (lower.includes('横') || lower.includes('02')) ? '横版' : '竖版';
                         return {
-                            src: `./熊猫创意/${folderName}/${imgName}`,
+                            src: encodeURI(`./熊猫创意/${folderName}/${imgName}`),
                             label: label
                         };
                     });
@@ -2124,7 +2124,7 @@
                 const cardHTML = `
                 <div class="art-card" style="animation-delay: ${i*0.1}s;" onclick="openLB(${i})">
                     <div class="img-wrap">
-                        <img id="card-img-${i}" alt="${w.name}" loading="lazy" />
+                        <img id="card-img-${i}" alt="${w.name}" />
                     </div>
                     <div class="art-overlay"></div>
                     
@@ -2212,11 +2212,13 @@
                 document.getElementById('lightbox').classList.add('active');
                 document.body.style.overflow = 'hidden';
                 
-                // 【居中修正】安全实现图片居中，避开移动端 Flexbox 塌陷 Bug
-                const mobileCard = document.querySelector('.lb-mobile-img-area .lb-card');
-                if (mobileCard) {
-                    mobileCard.style.alignItems = isImmersive ? 'center' : 'flex-start';
+                // 【居中修正】纯净模式下，让图片在全屏幕范围内绝对居中
+                const imgArea = document.querySelector('.lb-mobile-img-area');
+                if (imgArea) {
+                    imgArea.style.alignItems = isImmersive ? 'center' : 'flex-start';
+                    imgArea.style.paddingBottom = '0'; 
                 }
+
             } else {
                 document.getElementById('lightbox').classList.remove('is-mobile');
                 fillLB(idx, 0);
@@ -2232,13 +2234,9 @@
                 card.addEventListener('animationend', () => card.classList.remove('enter'), { once: true });
             }
             
-            // 【防退出机制】加 try-catch 防止微信或本地环境中由于安全限制导致 JS 崩溃
-            try {
-                if (!history.state || !history.state.lbOpen) {
-                    history.pushState({ lbOpen: true }, "");
-                }
-            } catch (e) {
-                console.warn('当前环境不支持写入历史记录，已自动降级处理', e);
+            // 【防退出机制】写入历史记录，防止安卓手机侧滑/点返回键直接退出整个网页
+            if (!history.state || !history.state.lbOpen) {
+                history.pushState({ lbOpen: true }, "");
             }
         }
 
@@ -2265,12 +2263,10 @@
                 cleanupMobileContainer();
             }
             
-            // 如果是通过页面按钮主动关闭，则向后退一步消耗掉刚才增加的历史记录（加入容错保护）
-            try {
-                if (fromPopState !== true && history.state && history.state.lbOpen) {
-                    history.back();
-                }
-            } catch (e) {}
+            // 如果是通过页面按钮主动关闭，则向后退一步消耗掉刚才增加的历史记录
+            if (fromPopState !== true && history.state && history.state.lbOpen) {
+                history.back();
+            }
         }
         
         // 【新增监听】拦截浏览器的后退动作（安卓侧滑/返回键）
@@ -2512,11 +2508,21 @@
                     mobileBuyFixed.classList.add('immersive');
                     mobileBuyFixed.querySelector('.lb-mobile-immersive-title').textContent = w.name;
                 }
+                const imgArea = document.querySelector('.lb-mobile-img-area');
+                if (imgArea) {
+                    imgArea.style.alignItems = 'center'; // 垂直居中
+                    imgArea.style.paddingBottom = '55px'; // 重点优化：给底部的毛玻璃条让出空间，保证视觉绝对居中
+                }
             } else {
                 // 有TXT -> 常规带故事抽屉模式
                 infoArea.style.display = 'block';
                 if (mobileBuyFixed) {
                     mobileBuyFixed.classList.remove('immersive');
+                }
+                const imgArea = document.querySelector('.lb-mobile-img-area');
+                if (imgArea) {
+                    imgArea.style.alignItems = 'flex-start';
+                    imgArea.style.paddingBottom = '0'; // 恢复原状
                 }
                 
                 infoArea.innerHTML = `
