@@ -1027,14 +1027,12 @@
                 -webkit-tap-highlight-color: transparent !important;
             }
 
-            /* 沉浸模式下的排版变化 (采用缩略图同款紧凑型毛玻璃) */
+            /* 沉浸模式下的排版变化 (采用低饱和度褐色底色色块) */
             .lb-mobile-buy-fixed.immersive {
                 justify-content: space-between;
-                padding: 10px 20px; /* 紧凑的高度，只比按钮和文字高一点 */
-                background: rgba(180, 130, 70, 0.28);
-                backdrop-filter: blur(3px) saturate(1.3);
-                -webkit-backdrop-filter: blur(3px) saturate(1.3);
-                border-top: 1px solid rgba(255, 230, 180, 0.35);
+                padding: 10px 20px;
+                background: #1f1b18; /* 低饱和度褐色色块 */
+                border-top: 1px solid #2e2823;
             }
 
             .lb-mobile-immersive-title {
@@ -2189,7 +2187,7 @@
             cur = idx;
             curVer = 0;
             isMobile = window.innerWidth < 1100;
-            isImmersive = !works[cur].story; // 根据有无故事动态判断是否进入沉浸模式
+            isImmersive = !works[cur].story; 
 
             if (isMobile) {
                 document.getElementById('lightbox').classList.add('is-mobile');
@@ -2213,6 +2211,14 @@
                 renderMobileVersionSwitch();
                 document.getElementById('lightbox').classList.add('active');
                 document.body.style.overflow = 'hidden';
+                
+                // 【居中修正】纯净模式下，让图片在全屏幕范围内绝对居中
+                const imgArea = document.querySelector('.lb-mobile-img-area');
+                if (imgArea) {
+                    imgArea.style.alignItems = isImmersive ? 'center' : 'flex-start';
+                    imgArea.style.paddingBottom = '0'; 
+                }
+
             } else {
                 document.getElementById('lightbox').classList.remove('is-mobile');
                 fillLB(idx, 0);
@@ -2226,6 +2232,11 @@
                 void card.offsetWidth;
                 card.classList.add('enter');
                 card.addEventListener('animationend', () => card.classList.remove('enter'), { once: true });
+            }
+            
+            // 【防退出机制】写入历史记录，防止安卓手机侧滑/点返回键直接退出整个网页
+            if (!history.state || !history.state.lbOpen) {
+                history.pushState({ lbOpen: true }, "");
             }
         }
 
@@ -2241,7 +2252,7 @@
             document.getElementById('lightbox').classList.remove('is-mobile');
         }
 
-        function closeLB() {
+        function closeLB(fromPopState = false) {
             document.getElementById('lightbox').classList.remove('active');
             document.body.style.overflow = '';
             isDragging = false;
@@ -2251,7 +2262,31 @@
             if (isMobile) {
                 cleanupMobileContainer();
             }
+            
+            // 如果是通过页面按钮主动关闭，则向后退一步消耗掉刚才增加的历史记录
+            if (fromPopState !== true && history.state && history.state.lbOpen) {
+                history.back();
+            }
         }
+        
+        // 【新增监听】拦截浏览器的后退动作（安卓侧滑/返回键）
+        window.addEventListener('popstate', (e) => {
+            const lightbox = document.getElementById('lightbox');
+            const purchaseModal = document.getElementById('purchaseModal');
+            const wxQrModal = document.getElementById('wxQrModal');
+            
+            // 只要按返回键，就确保把弹窗和灯箱层层关掉，不退出网页
+            if (wxQrModal && wxQrModal.classList.contains('active')) {
+                wxQrModal.classList.remove('active');
+            }
+            if (purchaseModal && purchaseModal.classList.contains('active')) {
+                purchaseModal.classList.remove('active');
+                document.body.style.overflow = (lightbox.classList.contains('active') && !isMobile) ? 'hidden' : '';
+            }
+            if (lightbox && lightbox.classList.contains('active')) {
+                closeLB(true); // 传入 true 告知是系统返回，无需二次 history.back()
+            }
+        });
 
         // 填充 PC 端灯箱
         function fillLB(idx, verIdx) {
