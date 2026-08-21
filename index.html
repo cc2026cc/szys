@@ -341,26 +341,6 @@
             border-radius: 0 0 6px 6px;
         }
 
-        .art-num {
-            position: absolute;
-            top: 13px;
-            right: 13px;
-            z-index: 4;
-            width: 30px;
-            height: 30px;
-            border: 1px solid rgba(201, 168, 76, .35);
-            background: rgba(4, 4, 10, .75);
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            font-weight: 700;
-            color: var(--gold);
-            letter-spacing: 1px;
-            border-radius: 2px;
-        }
-
         .art-info {
             position: absolute;
             bottom: 0;
@@ -875,7 +855,7 @@
                 background: var(--bg);
             }
 
-            /* ---- 图片区域 (顶部对齐) ---- */
+            /* ---- 图片区域 ---- */
             .lb-mobile-img-area {
                 position: absolute;
                 top: 0;
@@ -925,7 +905,6 @@
             .lb-mobile-version-switch {
                 position: absolute;
                 right: 12px;
-                /* 修复按钮距离：关闭按钮top(12px) + 关闭按钮尺寸(48px) + 两个按钮尺寸(38px * 2) = 136px */
                 top: 136px;
                 z-index: 15;
                 display: flex;
@@ -1031,7 +1010,7 @@
                 white-space: pre-wrap;
             }
 
-            /* ---- 底部购买按钮 (固定始终显示，精致紧凑) ---- */
+            /* ---- 底部悬浮条 (默认故事模式 / 纯净沉浸模式) ---- */
             .lb-mobile-buy-fixed {
                 position: fixed;
                 bottom: 0;
@@ -1042,9 +1021,27 @@
                 background: linear-gradient(to top, rgba(4, 4, 10, 0.88) 0%, transparent 100%);
                 pointer-events: auto;
                 display: flex;
-                justify-content: center;
+                align-items: center;
+                justify-content: center; /* 故事模式下，按钮居中 */
                 opacity: 1;
                 -webkit-tap-highlight-color: transparent !important;
+            }
+
+            /* 沉浸模式下的排版变化 */
+            .lb-mobile-buy-fixed.immersive {
+                justify-content: space-between;
+            }
+
+            .lb-mobile-immersive-title {
+                font-size: 16px;
+                font-weight: 600;
+                color: var(--t1);
+                letter-spacing: 2px;
+                display: none;
+            }
+
+            .lb-mobile-buy-fixed.immersive .lb-mobile-immersive-title {
+                display: block;
             }
 
             .lb-mobile-buy-fixed button {
@@ -1132,14 +1129,6 @@
                 bottom: 10px;
                 right: 8px;
             }
-
-            .art-num {
-                width: 20px;
-                height: 20px;
-                font-size: 7px;
-                top: 6px;
-                right: 6px;
-            }
         }
 
         /* 小屏手机适配 */
@@ -1153,7 +1142,6 @@
 
             .lb-mobile-version-switch {
                 right: 8px;
-                /* 修复按钮距离：12(top) + 48(close height) + 32*2(gap) = 124px */
                 top: 124px;
                 gap: 6px;
             }
@@ -1369,13 +1357,10 @@
         }
 
         @keyframes softPulse {
-
-            0%,
-            100% {
+            0%, 100% {
                 box-shadow: 0 0 8px rgba(255, 200, 80, 0.3);
                 border-color: rgba(255, 200, 80, 0.4);
             }
-
             50% {
                 box-shadow: 0 0 20px rgba(255, 200, 80, 0.7), 0 0 40px rgba(255, 200, 80, 0.3);
                 border-color: rgba(255, 200, 80, 0.8);
@@ -1881,7 +1866,7 @@
         <div class="g-grid" id="galleryGrid"></div>
     </section>
 
-    <!-- ===== 优化了结构与样式的底脚 ===== -->
+    <!-- ===== 页脚 ===== -->
     <footer class="footer">
         <div>
             <div class="footer-logo-text">熊猫创意</div>
@@ -2000,6 +1985,8 @@
             purchaseVer = 0,
             purchaseTier = 0,
             purchasePay = 0;
+            
+        let isImmersive = false; // 用于判定是否为沉浸模式全局变量
 
         function setImageWithBlur(imgElement, highResSrc) {
             if (!imgElement) return;
@@ -2007,7 +1994,7 @@
         }
 
         // ==========================================
-        // 加载作品（增加了对对应文件夹下txt内容的读取）
+        // 加载作品（按需读取对应文件夹下的txt文件）
         // ==========================================
         async function loadWorksFromGitHub() {
             const grid = document.getElementById('galleryGrid');
@@ -2043,7 +2030,7 @@
                 const promises = sortedFolders.map(async (folder) => {
                     const folderName = folder.name;
                     let files = [];
-                    let storyText = ''; // 存放读取到的TXT内容
+                    let storyText = '';
 
                     try {
                         const folderUrl = `${API_BASE}/${encodeURIComponent(folderName)}?t=${timestamp}`;
@@ -2052,7 +2039,7 @@
                             const fileData = await fileRes.json();
                             files = fileData.map(f => f.name);
                             
-                            // 读取文件夹下的 TXT 文件
+                            // 读取 TXT 内容
                             const txtItem = fileData.find(f => f.name.toLowerCase().endsWith('.txt'));
                             if (txtItem && txtItem.download_url) {
                                 try {
@@ -2107,7 +2094,7 @@
                         name: extractedName,
                         series: '神话系列',
                         num: extractedNum,
-                        story: storyText.trim(), // 存在txt的话则存入
+                        story: storyText.trim(),
                         prices: [19.9, 89, 799],
                         versions: versions
                     };
@@ -2122,7 +2109,7 @@
         }
 
         // ==========================================
-        // 首页网格渲染
+        // 首页网格渲染（去除序号，拼接到神话系列后面）
         // ==========================================
         function renderGallery() {
             const grid = document.getElementById('galleryGrid');
@@ -2130,15 +2117,16 @@
             let cols = Array.from({ length: colCount }, () => []);
 
             works.forEach((w, i) => {
+                const seq = String(i+1).padStart(2,'0'); // 获取序号：01, 02 等
                 const cardHTML = `
                 <div class="art-card" style="animation-delay: ${i*0.1}s;" onclick="openLB(${i})">
                     <div class="img-wrap">
                         <img id="card-img-${i}" alt="${w.name}" loading="lazy" />
                     </div>
                     <div class="art-overlay"></div>
-                    <div class="art-num">${String(i+1).padStart(2,'0')}</div>
+                    
                     <div class="art-info">
-                        <div class="art-series">${w.series}</div>
+                        <div class="art-series">${w.series} ${seq}</div>
                         <div class="art-title-text">${w.name}</div>
                         <div class="art-meta-text">${w.num}</div>
                     </div>
@@ -2189,7 +2177,6 @@
         let mobileVersionSwitch = null;
         let mobileBuyFixed = null;
         
-        // 手机布局参数
         let currentImgRatio = 0.70; 
         const BUY_SHOW_PROGRESS = 0.30;
 
@@ -2197,6 +2184,7 @@
             cur = idx;
             curVer = 0;
             isMobile = window.innerWidth < 1100;
+            isImmersive = !works[cur].story; // 根据有无故事动态判断是否进入沉浸模式
 
             if (isMobile) {
                 document.getElementById('lightbox').classList.add('is-mobile');
@@ -2272,7 +2260,6 @@
             document.getElementById('lbGhost').textContent = w.num;
             document.getElementById('lbName').textContent = w.name;
             
-            // 是否存在txt文件（story内容），有则显示区块，无则隐藏
             const storyBlock = document.getElementById('lbStoryBlock');
             if (w.story) {
                 storyBlock.style.display = 'block';
@@ -2363,7 +2350,7 @@
                 const imgArea = document.createElement('div');
                 imgArea.className = 'lb-mobile-img-area';
                 imgArea.onclick = function(e) {
-                    if (mobileExpanded) {
+                    if (mobileExpanded && !isImmersive) {
                         collapseMobileInfo();
                     }
                 };
@@ -2395,10 +2382,16 @@
             mobileVersionSwitch = document.getElementById('lbMobileVersionSwitch');
             mobileImg.onload = updateImgRatio;
 
+            // 悬浮购买条初始化 (加入左侧画作名称供纯净模式使用)
             let buyFixed = document.querySelector('.lb-mobile-buy-fixed');
             if (!buyFixed) {
                 buyFixed = document.createElement('div');
                 buyFixed.className = 'lb-mobile-buy-fixed';
+                
+                const titleEl = document.createElement('div');
+                titleEl.className = 'lb-mobile-immersive-title';
+                buyFixed.appendChild(titleEl);
+
                 const btn = document.createElement('button');
                 btn.innerHTML = '购买收藏';
                 btn.onclick = function(e) {
@@ -2406,6 +2399,7 @@
                     openPurchaseFromLB();
                 };
                 buyFixed.appendChild(btn);
+                
                 const lightbox = document.getElementById('lightbox');
                 lightbox.appendChild(buyFixed);
             }
@@ -2417,16 +2411,19 @@
 
         function updateImgRatio() {
             if (!isMobile || !mobileImg) return;
+
+            // 沉浸模式下直接全屏占满，图像居中
+            if (isImmersive) {
+                currentImgRatio = 1.0;
+                updateMobileTransform(0);
+                return;
+            }
+            
             const aspect = mobileImg.naturalWidth / mobileImg.naturalHeight;
             if (aspect && aspect > 0) {
                 const viewW = window.innerWidth;
                 const viewH = window.innerHeight;
-                let actualH;
-                if (viewW / aspect > viewH) {
-                    actualH = viewH;
-                } else {
-                    actualH = viewW / aspect;
-                }
+                let actualH = (viewW / aspect > viewH) ? viewH : (viewW / aspect);
                 let ratio = actualH / viewH;
                 ratio = ratio + 0.02; 
                 currentImgRatio = Math.min(Math.max(ratio, 0.35), 0.70);
@@ -2437,7 +2434,7 @@
         }
 
         function collapseMobileInfo() {
-            if (!mobileExpanded) return;
+            if (!mobileExpanded || isImmersive) return;
             mobileExpanded = false;
             if (mobileImgCard) {
                 mobileImgCard.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
@@ -2456,21 +2453,41 @@
             dragProgress = 0;
         }
 
+        // 手机端依据有无故事执行不同的布局填充
         function fillMobileInfo(idx, verIdx) {
             const w = works[idx];
+            isImmersive = !w.story; 
+            
             const infoArea = document.getElementById('lbMobileInfoArea');
             if (!infoArea) return;
             
-            // 是否存在txt文件（story内容），有则显示区块，无则隐藏
-            const storyHTML = w.story ? `<div class="mi-story-title">设计故事</div><div class="mi-story-text">${w.story}</div>` : '';
-            
-            infoArea.innerHTML = `
-                <div class="info-inner">
-                    <div class="mi-title">${w.name}</div>
-                    <div class="mi-num">${w.num}</div>
-                    ${storyHTML}
-                </div>
-            `;
+            if (isImmersive) {
+                // 无TXT -> 进入沉浸模式
+                infoArea.style.display = 'none';
+                if (mobileBuyFixed) {
+                    mobileBuyFixed.classList.add('immersive');
+                    mobileBuyFixed.querySelector('.lb-mobile-immersive-title').textContent = w.name;
+                }
+                const imgArea = document.querySelector('.lb-mobile-img-area');
+                if (imgArea) imgArea.style.alignItems = 'center';
+            } else {
+                // 有TXT -> 常规带故事抽屉模式
+                infoArea.style.display = 'block';
+                if (mobileBuyFixed) {
+                    mobileBuyFixed.classList.remove('immersive');
+                }
+                const imgArea = document.querySelector('.lb-mobile-img-area');
+                if (imgArea) imgArea.style.alignItems = 'flex-start';
+                
+                infoArea.innerHTML = `
+                    <div class="info-inner">
+                        <div class="mi-title">${w.name}</div>
+                        <div class="mi-num">${w.num}</div>
+                        <div class="mi-story-title">设计故事</div>
+                        <div class="mi-story-text">${w.story}</div>
+                    </div>
+                `;
+            }
         }
 
         function renderMobileVersionSwitch() {
@@ -2487,13 +2504,14 @@
             ).join('');
         }
 
-        // ─── 触摸处理 ───
+        // ─── 触摸处理 (沉浸模式下屏蔽触摸缩放拖拽功能) ───
         const DRAG_THRESHOLD = 10;
         let rafId = null;
 
         function onTouchStart(e) {
-            if (e.touches.length !== 1) return;
+            if (isImmersive) return; // 沉浸模式禁用上滑缩小手势
             
+            if (e.touches.length !== 1) return;
             if (isAnimating) {
                 isAnimating = false;
             }
@@ -2524,8 +2542,9 @@
         }
 
         function onTouchMove(e) {
-            if (e.touches.length !== 1) return;
+            if (isImmersive) return; // 沉浸模式禁用上滑缩小手势
 
+            if (e.touches.length !== 1) return;
             const dy = e.touches[0].clientY - touchStartY;
             touchCurrentY = e.touches[0].clientY;
 
@@ -2568,6 +2587,8 @@
         }
 
         function onTouchEnd(e) {
+            if (isImmersive) return; // 沉浸模式禁用上滑缩小手势
+
             if (rafId) {
                 cancelAnimationFrame(rafId);
                 rafId = null;
@@ -2627,6 +2648,14 @@
         }
 
         function updateMobileTransform(progress) {
+            // 沉浸模式锁定为最大比例且不生成面板
+            if (isImmersive) {
+                if (mobileImgCard) mobileImgCard.style.transform = `scale(1)`;
+                if (mobileInfoArea) mobileInfoArea.style.top = '100%';
+                checkBuyButtonVisibility();
+                return;
+            }
+            
             const minR = Math.min(0.30, currentImgRatio * 0.5);
             const scale = 1 - progress * (1 - minR / currentImgRatio);
             if (mobileImgCard) {
