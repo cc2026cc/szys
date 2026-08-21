@@ -1976,7 +1976,7 @@
         // ==========================================
         const GITHUB_USERNAME = "cc2026cc";
         const REPO_NAME = "szys";
-        const API_BASE = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/熊猫创意`;
+        const API_BASE = encodeURI(`https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/熊猫创意`);
 
         let works = [];
         const tierNames = ['壁纸级数字版', '6寸艺术微喷实体', '16寸收藏级实体版'];
