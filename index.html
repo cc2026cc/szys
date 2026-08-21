@@ -590,7 +590,7 @@
                 <div class="purchase-steps">
                     <div class="p-step"><span class="p-step-n">1</span>扫码付款</div>
                     <div class="p-step"><span class="p-step-n">2</span>备注编号+邮箱/地址</div>
-                    <div class="p-step"><span class="p-step-n">3</span>24h内发货</div>
+                    <div class="p-step"><span class="p-step-n">3</span>电子版24h内发货，实体版7天内发货</div>
                 </div>
             </div>
         </div>
@@ -972,21 +972,16 @@
             if (busy || verIdx === curVer) return;
             curVer = verIdx;
             const v = works[cur].versions[verIdx];
-
-            // 1. 直接精准获取 DOM，同时更新手机端与 PC 端的图片
-            const mobileImgEl = document.getElementById('lbMobileImg');
-            if (mobileImgEl) {
-                mobileImgEl.onload = updateImgRatio; // 重新绑定加载完成回调，确保切换横竖版后自动重算容器比例
-                setImageWithBlur(mobileImgEl, v.src);
+            
+            if (isMobile) {
+                if (mobileImg) {
+                    setImageWithBlur(mobileImg, v.src);
+                }
+                renderMobileVersionSwitch();
+            } else {
+                setImageWithBlur(document.getElementById('lbImg'), v.src);
+                document.querySelectorAll('.lb-ver-btn').forEach((b, i) => b.classList.toggle('active', i === verIdx));
             }
-            const pcImgEl = document.getElementById('lbImg');
-            if (pcImgEl) {
-                setImageWithBlur(pcImgEl, v.src);
-            }
-
-            // 2. 同步刷新两端切换按钮的状态
-            renderMobileVersionSwitch();
-            document.querySelectorAll('.lb-ver-btn').forEach((b, i) => b.classList.toggle('active', i === verIdx));
         }
 
         function nav(dir) {
@@ -1153,9 +1148,8 @@
                 container.innerHTML = '';
                 return;
             }
-            // 在 onclick 中加入 event.stopPropagation()，阻止点击冒泡到手势容器
             container.innerHTML = w.versions.map((v, i) =>
-                `<button class="${i===curVer?'active':''}" style="font-size: 14px;" onclick="event.stopPropagation(); switchLBVersion(${i})">${i === 0 ? '竖' : '横'}</button>`
+                `<button class="${i===curVer?'active':''}" style="font-size: 14px;" onclick="switchLBVersion(${i})">${i === 0 ? '竖' : '横'}</button>`
             ).join('');
         }
 
