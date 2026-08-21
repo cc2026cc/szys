@@ -1027,15 +1027,20 @@
                 -webkit-tap-highlight-color: transparent !important;
             }
 
-            /* 沉浸模式下的排版变化 */
+            /* 沉浸模式下的排版变化 (采用缩略图同款紧凑型毛玻璃) */
             .lb-mobile-buy-fixed.immersive {
                 justify-content: space-between;
+                padding: 10px 20px; /* 紧凑的高度，只比按钮和文字高一点 */
+                background: rgba(180, 130, 70, 0.28);
+                backdrop-filter: blur(3px) saturate(1.3);
+                -webkit-backdrop-filter: blur(3px) saturate(1.3);
+                border-top: 1px solid rgba(255, 230, 180, 0.35);
             }
 
             .lb-mobile-immersive-title {
                 font-size: 16px;
                 font-weight: 600;
-                color: var(--t1);
+                color: var(--bamboo); /* 替换为绿色主题字体 */
                 letter-spacing: 2px;
                 display: none;
             }
@@ -1899,7 +1904,7 @@
                 </div>
                 
                 <div class="lb-story" id="lbStoryBlock">
-                    <div class="lb-story-title">设计故事</div>
+                    <div class="lb-story-title">创作故事</div>
                     <div class="lb-story-text" id="lbStory"></div>
                 </div>
 
@@ -2469,7 +2474,10 @@
                     mobileBuyFixed.querySelector('.lb-mobile-immersive-title').textContent = w.name;
                 }
                 const imgArea = document.querySelector('.lb-mobile-img-area');
-                if (imgArea) imgArea.style.alignItems = 'center';
+                if (imgArea) {
+                    imgArea.style.alignItems = 'center'; // 垂直居中
+                    imgArea.style.paddingBottom = '55px'; // 重点优化：给底部的毛玻璃条让出空间，保证视觉绝对居中
+                }
             } else {
                 // 有TXT -> 常规带故事抽屉模式
                 infoArea.style.display = 'block';
@@ -2477,7 +2485,10 @@
                     mobileBuyFixed.classList.remove('immersive');
                 }
                 const imgArea = document.querySelector('.lb-mobile-img-area');
-                if (imgArea) imgArea.style.alignItems = 'flex-start';
+                if (imgArea) {
+                    imgArea.style.alignItems = 'flex-start';
+                    imgArea.style.paddingBottom = '0'; // 恢复原状
+                }
                 
                 infoArea.innerHTML = `
                     <div class="info-inner">
