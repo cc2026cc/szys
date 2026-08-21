@@ -728,6 +728,22 @@
                     }
 
                     const textData = textDataDict[extractedName] || defaultText;
+
+                    // 动态读取作品根目录下的 TXT 文档文本内容
+                    let storyTxt = textData.story;
+                    if (hasTxt) {
+                        const txtFileName = files.find(f => f.toLowerCase().endsWith('.txt'));
+                        if (txtFileName) {
+                            try {
+                                const txtUrl = `./熊猫创意/${encodeURIComponent(folderName)}/${encodeURIComponent(txtFileName)}?t=${timestamp}`;
+                                const txtRes = await fetch(txtUrl);
+                                if (txtRes.ok) {
+                                    storyTxt = await txtRes.text();
+                                }
+                            } catch (e) {}
+                        }
+                    }
+
                     const versions = images.map(imgName => {
                         const lower = imgName.toLowerCase();
                         const label = (lower.includes('横') || lower.includes('02')) ? '横版' : '竖版';
@@ -746,7 +762,7 @@
                         series: '神话系列',
                         num: extractedNum,
                         desc: textData.desc,
-                        story: textData.story,
+                        story: storyTxt,
                         chips: textData.chips,
                         prices: textData.prices || defaultText.prices,
                         versions: versions,
@@ -982,6 +998,18 @@
         // ==========================================
         // 手机模式
         // ==========================================
+        let touchStartX = 0;
+        let touchCurrentX = 0;
+        let touchStartY = 0;
+        let touchCurrentY = 0;
+        let touchStartTime = 0;
+        let isDragging = false;
+        let dragProgress = 0;
+        let isAnimating = false;
+        let touchOnInfoArea = false;
+        let startProgress = 0;
+        let isHorizontalSwipe = false;
+
         function setupMobileLightbox() {
             const stage = document.getElementById('lbStage');
             let container = document.getElementById('lbMobileContainer');
@@ -1125,17 +1153,17 @@
 
         function onTouchStart(e) {
             if (e.touches.length !== 1) return;
-            const container = document.getElementById('lbMobileContainer');
-            // 需求拦截：如果不存在 txt(处于no-story-mode)，直接禁止上滑动效果，固定居中
-            if (container && container.classList.contains('no-story-mode')) return;
 
             if (isAnimating) isAnimating = false;
 
             const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchCurrentX = touchStartX;
             touchStartY = touch.clientY;
             touchCurrentY = touchStartY;
             touchStartTime = Date.now();
             isDragging = false;
+            isHorizontalSwipe = false;
             startProgress = dragProgress;
             touchOnInfoArea = false;
 
@@ -1153,11 +1181,28 @@
 
         function onTouchMove(e) {
             if (e.touches.length !== 1) return;
+            const touch = e.touches[0];
+            const dx = touch.clientX - touchStartX;
+            const dy = touch.clientY - touchStartY;
+            touchCurrentX = touch.clientX;
+            touchCurrentY = touch.clientY;
+
+            // 优先捕获向左滑动（水平位移大于垂直位移，且方向为左）
+            if (!isDragging && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > DRAG_THRESHOLD) {
+                if (dx < 0) {
+                    isHorizontalSwipe = true;
+                    isDragging = true;
+                }
+            }
+
+            if (isHorizontalSwipe) {
+                // 拦截浏览器默认的滑动手势，防止导致网页退出
+                if (e.cancelable) e.preventDefault();
+                return;
+            }
+
             const container = document.getElementById('lbMobileContainer');
             if (container && container.classList.contains('no-story-mode')) return;
-
-            const dy = e.touches[0].clientY - touchStartY;
-            touchCurrentY = e.touches[0].clientY;
 
             if (touchOnInfoArea) {
                 const infoEl = document.getElementById('lbMobileInfoArea');
@@ -1187,6 +1232,18 @@
         }
 
         function onTouchEnd(e) {
+            if (isHorizontalSwipe) {
+                const dx = touchCurrentX - touchStartX;
+                const dt = Date.now() - touchStartTime;
+                // 当左滑距离超过 40px 或快速左滑时，直接退出大图返回首页缩略图
+                if (dx < -40 || (dx < -20 && dt < 250)) {
+                    closeLB();
+                }
+                isHorizontalSwipe = false;
+                isDragging = false;
+                return;
+            }
+
             const container = document.getElementById('lbMobileContainer');
             if (container && container.classList.contains('no-story-mode')) return;
 
