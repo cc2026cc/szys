@@ -1149,7 +1149,7 @@
                 return;
             }
             container.innerHTML = w.versions.map((v, i) =>
-                `<button class="${i===curVer?'active':''}" style="font-size: 14px;" onclick="switchLBVersion(${i})">${i === 0 ? '竖' : '横'}</button>`
+                `<button class="${i===curVer?'active':''}" style="font-size: 14px;" onclick="event.stopPropagation(); switchLBVersion(${i})" ontouchstart="event.stopPropagation()">${i === 0 ? '竖' : '横'}</button>`
             ).join('');
         }
 
@@ -1201,13 +1201,13 @@
                 if (!shouldIntercept) return;
             }
 
-            if (!e.cancelable) return;
-            e.preventDefault();
-
             if (!isDragging) {
                 if (Math.abs(dy) > DRAG_THRESHOLD) isDragging = true;
                 else return;
             }
+
+            if (!e.cancelable) return;
+            e.preventDefault();
 
             if (rafId) cancelAnimationFrame(rafId);
             rafId = requestAnimationFrame(() => {
