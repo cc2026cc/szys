@@ -44,13 +44,7 @@
         }
 
         /* 禁用所有点击高亮 */
-        a,
-        button,
-        div,
-        img,
-        span,
-        svg,
-        * {
+        a, button, div, img, span, svg, * {
             -webkit-tap-highlight-color: transparent !important;
             tap-highlight-color: transparent !important;
             -webkit-touch-callout: none;
@@ -68,6 +62,7 @@
                 radial-gradient(ellipse 45% 55% at 90% 80%, rgba(201, 168, 76, 0.04) 0%, transparent 65%),
                 radial-gradient(ellipse 35% 35% at 60% 40%, rgba(79, 195, 247, 0.02) 0%, transparent 55%);
         }
+
         .bg-grid {
             position: fixed;
             inset: 0;
@@ -97,6 +92,7 @@
             -webkit-backdrop-filter: blur(32px) saturate(2);
             border-bottom: 1px solid rgba(124, 159, 75, 0.12);
         }
+
         .header::after {
             content: '';
             position: absolute;
@@ -108,22 +104,26 @@
                     transparent 0%, rgba(124, 159, 75, 0.5) 25%,
                     rgba(201, 168, 76, 0.6) 50%, rgba(124, 159, 75, 0.5) 75%, transparent 100%);
         }
+
         .logo {
             display: flex;
             align-items: center;
             gap: 12px;
         }
+
         .logo-img {
             height: 28px;
             width: auto;
             object-fit: contain;
             flex-shrink: 0;
         }
+
         .logo-words {
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
+
         .logo-cn {
             font-size: 16px;
             font-weight: 700;
@@ -134,6 +134,7 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
+
         .logo-en {
             font-size: 9px;
             letter-spacing: 3px;
@@ -158,6 +159,7 @@
             height: 40px;
             flex-shrink: 0;
         }
+
         .wechat-btn::before {
             content: '';
             position: absolute;
@@ -167,12 +169,15 @@
             opacity: 0;
             transition: opacity 0.3s;
         }
+
         .wechat-btn:hover::before {
             opacity: 1;
         }
+
         .wechat-btn:hover {
             border-color: var(--gold);
         }
+
         .wechat-btn svg {
             width: 22px;
             height: 22px;
@@ -182,6 +187,7 @@
             z-index: 1;
             flex-shrink: 0;
         }
+
         .wechat-words {
             display: flex;
             flex-direction: column;
@@ -189,11 +195,13 @@
             z-index: 1;
             line-height: 1.2;
         }
+
         .wechat-tag {
             font-size: 8px;
             letter-spacing: 2px;
             color: var(--t2);
         }
+
         .wechat-id {
             font-size: 12px;
             font-weight: 600;
@@ -211,11 +219,13 @@
             align-items: center;
             gap: 22px;
         }
+
         .sec-line {
             flex: 1;
             height: 1px;
             background: linear-gradient(to right, transparent, var(--b-gold), transparent);
         }
+
         .sec-dmd {
             width: 7px;
             height: 7px;
@@ -223,6 +233,7 @@
             transform: rotate(45deg);
             flex-shrink: 0;
         }
+
         .sec-words {
             display: flex;
             flex-direction: column;
@@ -231,11 +242,13 @@
             flex-shrink: 0;
             text-align: center;
         }
+
         .sec-label {
             font-size: 9px;
             letter-spacing: 5px;
             color: var(--bamboo);
         }
+
         .sec-title {
             font-size: 20px;
             font-weight: 300;
@@ -250,11 +263,13 @@
             z-index: 1;
             padding: 0 52px 130px;
         }
+
         .g-grid {
             display: flex;
             align-items: flex-start;
             gap: 18px;
         }
+
         .g-col {
             flex: 1;
             display: flex;
@@ -262,6 +277,7 @@
             gap: 18px;
             width: 0;
         }
+
         .art-card {
             position: relative;
             border-radius: 6px;
@@ -272,25 +288,30 @@
             transition: border-color 0.4s, box-shadow 0.4s;
             animation: fadeUp 0.7s ease both;
         }
+
         @keyframes fadeUp {
             from {
                 opacity: 0;
                 transform: translateY(22px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
+
         .art-card:hover {
             border-color: rgba(124, 159, 75, 0.35);
             box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65), 0 0 40px rgba(124, 159, 75, 0.06);
         }
+
         .img-wrap {
             position: relative;
             overflow: hidden;
             width: 100%;
         }
+
         .img-wrap img {
             display: block;
             width: 100%;
@@ -298,6 +319,7 @@
             transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s;
             filter: brightness(0.9) saturate(0.95);
         }
+
         .art-card:hover .img-wrap img {
             transform: scale(1.05);
             filter: brightness(1.02) saturate(1.1);
@@ -318,6 +340,7 @@
             z-index: 1;
             border-radius: 0 0 6px 6px;
         }
+
         .art-num {
             position: absolute;
             top: 13px;
@@ -337,6 +360,7 @@
             letter-spacing: 1px;
             border-radius: 2px;
         }
+
         .art-info {
             position: absolute;
             bottom: 0;
@@ -346,6 +370,7 @@
             pointer-events: none;
             padding: 14px 16px 14px 14px;
         }
+
         .art-series {
             display: flex;
             align-items: center;
@@ -356,6 +381,7 @@
             color: #f0d88a;
             margin-bottom: 6px;
         }
+
         .art-series::before {
             content: '';
             width: 14px;
@@ -363,6 +389,7 @@
             background: #e2c87a;
             opacity: 0.9;
         }
+
         .art-title-text {
             font-size: 15px;
             font-weight: 500;
@@ -372,12 +399,14 @@
             line-height: 1.3;
             text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
         }
+
         .art-meta-text {
             font-size: 10px;
             letter-spacing: 2px;
             color: #ffe9b0;
             font-weight: 500;
         }
+
         .art-buy {
             position: absolute;
             bottom: 22px;
@@ -399,11 +428,37 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             line-height: 1.2;
         }
+
         .art-buy:hover {
             background: rgba(220, 180, 100, 0.35);
             border-color: rgba(220, 180, 100, 0.8);
             color: #ffffff;
             box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+        }
+
+        /* ===== 页脚样式提取 ===== */
+        .footer {
+            position: relative;
+            z-index: 1;
+            padding: 56px 52px;
+            border-top: 1px solid rgba(124, 159, 75, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .footer-logo-text {
+            font-size: 17px;
+            font-weight: 300;
+            letter-spacing: 8px;
+            color: var(--t2);
+            margin-bottom: 7px;
+        }
+
+        .footer-sub-text {
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: var(--t3);
         }
 
         /* ===== 灯箱 ===== */
@@ -415,11 +470,13 @@
             pointer-events: none;
             transition: opacity 0.45s ease;
         }
+
         .lightbox.active {
             opacity: 1;
             pointer-events: auto;
         }
-        /* 新增：进入移动端模式时，完美隐藏 PC 元素，互不干扰 */
+
+        /* 隐藏 PC 元素，互不干扰 */
         .lightbox.is-mobile .lb-nav,
         .lightbox.is-mobile .lb-card-wrap,
         .lightbox.is-mobile .lb-version-bar,
@@ -434,6 +491,7 @@
             background: rgba(2, 2, 6, 0.96);
             backdrop-filter: blur(28px);
         }
+
         .lb-layout {
             position: relative;
             z-index: 1;
@@ -442,6 +500,7 @@
             display: flex;
             align-items: stretch;
         }
+
         .lb-nav {
             width: 88px;
             flex-shrink: 0;
@@ -449,6 +508,7 @@
             align-items: center;
             justify-content: center;
         }
+
         .lb-nav-btn {
             width: 44px;
             height: 44px;
@@ -464,17 +524,20 @@
             transition: all 0.25s;
             border-radius: 50%;
         }
+
         .lb-nav-btn svg {
             width: 20px;
             height: 20px;
             stroke: currentColor;
         }
+
         .lb-nav-btn:hover {
             border-color: var(--bamboo);
             background: rgba(124, 159, 75, 0.2);
             color: var(--bamboo);
             box-shadow: 0 0 18px rgba(124, 159, 75, 0.25);
         }
+
         .lb-stage {
             flex: 1;
             display: flex;
@@ -485,6 +548,7 @@
             overflow: hidden;
             position: relative;
         }
+
         .lb-card-wrap {
             display: flex;
             align-items: center;
@@ -492,11 +556,13 @@
             flex: 1;
             width: 100%;
         }
+
         .lb-card {
             position: relative;
             flex-shrink: 0;
             will-change: transform, opacity;
         }
+
         .lb-card img {
             display: block;
             max-width: 88vw;
@@ -508,68 +574,83 @@
             border: 1px solid rgba(124, 159, 75, 0.35);
             box-shadow: 0 48px 130px rgba(0, 0, 0, .85), 0 0 80px rgba(124, 159, 75, 0.06);
         }
+
         @keyframes zoomIn {
             from {
                 transform: scale(0.88);
                 opacity: 0;
             }
+
             to {
                 transform: scale(1);
                 opacity: 1;
             }
         }
+
         .lb-card.enter {
             animation: zoomIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
+
         @keyframes outLeft {
             0% {
                 transform: translateX(0) scale(1);
                 opacity: 1;
             }
+
             100% {
                 transform: translateX(-45%) scale(0.93);
                 opacity: 0;
             }
         }
+
         @keyframes outRight {
             0% {
                 transform: translateX(0) scale(1);
                 opacity: 1;
             }
+
             100% {
                 transform: translateX(45%) scale(0.93);
                 opacity: 0;
             }
         }
+
         @keyframes inFromRight {
             0% {
                 transform: translateX(45%) scale(0.93);
                 opacity: 0;
             }
+
             100% {
                 transform: translateX(0) scale(1);
                 opacity: 1;
             }
         }
+
         @keyframes inFromLeft {
             0% {
                 transform: translateX(-45%) scale(0.93);
                 opacity: 0;
             }
+
             100% {
                 transform: translateX(0) scale(1);
                 opacity: 1;
             }
         }
+
         .lb-card.out-l {
             animation: outLeft 0.3s cubic-bezier(0.4, 0, 1, 1) forwards;
         }
+
         .lb-card.out-r {
             animation: outRight 0.3s cubic-bezier(0.4, 0, 1, 1) forwards;
         }
+
         .lb-card.in-r {
             animation: inFromRight 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
+
         .lb-card.in-l {
             animation: inFromLeft 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
@@ -580,6 +661,7 @@
             margin-top: 16px;
             z-index: 10;
         }
+
         .lb-ver-btn {
             padding: 6px 18px;
             border: 1px solid var(--b-gold);
@@ -593,17 +675,20 @@
             border-radius: 2px;
             font-family: inherit;
         }
+
         .lb-ver-btn.active {
             background: rgba(124, 159, 75, 0.15);
             border-color: var(--bamboo);
             color: var(--bamboo);
         }
+
         .lb-dots {
             display: flex;
             gap: 10px;
             align-items: center;
             margin-top: 20px;
         }
+
         .lb-dot {
             width: 8px;
             height: 8px;
@@ -613,6 +698,7 @@
             cursor: pointer;
             transition: all .3s;
         }
+
         .lb-dot.on {
             background: var(--bamboo);
             width: 10px;
@@ -630,9 +716,11 @@
             flex-direction: column;
             justify-content: center;
         }
+
         .lb-info {
             margin-bottom: 24px;
         }
+
         .lb-tag-row {
             display: flex;
             align-items: center;
@@ -644,12 +732,14 @@
             position: relative;
             z-index: 2;
         }
+
         .lb-tag-row::before {
             content: '';
             width: 18px;
             height: 1px;
             background: var(--bamboo);
         }
+
         .lb-ghost-num {
             font-size: 88px;
             font-weight: 200;
@@ -661,6 +751,7 @@
             z-index: 0;
             position: relative;
         }
+
         .lb-art-name {
             font-size: 26px;
             font-weight: 600;
@@ -670,32 +761,14 @@
             position: relative;
             z-index: 2;
         }
-        .lb-art-desc {
-            font-size: 11px;
-            color: var(--t2);
-            letter-spacing: 1.5px;
-            line-height: 2.1;
-            margin-bottom: 18px;
-        }
-        .lb-art-chips {
-            display: flex;
-            gap: 7px;
-            flex-wrap: wrap;
-            margin-bottom: 16px;
-        }
-        .lb-chip {
-            padding: 3px 10px;
-            border: 1px solid var(--b-sub);
-            font-size: 8px;
-            letter-spacing: 2px;
-            color: var(--t2);
-            border-radius: 2px;
-        }
+
         .lb-story {
             margin-top: 16px;
             border-top: 1px solid var(--b-sub);
             padding-top: 16px;
+            display: none;
         }
+
         .lb-story-title {
             font-size: 9px;
             letter-spacing: 4px;
@@ -703,12 +776,15 @@
             margin-bottom: 10px;
             text-transform: uppercase;
         }
+
         .lb-story-text {
             font-size: 11px;
             color: var(--t2);
             line-height: 1.9;
             letter-spacing: 1px;
+            white-space: pre-wrap;
         }
+
         .btn-collect {
             width: 100%;
             padding: 14px;
@@ -724,6 +800,7 @@
             font-family: inherit;
             transition: all 0.3s;
         }
+
         .btn-collect:hover {
             box-shadow: 0 8px 32px rgba(124, 159, 75, 0.45);
             transform: translateY(-1px);
@@ -747,16 +824,18 @@
             align-items: center;
             justify-content: center;
         }
+
         .lb-close:hover {
             border-color: var(--bamboo);
             color: var(--bamboo);
         }
 
-        /* ============================================================
-           手机端专用 (宽度 < 1100px)
-           ============================================================ */
+        /* 
+        ============================================================
+        手机端专用 (宽度 < 1100px)
+        ============================================================
+        */
         @media (max-width: 1100px) {
-
             .lb-close {
                 width: 34px;
                 height: 34px;
@@ -771,6 +850,7 @@
                 backdrop-filter: blur(8px);
                 -webkit-tap-highlight-color: transparent !important;
             }
+
             .lb-close:active {
                 border-color: var(--bamboo);
                 color: var(--bamboo);
@@ -811,6 +891,7 @@
                 -webkit-tap-highlight-color: transparent !important;
                 pointer-events: auto;
             }
+
             .lb-mobile-img-area .lb-card {
                 width: 100%;
                 height: 100%;
@@ -823,6 +904,7 @@
                 transition: none;
                 position: relative;
             }
+
             .lb-mobile-img-area .lb-card img {
                 max-width: 100vw;
                 max-height: 100vh;
@@ -852,6 +934,7 @@
                 pointer-events: none;
                 -webkit-tap-highlight-color: transparent !important;
             }
+
             .lb-mobile-version-switch button {
                 width: 38px;
                 height: 38px;
@@ -870,7 +953,6 @@
                 transition: all 0.25s ease;
                 -webkit-tap-highlight-color: transparent !important;
                 user-select: none;
-                /* 修复文字居中问题 */
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -878,9 +960,11 @@
                 padding: 0;
                 margin: 0;
             }
+
             .lb-mobile-version-switch button:active {
                 transform: scale(0.88);
             }
+
             .lb-mobile-version-switch button.active {
                 border-color: var(--bamboo);
                 color: var(--bamboo);
@@ -910,9 +994,11 @@
                 transition: none;
                 opacity: 1;
             }
+
             .lb-mobile-info-area .info-inner {
                 padding-bottom: 10px;
             }
+
             .lb-mobile-info-area .mi-title {
                 font-size: 22px;
                 font-weight: 600;
@@ -920,33 +1006,14 @@
                 color: var(--t1);
                 margin-bottom: 2px;
             }
+
             .lb-mobile-info-area .mi-num {
                 font-size: 12px;
                 color: var(--bamboo);
                 letter-spacing: 2px;
                 margin-bottom: 12px;
             }
-            .lb-mobile-info-area .mi-desc {
-                font-size: 13px;
-                color: var(--t2);
-                line-height: 1.8;
-                letter-spacing: 0.5px;
-                margin-bottom: 12px;
-            }
-            .lb-mobile-info-area .mi-chips {
-                display: flex;
-                gap: 8px;
-                flex-wrap: wrap;
-                margin-bottom: 14px;
-            }
-            .lb-mobile-info-area .mi-chip {
-                padding: 4px 12px;
-                border: 1px solid var(--b-sub);
-                font-size: 10px;
-                letter-spacing: 1px;
-                color: var(--t2);
-                border-radius: 2px;
-            }
+
             .lb-mobile-info-area .mi-story-title {
                 font-size: 10px;
                 letter-spacing: 4px;
@@ -954,12 +1021,14 @@
                 margin: 10px 0 6px;
                 text-transform: uppercase;
             }
+
             .lb-mobile-info-area .mi-story-text {
                 font-size: 12px;
                 color: var(--t2);
                 line-height: 1.9;
                 letter-spacing: 0.5px;
                 margin-bottom: 10px;
+                white-space: pre-wrap;
             }
 
             /* ---- 底部购买按钮 (固定始终显示，精致紧凑) ---- */
@@ -977,6 +1046,7 @@
                 opacity: 1;
                 -webkit-tap-highlight-color: transparent !important;
             }
+
             .lb-mobile-buy-fixed button {
                 width: auto;
                 padding: 8px 22px;
@@ -999,6 +1069,7 @@
                 -webkit-tap-highlight-color: transparent !important;
                 user-select: none;
             }
+
             .lb-mobile-buy-fixed button::after {
                 content: '';
                 position: absolute;
@@ -1008,11 +1079,13 @@
                 opacity: 0;
                 transition: opacity 0.4s;
             }
+
             .lb-mobile-buy-fixed button:active {
                 transform: scale(0.95);
                 border-color: var(--bamboo);
                 box-shadow: 0 4px 28px rgba(124, 159, 75, 0.3);
             }
+
             .lb-mobile-buy-fixed button:active::after {
                 opacity: 1;
             }
@@ -1021,19 +1094,23 @@
             .art-overlay {
                 height: 46px;
             }
+
             .art-info {
                 padding: 6px 10px 6px 8px;
                 right: 60px;
                 bottom: 0;
             }
+
             .art-series {
                 font-size: 7px;
                 letter-spacing: 2px;
                 margin-bottom: 1px;
             }
+
             .art-series::before {
                 width: 10px;
             }
+
             .art-title-text {
                 font-size: 11px;
                 letter-spacing: 1px;
@@ -1043,16 +1120,19 @@
                 text-overflow: ellipsis;
                 max-width: 100%;
             }
+
             .art-meta-text {
                 font-size: 7px;
                 letter-spacing: 1px;
             }
+
             .art-buy {
                 padding: 3px 8px;
                 font-size: 7px;
                 bottom: 10px;
                 right: 8px;
             }
+
             .art-num {
                 width: 20px;
                 height: 20px;
@@ -1060,41 +1140,44 @@
                 top: 6px;
                 right: 6px;
             }
+        }
 
-            /* 小屏手机适配 */
-            @media (max-width: 480px) {
-                .lb-mobile-version-switch button {
-                    width: 32px;
-                    height: 32px;
-                    font-size: 11px;
-                    line-height: 1; /* 修复小屏幕文字居中 */
-                }
-                .lb-mobile-version-switch {
-                    right: 8px;
-                    /* 修复按钮距离：12(top) + 48(close height) + 32*2(gap) = 124px */
-                    top: 124px;
-                    gap: 6px;
-                }
-                .lb-mobile-info-area {
-                    padding: 12px 14px 16px;
-                }
-                .lb-mobile-info-area .mi-title {
-                    font-size: 19px;
-                }
-                .lb-mobile-info-area .mi-desc {
-                    font-size: 12px;
-                }
-                .lb-mobile-buy-fixed button {
-                    width: auto;
-                    padding: 7px 18px;
-                    font-size: 12px;
-                }
+        /* 小屏手机适配 */
+        @media (max-width: 480px) {
+            .lb-mobile-version-switch button {
+                width: 32px;
+                height: 32px;
+                font-size: 11px;
+                line-height: 1;
+            }
+
+            .lb-mobile-version-switch {
+                right: 8px;
+                /* 修复按钮距离：12(top) + 48(close height) + 32*2(gap) = 124px */
+                top: 124px;
+                gap: 6px;
+            }
+
+            .lb-mobile-info-area {
+                padding: 12px 14px 16px;
+            }
+
+            .lb-mobile-info-area .mi-title {
+                font-size: 19px;
+            }
+
+            .lb-mobile-buy-fixed button {
+                width: auto;
+                padding: 7px 18px;
+                font-size: 12px;
             }
         }
 
-        /* ============================================================
-           购买弹窗
-           ============================================================ */
+        /* 
+        ============================================================
+        购买弹窗
+        ============================================================
+        */
         .purchase-modal {
             position: fixed;
             inset: 0;
@@ -1109,10 +1192,12 @@
             overscroll-behavior: contain;
             -webkit-overflow-scrolling: touch;
         }
+
         .purchase-modal.active {
             opacity: 1;
             pointer-events: auto;
         }
+
         .purchase-bg {
             position: fixed;
             inset: 0;
@@ -1120,6 +1205,7 @@
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
         }
+
         .purchase-box {
             position: relative;
             z-index: 1;
@@ -1139,9 +1225,11 @@
             transform: scale(0.92);
             transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
         }
+
         .purchase-modal.active .purchase-box {
             transform: scale(1);
         }
+
         .purchase-close {
             position: absolute;
             top: 8px;
@@ -1162,15 +1250,18 @@
             opacity: 0.7;
             -webkit-tap-highlight-color: transparent !important;
         }
+
         .purchase-close:hover {
             color: var(--bamboo);
             opacity: 1;
         }
+
         .purchase-close:active {
             color: var(--bamboo);
             opacity: 1;
             transform: scale(0.92);
         }
+
         .purchase-left {
             flex-shrink: 0;
             display: flex;
@@ -1181,12 +1272,14 @@
             border-right: 1px solid rgba(255, 255, 255, 0.08);
             padding-right: 28px;
         }
+
         .purchase-info-col {
             display: flex;
             flex-direction: column;
             gap: 6px;
             width: 100%;
         }
+
         .purchase-thumb {
             width: auto;
             height: auto;
@@ -1200,6 +1293,7 @@
             align-items: center;
             justify-content: center;
         }
+
         .purchase-thumb img {
             width: auto;
             height: auto;
@@ -1208,6 +1302,7 @@
             object-fit: contain;
             display: block;
         }
+
         .purchase-name {
             font-size: 16px;
             font-weight: 600;
@@ -1216,17 +1311,20 @@
             text-align: left;
             line-height: 1.3;
         }
+
         .purchase-num {
             font-size: 10px;
             letter-spacing: 2px;
             color: var(--t2);
             text-align: left;
         }
+
         .version-switch {
             display: flex;
             gap: 8px;
             margin-top: 4px;
         }
+
         .v-switch-btn {
             width: 36px;
             height: 36px;
@@ -1250,15 +1348,18 @@
             -webkit-tap-highlight-color: transparent !important;
             user-select: none;
         }
+
         .v-switch-btn:active {
             transform: scale(0.88);
         }
+
         .v-switch-btn.active {
             border-color: var(--bamboo);
             color: var(--bamboo);
             background: rgba(124, 159, 75, 0.2);
             box-shadow: 0 0 16px rgba(124, 159, 75, 0.15);
         }
+
         .purchase-right {
             flex: 1;
             display: flex;
@@ -1266,17 +1367,21 @@
             gap: 18px;
             justify-content: center;
         }
+
         @keyframes softPulse {
+
             0%,
             100% {
                 box-shadow: 0 0 8px rgba(255, 200, 80, 0.3);
                 border-color: rgba(255, 200, 80, 0.4);
             }
+
             50% {
                 box-shadow: 0 0 20px rgba(255, 200, 80, 0.7), 0 0 40px rgba(255, 200, 80, 0.3);
                 border-color: rgba(255, 200, 80, 0.8);
             }
         }
+
         .purchase-note-highlight {
             padding: 12px 14px;
             background: rgba(255, 200, 80, 0.05);
@@ -1292,11 +1397,13 @@
             align-items: center;
             gap: 10px;
         }
+
         .purchase-note-highlight strong {
             font-size: 13px;
             color: #fff;
             letter-spacing: 2px;
         }
+
         .warn-icon {
             font-size: 36px;
             line-height: 1;
@@ -1305,14 +1412,17 @@
             align-items: center;
             justify-content: center;
         }
+
         .note-text {
             line-height: 1.6;
             text-align: left;
         }
+
         .tier-row {
             display: flex;
             gap: 0;
         }
+
         .p-tier {
             flex: 1;
             padding: 14px 10px;
@@ -1322,6 +1432,7 @@
             border: none;
             transition: none;
         }
+
         .p-tier:not(:last-child)::after {
             content: '';
             position: absolute;
@@ -1332,6 +1443,7 @@
             height: 36px;
             background: rgba(255, 255, 255, 0.25);
         }
+
         .p-tier-name {
             font-size: 11px;
             font-weight: 500;
@@ -1339,16 +1451,19 @@
             margin-bottom: 4px;
             letter-spacing: 1px;
         }
+
         .p-tier-spec {
             font-size: 8px;
             color: var(--t2);
             margin-bottom: 6px;
         }
+
         .p-tier-price {
             font-size: 20px;
             font-weight: 300;
             color: var(--bamboo);
         }
+
         .pay-switch {
             display: flex;
             gap: 0;
@@ -1356,6 +1471,7 @@
             border-radius: 4px;
             overflow: hidden;
         }
+
         .pay-btn {
             flex: 1;
             padding: 10px;
@@ -1369,11 +1485,13 @@
             font-family: inherit;
             -webkit-tap-highlight-color: transparent !important;
         }
+
         .pay-btn.active {
             background: rgba(124, 159, 75, 0.15);
             color: var(--bamboo);
             font-weight: 600;
         }
+
         .qr-code-img {
             width: 130px;
             height: 130px;
@@ -1383,11 +1501,13 @@
             padding: 6px;
             align-self: center;
         }
+
         .qr-code-img img {
             width: 100%;
             height: 100%;
             object-fit: contain;
         }
+
         .purchase-steps {
             display: flex;
             gap: 14px;
@@ -1397,11 +1517,13 @@
             justify-content: center;
             margin-top: 4px;
         }
+
         .p-step {
             display: flex;
             align-items: center;
             gap: 6px;
         }
+
         .p-step-n {
             width: 16px;
             height: 16px;
@@ -1423,6 +1545,7 @@
                 padding: 40px 20px 28px;
                 align-items: stretch;
             }
+
             .purchase-left {
                 width: 100%;
                 flex-direction: row;
@@ -1431,35 +1554,41 @@
                 border-right: none;
                 padding-right: 0;
             }
+
             .purchase-thumb {
                 width: auto;
                 height: 110px;
                 max-width: 55vw;
                 flex-shrink: 0;
             }
+
             .purchase-thumb img {
                 width: auto;
                 height: 100%;
                 max-height: 110px;
                 object-fit: contain;
             }
+
             .purchase-info-col {
                 display: flex;
                 flex-direction: column;
                 gap: 6px;
                 align-items: flex-start;
             }
+
             .tier-row {
                 flex-direction: row;
                 gap: 0;
                 justify-content: space-around;
             }
+
             .p-tier {
                 flex: 1;
                 padding: 10px 6px;
                 border: none !important;
                 cursor: default;
             }
+
             .p-tier:not(:last-child)::after {
                 content: '';
                 position: absolute;
@@ -1470,24 +1599,30 @@
                 height: 30px;
                 background: rgba(255, 255, 255, 0.2);
             }
+
             .p-tier-name {
                 font-size: 10px;
             }
+
             .p-tier-price {
                 font-size: 16px;
             }
+
             .qr-code-img {
                 width: 110px;
                 height: 110px;
             }
+
             .purchase-name {
                 font-size: 16px;
             }
         }
 
-        /* ============================================================
-           微信二维码弹窗 (无改动)
-           ============================================================ */
+        /* 
+        ============================================================
+        微信二维码弹窗 (无改动)
+        ============================================================
+        */
         .wx-qr-modal {
             position: fixed;
             inset: 0;
@@ -1499,10 +1634,12 @@
             pointer-events: none;
             transition: opacity 0.35s ease;
         }
+
         .wx-qr-modal.active {
             opacity: 1;
             pointer-events: auto;
         }
+
         .wx-qr-bg {
             position: absolute;
             inset: 0;
@@ -1510,6 +1647,7 @@
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
         }
+
         .wx-qr-box {
             position: relative;
             z-index: 1;
@@ -1526,9 +1664,11 @@
             transform: scale(0.92);
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
+
         .wx-qr-modal.active .wx-qr-box {
             transform: scale(1);
         }
+
         .wx-qr-box .qr-title {
             font-size: 14px;
             font-weight: 600;
@@ -1536,6 +1676,7 @@
             color: var(--gold-l);
             margin-bottom: 16px;
         }
+
         .wx-qr-box .qr-img-wrap {
             width: 200px;
             height: 200px;
@@ -1546,22 +1687,26 @@
             padding: 8px;
             border: 1px solid rgba(255, 255, 255, 0.06);
         }
+
         .wx-qr-box .qr-img-wrap img {
             width: 100%;
             height: 100%;
             object-fit: contain;
             display: block;
         }
+
         .wx-qr-box .qr-hint {
             font-size: 11px;
             color: var(--t2);
             letter-spacing: 1px;
             line-height: 1.6;
         }
+
         .wx-qr-box .qr-hint strong {
             color: var(--gold-l);
             font-weight: 600;
         }
+
         .wx-qr-close {
             position: absolute;
             top: 8px;
@@ -1580,6 +1725,7 @@
             transition: all .3s;
             -webkit-tap-highlight-color: transparent !important;
         }
+
         .wx-qr-close:active {
             color: var(--bamboo);
             transform: scale(0.88);
@@ -1590,84 +1736,114 @@
             .header {
                 padding: 0 16px;
             }
+
             .gallery {
                 padding: 0 16px 80px;
             }
+
             .sec-head {
                 padding: 90px 20px 0;
                 margin-bottom: 36px;
             }
+
             .g-grid {
                 gap: 14px;
             }
+
             .g-col {
                 gap: 14px;
             }
+
             .wechat-btn {
                 padding: 4px 12px 4px 10px;
                 height: 36px;
             }
+
             .wechat-btn svg {
                 width: 20px;
                 height: 20px;
             }
+
             .wechat-id {
                 font-size: 10px;
             }
         }
+
         @media (max-width: 600px) {
             .sec-head {
                 padding: 80px 12px 0;
             }
+
             .gallery {
                 padding: 0 10px 60px;
             }
+
             .footer {
                 padding: 36px 16px;
                 flex-direction: column;
-                gap: 10px;
+                gap: 12px;
                 text-align: center;
             }
+            .footer-logo-text {
+                font-size: 15px;
+                letter-spacing: 6px;
+            }
+            .footer-sub-text {
+                font-size: 8px;
+                letter-spacing: 0px;
+                white-space: nowrap;
+                transform: scale(0.95);
+            }
+
             .lb-mobile-buy-fixed button {
                 width: auto;
                 padding: 7px 18px;
                 font-size: 12px;
             }
+
             .wechat-btn {
                 padding: 4px 10px 4px 8px;
                 height: 32px;
             }
+
             .wechat-btn svg {
                 width: 18px;
                 height: 18px;
             }
+
             .wechat-id {
                 font-size: 9px;
             }
+
             .wechat-tag {
                 font-size: 7px;
             }
+
             .logo-cn {
                 font-size: 14px;
                 letter-spacing: 4px;
             }
+
             .logo-en {
                 font-size: 8px;
             }
+
             .logo {
                 gap: 8px;
             }
+
             .logo-img {
                 height: 24px;
             }
+
             .header {
                 height: 56px;
             }
         }
     </style>
 </head>
-<body>
 
+<body>
     <div class="bg-glow"></div>
     <div class="bg-grid"></div>
 
@@ -1705,12 +1881,13 @@
         <div class="g-grid" id="galleryGrid"></div>
     </section>
 
-    <footer class="footer" style="position: relative; z-index: 1; padding: 56px 52px; border-top: 1px solid rgba(124, 159, 75, 0.12); display: flex; align-items: center; justify-content: space-between;">
+    <!-- ===== 优化了结构与样式的底脚 ===== -->
+    <footer class="footer">
         <div>
-            <div style="font-size: 17px; font-weight: 300; letter-spacing: 8px; color: var(--t2); margin-bottom: 7px;">熊猫创意</div>
-            <div style="font-size: 9px; letter-spacing: 2px; color: var(--t3);">© 2024 · 七仔数字艺术 · 未经授权不得转载或商用</div>
+            <div class="footer-logo-text">熊猫创意</div>
+            <div class="footer-sub-text">© 2024 · 七仔数字艺术 · 未经授权不得转载或商用</div>
         </div>
-        <div style="font-size: 9px; letter-spacing: 2px; color: var(--t3);">精品限量作品 · 多种收藏规格</div>
+        <div class="footer-sub-text">精品限量作品 · 多种收藏规格</div>
     </footer>
 
     <!-- ===== 灯箱 ===== -->
@@ -1718,6 +1895,7 @@
         <div class="lb-bg" onclick="closeLB()"></div>
         <div class="lb-layout">
             <div class="lb-nav"><button class="lb-nav-btn" onclick="nav(-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 18 9 12 15 6"></polyline></svg></button></div>
+            
             <div class="lb-stage" id="lbStage">
                 <div class="lb-card-wrap" id="lbCardWrap">
                     <div class="lb-card" id="lbCard"><img id="lbImg" src="" alt="" /></div>
@@ -1725,19 +1903,21 @@
                 <div class="lb-version-bar" id="lbVersionBar"></div>
                 <div class="lb-dots" id="lbDots"></div>
             </div>
+            
             <div class="lb-nav"><button class="lb-nav-btn" onclick="nav(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"></polyline></svg></button></div>
+            
             <div class="lb-panel" id="lbPanel">
                 <div class="lb-info">
                     <div class="lb-tag-row" id="lbSeries">神话系列</div>
                     <div class="lb-ghost-num" id="lbGhost">01</div>
                     <div class="lb-art-name" id="lbName">财神七仔</div>
-                    <div class="lb-art-desc" id="lbDesc"></div>
-                    <div class="lb-art-chips" id="lbChips"></div>
                 </div>
-                <div class="lb-story">
+                
+                <div class="lb-story" id="lbStoryBlock">
                     <div class="lb-story-title">设计故事</div>
-                    <div class="lb-story-text" id="lbStory">故事的细节将在此呈现。</div>
+                    <div class="lb-story-text" id="lbStory"></div>
                 </div>
+
                 <button class="btn-collect" onclick="openPurchaseFromLB()">购买收藏</button>
             </div>
         </div>
@@ -1757,6 +1937,7 @@
                     <div class="version-switch" id="purchaseVersionSwitch"></div>
                 </div>
             </div>
+
             <div class="purchase-right">
                 <div class="purchase-note-highlight" id="purchaseNote">
                     <span class="warn-icon">⚠</span>
@@ -1764,15 +1945,19 @@
                         付款备注：<strong id="purchaseNoteCode">QSQ01</strong> + （邮箱/微信/QQ）三选一，或收件地址<br>勿必填写付款备注，以便我第一时间发送文件
                     </span>
                 </div>
+                
                 <div class="tier-row" id="purchaseTiers"></div>
+                
                 <div class="pay-switch">
                     <button class="pay-btn active" onclick="switchPurchasePay(0)">微信支付</button>
                     <button class="pay-btn" onclick="switchPurchasePay(1)">支付宝</button>
                 </div>
+                
                 <div class="qr-code-img">
                     <img id="qrWx" src="微信.jpg" alt="微信收款码" style="display:block;" />
                     <img id="qrAli" src="支付宝.jpg" alt="支付宝收款码" style="display:none;" />
                 </div>
+                
                 <div class="purchase-steps">
                     <div class="p-step"><span class="p-step-n">1</span>扫码付款</div>
                     <div class="p-step"><span class="p-step-n">2</span>备注编号+邮箱/地址</div>
@@ -1810,34 +1995,11 @@
         let cur = 0,
             curVer = 0,
             busy = false;
+
         let purchaseArtIdx = 0,
             purchaseVer = 0,
             purchaseTier = 0,
             purchasePay = 0;
-
-        const textDataDict = {
-            "财神七仔": {
-                desc: '七仔化身财神，金红交织的数字笔触中，憨态与祥瑞融为一体，传递出独特的东方美学与新春祝愿。',
-                story: '传说中，大熊猫七仔曾梦见自己身披红袍、手捧元宝，行走于祥云之间。醒来后，它用画笔将梦境定格，每一道金色光芒都承载着对观者的美好祝愿。这幅作品历时三个月完成，是作者对传统文化与自然生灵的深情致敬。',
-                chips: ['数字插画', '财神', '七仔', '祥瑞']
-            },
-            "弥勒七仔": {
-                desc: '笑口常开的弥勒与七仔相遇，圆融的线条与柔和的色彩，展现出慈悲与喜乐的数字禅意。',
-                story: '在一次山间小憩时，七仔偶遇一尊古老的弥勒石像，它被那永恒的微笑深深触动。于是，它决定用数字画笔重新诠释这份慈悲，让弥勒的圆融与熊猫的憨厚在光影中对话，传递出超越物种的宁静与喜悦。',
-                chips: ['数字绘画', '弥勒', '七仔', '禅意']
-            },
-            "如来七仔": {
-                desc: '七仔静坐莲台，宝相庄严中不失熊猫的纯真，光影在数字空间里构筑出神圣与自然的和谐。',
-                story: '七仔一直对星空与哲学充满好奇。某个夜晚，它仰望银河，想象自己端坐于莲花之上，与宇宙融为一体。这幅作品正是那一刻的视觉化呈现，试图在庄严与天真之间找到完美的平衡点。',
-                chips: ['数字艺术', '如来', '七仔', '庄严']
-            }
-        };
-        const defaultText = {
-            desc: '七仔主题数字艺术作品，融合东方美学与数字绘画，记录每一刻灵感。',
-            story: '此作品的创作背景与幕后故事正在由作者精心整理中，敬请期待。',
-            chips: ['数字艺术', '七仔', '插画'],
-            prices: [19.9, 89, 799]
-        };
 
         function setImageWithBlur(imgElement, highResSrc) {
             if (!imgElement) return;
@@ -1845,7 +2007,7 @@
         }
 
         // ==========================================
-        // 加载作品
+        // 加载作品（增加了对对应文件夹下txt内容的读取）
         // ==========================================
         async function loadWorksFromGitHub() {
             const grid = document.getElementById('galleryGrid');
@@ -1881,6 +2043,7 @@
                 const promises = sortedFolders.map(async (folder) => {
                     const folderName = folder.name;
                     let files = [];
+                    let storyText = ''; // 存放读取到的TXT内容
 
                     try {
                         const folderUrl = `${API_BASE}/${encodeURIComponent(folderName)}?t=${timestamp}`;
@@ -1888,6 +2051,17 @@
                         if (fileRes.ok) {
                             const fileData = await fileRes.json();
                             files = fileData.map(f => f.name);
+                            
+                            // 读取文件夹下的 TXT 文件
+                            const txtItem = fileData.find(f => f.name.toLowerCase().endsWith('.txt'));
+                            if (txtItem && txtItem.download_url) {
+                                try {
+                                    const txtRes = await fetch(txtItem.download_url);
+                                    if (txtRes.ok) {
+                                        storyText = await txtRes.text();
+                                    }
+                                } catch (e) {}
+                            }
                         }
                     } catch (e) {}
 
@@ -1914,8 +2088,6 @@
                         extractedNum = match[2] ? match[2].toUpperCase() : '0000';
                     }
 
-                    const textData = textDataDict[extractedName] || defaultText;
-
                     const versions = images.map(imgName => {
                         const lower = imgName.toLowerCase();
                         const label = (lower.includes('横') || lower.includes('02')) ? '横版' : '竖版';
@@ -1924,8 +2096,7 @@
                             label: label
                         };
                     });
-                    
-                    // 强制排序：确保“竖版”永远在数组的第一个位置（即上方）
+
                     versions.sort((a, b) => {
                         if (a.label === '竖版' && b.label !== '竖版') return -1;
                         if (a.label !== '竖版' && b.label === '竖版') return 1;
@@ -1936,16 +2107,15 @@
                         name: extractedName,
                         series: '神话系列',
                         num: extractedNum,
-                        desc: textData.desc,
-                        story: textData.story,
-                        chips: textData.chips,
-                        prices: textData.prices || defaultText.prices,
+                        story: storyText.trim(), // 存在txt的话则存入
+                        prices: [19.9, 89, 799],
                         versions: versions
                     };
                 });
 
                 works = (await Promise.all(promises)).filter(Boolean);
                 renderGallery();
+
             } catch (err) {
                 console.error('渲染异常:', err);
             }
@@ -2018,9 +2188,9 @@
         let mobileInfoArea = null;
         let mobileVersionSwitch = null;
         let mobileBuyFixed = null;
-
+        
         // 手机布局参数
-        let currentImgRatio = 0.70; // 动态计算，初始默认0.70
+        let currentImgRatio = 0.70; 
         const BUY_SHOW_PROGRESS = 0.30;
 
         function openLB(idx) {
@@ -2029,22 +2199,21 @@
             isMobile = window.innerWidth < 1100;
 
             if (isMobile) {
-                // 彻底分离移动端逻辑，不再污染 PC 端的容器结构
                 document.getElementById('lightbox').classList.add('is-mobile');
                 setupMobileLightbox();
                 fillMobileInfo(cur, curVer);
                 const w = works[cur];
                 const v = w.versions[curVer];
-                
+
                 if (mobileImg) {
                     setImageWithBlur(mobileImg, v.src);
                 }
-                
-                // 重置状态
+
                 mobileExpanded = false;
                 dragProgress = 0;
                 currentImgRatio = 0.70;
                 updateMobileTransform(0);
+
                 if (mobileBuyFixed) {
                     mobileBuyFixed.classList.remove('visible');
                 }
@@ -2052,13 +2221,13 @@
                 document.getElementById('lightbox').classList.add('active');
                 document.body.style.overflow = 'hidden';
             } else {
-                // 还原 PC 端类名并执行逻辑
                 document.getElementById('lightbox').classList.remove('is-mobile');
                 fillLB(idx, 0);
                 buildDots();
                 renderVersionBar();
                 document.getElementById('lightbox').classList.add('active');
                 document.body.style.overflow = 'hidden';
+
                 const card = document.getElementById('lbCard');
                 card.className = 'lb-card';
                 void card.offsetWidth;
@@ -2067,7 +2236,7 @@
             }
         }
 
-        // 清理手机端容器 (采用单纯隐藏的方式保护PC端DOM不受破坏)
+        // 清理手机端容器
         function cleanupMobileContainer() {
             if (mobileContainer) {
                 mobileContainer.style.display = 'none';
@@ -2085,24 +2254,33 @@
             isDragging = false;
             isAnimating = false;
             touchOnInfoArea = false;
-            
+
             if (isMobile) {
                 cleanupMobileContainer();
             }
         }
 
+        // 填充 PC 端灯箱
         function fillLB(idx, verIdx) {
             const w = works[idx];
             const v = w.versions[verIdx];
             const lbImg = document.getElementById('lbImg');
+
             setImageWithBlur(lbImg, v.src);
 
             document.getElementById('lbSeries').textContent = w.series;
             document.getElementById('lbGhost').textContent = w.num;
             document.getElementById('lbName').textContent = w.name;
-            document.getElementById('lbDesc').textContent = w.desc;
-            document.getElementById('lbChips').innerHTML = w.chips.map(c => `<span class="lb-chip">${c}</span>`).join('');
-            document.getElementById('lbStory').textContent = w.story;
+            
+            // 是否存在txt文件（story内容），有则显示区块，无则隐藏
+            const storyBlock = document.getElementById('lbStoryBlock');
+            if (w.story) {
+                storyBlock.style.display = 'block';
+                document.getElementById('lbStory').textContent = w.story;
+            } else {
+                storyBlock.style.display = 'none';
+            }
+
             document.querySelectorAll('.lb-dot').forEach((d, i) => d.classList.toggle('on', i === idx));
             document.querySelectorAll('.lb-ver-btn').forEach((b, i) => b.classList.toggle('active', i === verIdx));
         }
@@ -2125,7 +2303,7 @@
             if (busy || verIdx === curVer) return;
             curVer = verIdx;
             const v = works[cur].versions[verIdx];
-            
+
             if (isMobile) {
                 if (mobileImg) {
                     setImageWithBlur(mobileImg, v.src);
@@ -2145,10 +2323,12 @@
         function jumpTo(next, dir) {
             if (busy || next === cur || isMobile) return;
             busy = true;
+
             const d = dir !== undefined ? dir : (next > cur ? 1 : -1);
             const card = document.getElementById('lbCard');
             const outC = d > 0 ? 'out-l' : 'out-r',
-                inC = d > 0 ? 'in-r' : 'in-l';
+                  inC = d > 0 ? 'in-r' : 'in-l';
+
             card.className = 'lb-card ' + outC;
             card.addEventListener('animationend', function h() {
                 card.removeEventListener('animationend', h);
@@ -2156,6 +2336,7 @@
                 curVer = 0;
                 fillLB(cur, 0);
                 renderVersionBar();
+
                 card.className = 'lb-card';
                 void card.offsetWidth;
                 card.classList.add(inC);
@@ -2170,18 +2351,15 @@
         // ==========================================
         // 手机模式
         // ==========================================
-
         function setupMobileLightbox() {
             const stage = document.getElementById('lbStage');
             let container = document.getElementById('lbMobileContainer');
-
-            // 只有当不存在时才去创建，不再去暴力删除 PC 的节点
+            
             if (!container) {
                 container = document.createElement('div');
                 container.id = 'lbMobileContainer';
                 container.className = 'lb-mobile-container';
 
-                // 图片区域（独立生成 img 而非掠夺 PC 端的 img）
                 const imgArea = document.createElement('div');
                 imgArea.className = 'lb-mobile-img-area';
                 imgArea.onclick = function(e) {
@@ -2192,13 +2370,11 @@
                 imgArea.innerHTML = `<div class="lb-card"><img id="lbMobileImg" src="" alt="" /></div>`;
                 container.appendChild(imgArea);
 
-                // 版本切换按钮
                 const verSwitch = document.createElement('div');
                 verSwitch.className = 'lb-mobile-version-switch';
                 verSwitch.id = 'lbMobileVersionSwitch';
                 container.appendChild(verSwitch);
 
-                // 信息区域
                 const infoArea = document.createElement('div');
                 infoArea.className = 'lb-mobile-info-area';
                 infoArea.id = 'lbMobileInfoArea';
@@ -2206,24 +2382,19 @@
 
                 stage.appendChild(container);
 
-                // 绑定触摸事件与内部滚动监听
                 container.addEventListener('touchstart', onTouchStart, { passive: true });
                 container.addEventListener('touchmove', onTouchMove, { passive: false });
                 container.addEventListener('touchend', onTouchEnd, { passive: true });
                 infoArea.addEventListener('scroll', checkBuyButtonVisibility, { passive: true });
             }
 
-            // 缓存引用
             mobileContainer = container;
             mobileImgCard = document.querySelector('.lb-mobile-img-area .lb-card');
             mobileImg = document.querySelector('#lbMobileImg');
             mobileInfoArea = document.getElementById('lbMobileInfoArea');
             mobileVersionSwitch = document.getElementById('lbMobileVersionSwitch');
-
-            // 绑定动态计算比例函数
             mobileImg.onload = updateImgRatio;
 
-            // 创建购买按钮
             let buyFixed = document.querySelector('.lb-mobile-buy-fixed');
             if (!buyFixed) {
                 buyFixed = document.createElement('div');
@@ -2240,12 +2411,10 @@
             }
             mobileBuyFixed = buyFixed;
 
-            // 强制显示
             mobileContainer.style.display = 'block';
             if (mobileBuyFixed) mobileBuyFixed.style.display = 'flex';
         }
 
-        // 精确计算：自适应横竖版的真实屏幕占比，消除大面积留白
         function updateImgRatio() {
             if (!isMobile || !mobileImg) return;
             const aspect = mobileImg.naturalWidth / mobileImg.naturalHeight;
@@ -2259,8 +2428,7 @@
                     actualH = viewW / aspect;
                 }
                 let ratio = actualH / viewH;
-                ratio = ratio + 0.02; // 给图片底部流出一点自然呼吸间距
-                // 最低占屏35% 保证文字面板不至于太高；最高70%
+                ratio = ratio + 0.02; 
                 currentImgRatio = Math.min(Math.max(ratio, 0.35), 0.70);
             } else {
                 currentImgRatio = 0.70;
@@ -2271,7 +2439,6 @@
         function collapseMobileInfo() {
             if (!mobileExpanded) return;
             mobileExpanded = false;
-            const targetProgress = 0;
             if (mobileImgCard) {
                 mobileImgCard.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
             }
@@ -2293,17 +2460,15 @@
             const w = works[idx];
             const infoArea = document.getElementById('lbMobileInfoArea');
             if (!infoArea) return;
-
-            const chipsHTML = w.chips.map(c => `<span class="mi-chip">${c}</span>`).join('');
-
+            
+            // 是否存在txt文件（story内容），有则显示区块，无则隐藏
+            const storyHTML = w.story ? `<div class="mi-story-title">设计故事</div><div class="mi-story-text">${w.story}</div>` : '';
+            
             infoArea.innerHTML = `
                 <div class="info-inner">
                     <div class="mi-title">${w.name}</div>
                     <div class="mi-num">${w.num}</div>
-                    <div class="mi-desc">${w.desc}</div>
-                    <div class="mi-chips">${chipsHTML}</div>
-                    <div class="mi-story-title">设计故事</div>
-                    <div class="mi-story-text">${w.story}</div>
+                    ${storyHTML}
                 </div>
             `;
         }
@@ -2312,25 +2477,23 @@
             const w = works[cur];
             const container = document.getElementById('lbMobileVersionSwitch');
             if (!container) return;
+            
             if (w.versions.length <= 1) {
                 container.innerHTML = '';
                 return;
             }
-            // 适当放大横竖版切换按钮的字体（设为 14px）
             container.innerHTML = w.versions.map((v, i) =>
                 `<button class="${i===curVer?'active':''}" style="font-size: 14px;" onclick="switchLBVersion(${i})">${i === 0 ? '竖' : '横'}</button>`
             ).join('');
         }
 
-        // ─── 触摸处理（已优化防抖与 rAF 渲染，解决滑动抽搐） ───
-
+        // ─── 触摸处理 ───
         const DRAG_THRESHOLD = 10;
-        let rafId = null; // 用于渲染节流
+        let rafId = null;
 
         function onTouchStart(e) {
             if (e.touches.length !== 1) return;
-
-            // 修正：如果正在动画中，清除状态但不直接 return，确保下一次触摸能正确捕获起点
+            
             if (isAnimating) {
                 isAnimating = false;
             }
@@ -2369,7 +2532,6 @@
             if (touchOnInfoArea) {
                 const infoEl = document.getElementById('lbMobileInfoArea');
                 let shouldIntercept = false;
-                
                 if (dy < 0 && startProgress < 1) {
                     shouldIntercept = true;
                 } else if (dy > 0 && infoEl && infoEl.scrollTop <= 0) {
@@ -2394,14 +2556,12 @@
                 }
             }
 
-            // 使用 requestAnimationFrame 节流，避免连续滑动时的视觉抖动和抽搐
             if (rafId) cancelAnimationFrame(rafId);
             rafId = requestAnimationFrame(() => {
                 const maxDy = window.innerHeight * 0.6;
                 const delta = -dy / maxDy;
                 let progress = startProgress + delta;
                 progress = Math.min(1, Math.max(0, progress));
-
                 dragProgress = progress;
                 updateMobileTransform(progress);
             });
@@ -2417,7 +2577,6 @@
                 touchOnInfoArea = false;
                 return;
             }
-
             touchOnInfoArea = false;
 
             if (!isDragging) {
@@ -2429,6 +2588,7 @@
             const speed = Math.abs(dy) / dt;
 
             let targetProgress = dragProgress;
+
             if (speed > 0.3) {
                 if (dy < 0) {
                     targetProgress = Math.min(1, dragProgress + 0.2);
@@ -2436,9 +2596,10 @@
                     targetProgress = Math.max(0, dragProgress - 0.2);
                 }
             }
+
             if (targetProgress > 0.85) targetProgress = 1;
             if (targetProgress < 0.15) targetProgress = 0;
-
+            
             mobileExpanded = (targetProgress >= 0.5);
 
             if (mobileImgCard) {
@@ -2447,6 +2608,7 @@
             if (mobileInfoArea) {
                 mobileInfoArea.style.transition = 'height 0.5s cubic-bezier(0.16, 1, 0.3, 1), top 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
             }
+
             if (targetProgress >= BUY_SHOW_PROGRESS) {
                 if (mobileBuyFixed) mobileBuyFixed.classList.add('visible');
             } else {
@@ -2455,6 +2617,7 @@
 
             isAnimating = true;
             updateMobileTransform(targetProgress);
+
             setTimeout(() => {
                 isAnimating = false;
             }, 550);
@@ -2464,27 +2627,25 @@
         }
 
         function updateMobileTransform(progress) {
-            // 利用动态 currentImgRatio 平滑缩放
             const minR = Math.min(0.30, currentImgRatio * 0.5);
             const scale = 1 - progress * (1 - minR / currentImgRatio);
             if (mobileImgCard) {
                 mobileImgCard.style.transform = `scale(${scale})`;
             }
 
-            // 计算图片实际高度占屏幕比例
             const imgHeightRatio = currentImgRatio * scale;
             if (mobileInfoArea) {
                 const topPercent = imgHeightRatio * 100;
                 const heightPercent = 100 - topPercent;
                 mobileInfoArea.style.top = topPercent + '%';
                 mobileInfoArea.style.height = heightPercent + '%';
+
                 if (progress > 0.01) {
                     mobileInfoArea.style.overflowY = 'auto';
                 } else {
                     mobileInfoArea.style.overflowY = 'hidden';
                 }
             }
-
             checkBuyButtonVisibility();
         }
 
@@ -2515,13 +2676,16 @@
             purchaseVer = verIdx || 0;
             purchaseTier = 0;
             purchasePay = 0;
+
             const w = works[artIdx];
             document.getElementById('purchaseName').textContent = w.name;
             document.getElementById('purchaseNum').textContent = w.num;
             document.getElementById('purchaseNoteCode').textContent = w.num;
+
             updatePurchaseThumb();
             renderPurchaseVersions();
             renderPurchaseTiers();
+
             document.getElementById('qrWx').style.display = 'block';
             document.getElementById('qrAli').style.display = 'none';
             document.querySelectorAll('.pay-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
@@ -2549,6 +2713,7 @@
             const w = works[purchaseArtIdx];
             const container = document.getElementById('purchaseVersionSwitch');
             if (!w || !w.versions || w.versions.length <= 1) { container.innerHTML = ''; return; }
+            
             container.innerHTML = w.versions.map((v, i) =>
                 `<button class="v-switch-btn${i===purchaseVer?' active':''}" onclick="switchPurchaseVersion(${i})">${i === 0 ? '竖' : '横'}</button>`
             ).join('');
@@ -2565,12 +2730,12 @@
             const w = works[purchaseArtIdx];
             const container = document.getElementById('purchaseTiers');
             container.innerHTML = tierNames.map((name, i) => `
-                    <div class="p-tier">
-                        <div class="p-tier-name">${name}</div>
-                        <div class="p-tier-spec">${i===0?'1080P 高清原图': i===1?'带实木相框装裱':'艺术微喷实体装裱'}</div>
-                        <div class="p-tier-price">¥${w.prices[i]}</div>
-                    </div>
-                `).join('');
+                <div class="p-tier">
+                    <div class="p-tier-name">${name}</div>
+                    <div class="p-tier-spec">${i===0?'1080P 高清大图': i===1?'带实木相框装裱':'艺术微喷实体装裱'}</div>
+                    <div class="p-tier-price">¥${w.prices[i]}</div>
+                </div>
+            `).join('');
         }
 
         function switchPurchasePay(idx) {
@@ -2595,10 +2760,12 @@
                 return;
             }
             if (!lbActive) return;
+            
             if (isMobile) {
                 if (e.key === 'Escape') closeLB();
                 return;
             }
+            
             if (e.key === 'ArrowLeft') nav(-1);
             if (e.key === 'ArrowRight') nav(1);
             if (e.key === 'Escape') closeLB();
@@ -2620,7 +2787,7 @@
 
         // ─── 启动 ───
         window.addEventListener('DOMContentLoaded', loadWorksFromGitHub);
-
+        
         window.addEventListener('resize', () => {
             if (window.innerWidth >= 1100) {
                 isMobile = false;
