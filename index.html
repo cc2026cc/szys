@@ -323,8 +323,8 @@
                 transform: translateY(0) scale(1); transform-origin: top center; will-change: transform; transition: none; position: relative;
             }
             .lb-mobile-img-area .lb-card img {
-                max-width: 100vw; max-height: 100vh; width: auto; height: auto; object-fit: contain;
-                border: none; box-shadow: none; border-radius: 0; display: block; max-width: 100%; max-height: 100%;
+                width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: contain;
+                border: none; box-shadow: none; border-radius: 0; display: block;
                 -webkit-tap-highlight-color: transparent !important; transform-origin: top center;
             }
 
@@ -751,11 +751,12 @@ function loadLightboxImage(imgEl, ver) {
 
     // 后台预加载 1080P 高清原图
     const highRes = new Image();
+    highRes.src = fullSrc;
     highRes.onload = () => {
         // 关键校验：如果加载完成时用户已经切换到其他图片，直接丢弃过期的加载结果
         if (imgEl.dataset.targetSrc !== fullSrc) return;
 
-        // 自动检测/读取高清图实际宽高，精准绑定“横版”与“竖版”
+        // 自动读取高清图实际宽高，精准绑定“横版”与“竖版”
         if (highRes.naturalWidth && highRes.naturalHeight) {
             const isHoriz = highRes.naturalWidth > highRes.naturalHeight;
             ver.label = isHoriz ? '横版' : '竖版';
@@ -767,9 +768,9 @@ function loadLightboxImage(imgEl, ver) {
         imgEl.src = fullSrc;
         if (loadingGlass) loadingGlass.classList.remove('visible');
 
-        // 【纠正关键】大图加载/缓存读取完毕后，立即重新计算手机端显示比例与高度，防止留空
+        // 触发手机端尺寸重新校验，彻底解决移动端缓存导致的图片变小/留空问题
         if (typeof updateImgRatio === 'function') {
-            updateImgRatio();
+            requestAnimationFrame(updateImgRatio);
         }
     };
 
@@ -777,15 +778,11 @@ function loadLightboxImage(imgEl, ver) {
         if (imgEl.dataset.targetSrc === fullSrc) {
             imgEl.src = quickSrc;
             if (loadingGlass) loadingGlass.classList.remove('visible');
-            if (typeof updateImgRatio === 'function') updateImgRatio();
+            if (typeof updateImgRatio === 'function') {
+                requestAnimationFrame(updateImgRatio);
+            }
         }
     };
-
-    highRes.src = fullSrc;
-    // 针对浏览器缓存处理：若图片已在本地缓存中，立即主动触发 onload 逻辑
-    if (highRes.complete && highRes.naturalWidth) {
-        highRes.onload();
-    }
 }
 
         // ==========================================
@@ -903,10 +900,15 @@ function loadLightboxImage(imgEl, ver) {
                         hasTxt = files.some(f => f.toLowerCase().endsWith('.txt'));
                     }
 
-                    // 2. 构建包含（原图 src + 缩略图 thumb + 色块图 blur）的版本结构
+                    // 2. 构建包含（原图 src + 缩略图 thumb + 色块图 blur）的版本结构，严格区分横竖版
                     const versions = baseFiles.map(imgName => {
                         const lower = imgName.toLowerCase();
-                        const isHoriz = lower.includes('横') || lower.includes('land') || lower.includes('horiz');
+                        // 准确判断横竖版：文件名明确含“横”时定为横版；含“竖”字或不含横字时默认均定为竖版
+                        let isHoriz = lower.includes('横');
+                        if (!isHoriz && !lower.includes('竖')) {
+                            // 仅当多图且含 02 时辅助判定横版
+                            isHoriz = lower.includes('02') && baseFiles.length > 1;
+                        }
                         const label = isHoriz ? '横版' : '竖版';
 
                         const matchByDirection = (fileList) => fileList.find(file => {
@@ -930,24 +932,8 @@ function loadLightboxImage(imgEl, ver) {
                             label: label 
                         };
                     });
-
-                    // 预检测所有版本的真实图片宽高，精确定位横竖版并确保竖版排在首位 (index 0)
-                    await Promise.all(versions.map(v => new Promise((resolve) => {
-                        const checkImg = new Image();
-                        checkImg.src = v.thumb || v.blur || v.src;
-                        if (checkImg.complete && checkImg.naturalWidth) {
-                            v.label = checkImg.naturalWidth > checkImg.naturalHeight ? '横版' : '竖版';
-                            resolve();
-                        } else {
-                            checkImg.onload = () => {
-                                v.label = checkImg.naturalWidth > checkImg.naturalHeight ? '横版' : '竖版';
-                                resolve();
-                            };
-                            checkImg.onerror = () => resolve();
-                        }
-                    })));
-
-                    // 强制排序：确保真实尺寸测出的“竖版”永远在数组的第一个位置 (index 0)
+                    
+                    // 强制排序：确保“竖版”永远排在第 1 个位置（首页缩略图与大图模式均默认显示竖版）
                     versions.sort((a, b) => {
                         if (a.label === '竖版' && b.label !== '竖版') return -1;
                         if (a.label !== '竖版' && b.label === '竖版') return 1;
@@ -1271,7 +1257,6 @@ function loadLightboxImage(imgEl, ver) {
         function updateImgRatio() {
             if (!isMobile || !mobileImg) return;
             const w = works[cur];
-            if (!w) return;
             
             // 需求：如果没有 txt 文档，手机大图强制屏幕上下左右居中
             if (!w.hasStory) {
@@ -1280,11 +1265,12 @@ function loadLightboxImage(imgEl, ver) {
                 return;
             }
 
-            const nw = mobileImg.naturalWidth;
-            const nh = mobileImg.naturalHeight;
-            const aspect = (nw && nh) ? (nw / nh) : 0;
+            // 防缓存兼容：优先获取图片 naturalWidth/Height，若未拿到则读取渲染宽高
+            const imgW = mobileImg.naturalWidth || mobileImg.width || 0;
+            const imgH = mobileImg.naturalHeight || mobileImg.height || 0;
 
-            if (aspect && aspect > 0) {
+            if (imgW > 0 && imgH > 0) {
+                const aspect = imgW / imgH;
                 const viewW = window.innerWidth;
                 const viewH = window.innerHeight;
                 let actualH;
