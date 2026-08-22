@@ -225,27 +225,43 @@
             object-fit: contain; border-radius: 4px; border: 1px solid rgba(124, 159, 75, 0.35);
             box-shadow: 0 48px 130px rgba(0, 0, 0, .85), 0 0 80px rgba(124, 159, 75, 0.06);
         }
-        /* 大图加载中圆角矩形毛玻璃提示框 */
-        .lb-loading-box {
+        /* HD 状态感知指示灯样式 */
+        .hd-badge {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 20;
-            padding: 10px 22px;
-            background: rgba(20, 20, 30, 0.65);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            background: rgba(8, 8, 15, 0.65);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border: 1px solid rgba(201, 168, 76, 0.3);
             border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
             color: #e8c97a;
-            font-size: 13px;
-            letter-spacing: 3px;
+            letter-spacing: 1px;
             pointer-events: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            user-select: none;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+        }
+        .hd-badge .hd-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #c9a84c;
+            box-shadow: 0 0 6px #c9a84c;
+        }
+        /* 载入中状态：淡金光呼吸闪烁 */
+        .hd-badge.loading .hd-dot {
+            animation: hdPulse 1.2s infinite ease-in-out;
+        }
+        @keyframes hdPulse {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); box-shadow: 0 0 2px rgba(201, 168, 76, 0.4); }
+            50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 10px rgba(232, 201, 122, 0.9); }
         }
 
         @keyframes zoomIn { from { transform: scale(0.88); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -717,40 +733,37 @@
             };
         }
 
-        // 灯箱大图秒开（600P全屏秒开，未加载完1080P时显示毛玻璃“加载中”，加载完成后消失）
+        // 灯箱大图无感秒开（带 HD 状态感知微提示，载入中闪烁淡金光，替换完成后常亮）
         function loadLightboxImage(imgEl, ver) {
             if (!imgEl || !ver) return;
             
             const quickSrc = ver.thumb || ver.blur || ver.src;
             const fullSrc = ver.src;
 
-            // 获取或创建毛玻璃“加载中”提示框
+            // 自动检测/创建角标
             const cardEl = imgEl.parentElement;
-            let loadingBox = cardEl ? cardEl.querySelector('.lb-loading-box') : null;
-            if (!loadingBox && cardEl) {
-                loadingBox = document.createElement('div');
-                loadingBox.className = 'lb-loading-box';
-                loadingBox.textContent = '加载中';
-                cardEl.appendChild(loadingBox);
+            let hdBadge = cardEl ? cardEl.querySelector('.hd-badge') : null;
+            if (!hdBadge && cardEl) {
+                hdBadge = document.createElement('div');
+                hdBadge.className = 'hd-badge loading';
+                hdBadge.innerHTML = '<span class="hd-dot"></span>HD';
+                cardEl.appendChild(hdBadge);
             }
 
-            // 1. 600P 缩略图秒开全屏显示
+            // 瞬间先渲染已有的 600P 缩略图
             imgEl.src = quickSrc;
 
-            // 2. 当 1080P 大图未加载完成时显示毛玻璃“加载中”，加载完成后隐藏
+            // 后台加载高清原图
             if (fullSrc && fullSrc !== quickSrc) {
-                if (loadingBox) loadingBox.style.display = 'flex';
+                if (hdBadge) hdBadge.classList.add('loading'); // 载入中闪烁
                 const highRes = new Image();
                 highRes.src = fullSrc;
                 highRes.onload = () => {
                     imgEl.src = fullSrc;
-                    if (loadingBox) loadingBox.style.display = 'none';
-                };
-                highRes.onerror = () => {
-                    if (loadingBox) loadingBox.style.display = 'none';
+                    if (hdBadge) hdBadge.classList.remove('loading'); // 替换完成常亮
                 };
             } else {
-                if (loadingBox) loadingBox.style.display = 'none';
+                if (hdBadge) hdBadge.classList.remove('loading');
             }
         }
 
@@ -869,14 +882,15 @@
                         hasTxt = files.some(f => f.toLowerCase().endsWith('.txt'));
                     }
 
-                    // 2. 构建版本结构，自动感知图片真实宽高比例（自动精准识别横竖版）
-                    const versions = await Promise.all(baseFiles.map(async (imgName) => {
+                    // 2. 构建包含（原图 src + 缩略图 thumb + 色块图 blur）的版本结构，严格区分横竖版
+                    const versions = baseFiles.map(imgName => {
                         const lower = imgName.toLowerCase();
-                        const isHorizByFile = lower.includes('横') || lower.includes('02');
+                        const isHoriz = lower.includes('横') || lower.includes('02');
+                        const label = isHoriz ? '横版' : '竖版';
 
                         const matchByDirection = (fileList) => fileList.find(file => {
                             const fLower = file.toLowerCase();
-                            return isHorizByFile 
+                            return isHoriz 
                                 ? (fLower.includes('横') || fLower.includes('02')) 
                                 : (fLower.includes('竖') || (!fLower.includes('横') && !fLower.includes('02')));
                         });
@@ -888,25 +902,13 @@
                         const thumbPath = matchedThumb ? `./熊猫创意/${folderName}/${matchedThumb}` : srcPath;
                         const blurPath = matchedBlur ? `./熊猫创意/${folderName}/${matchedBlur}` : thumbPath;
 
-                        // 核心：自动加载图片宽高比，宽度 > 高度 则自动判断为横版，否则为竖版
-                        const label = await new Promise((resolve) => {
-                            const checkImg = new Image();
-                            checkImg.onload = () => {
-                                resolve(checkImg.naturalWidth > checkImg.naturalHeight ? '横版' : '竖版');
-                            };
-                            checkImg.onerror = () => {
-                                resolve(isHorizByFile ? '横版' : '竖版');
-                            };
-                            checkImg.src = thumbPath || srcPath;
-                        });
-
                         return { 
                             src: srcPath,      // 高清原图
                             thumb: thumbPath,  // 600P 缩略图
                             blur: blurPath,    // 480P 模糊色块图
                             label: label 
                         };
-                    }));
+                    });
                     
                     // 强制排序：确保“竖版”永远在数组的第一个位置
                     versions.sort((a, b) => {
@@ -930,29 +932,8 @@
 
                 works = (await Promise.all(promises)).filter(Boolean);
                 renderGallery();
-                // 页面数据加载完毕后，自动检查地址栏，如果是在大图模式下刷新的，自动恢复大图
-                checkUrlHashAndOpen();
             } catch (err) {
                 console.error('渲染异常:', err);
-            }
-        }
-
-        // 解析 URL 中的大图记录标记，实现刷新网页不退回首页
-        function checkUrlHashAndOpen() {
-            const hash = location.hash;
-            if (hash && hash.includes('art=')) {
-                const matchArt = hash.match(/art=(\d+)/);
-                const matchVer = hash.match(/ver=(\d+)/);
-                if (matchArt) {
-                    const artIdx = parseInt(matchArt[1], 10);
-                    const verIdx = matchVer ? parseInt(matchVer[1], 10) : 0;
-                    if (artIdx >= 0 && artIdx < works.length) {
-                        openLB(artIdx);
-                        if (verIdx > 0 && verIdx < works[artIdx].versions.length) {
-                            switchLBVersion(verIdx);
-                        }
-                    }
-                }
             }
         }
 
@@ -1033,9 +1014,6 @@
             curVer = 0;
             isMobile = window.innerWidth < 1100;
 
-            // 记录当前大图序号到网址，防止刷新网页退回首页
-            history.replaceState(null, '', `#art=${idx}&ver=0`);
-
             // 打开大图时向浏览器历史压入一条记录，用于手机端侧滑返回
             if (!history.state || !history.state.lightbox) {
                 history.pushState({ lightbox: true }, '');
@@ -1102,11 +1080,6 @@
                 cleanupMobileContainer();
             }
 
-            // 关闭大图时恢复为普通首页网址
-            if (location.hash.includes('art=')) {
-                history.replaceState(null, '', location.pathname + location.search);
-            }
-
             // 如果是用户主动点击关闭按钮而非手机返回键，则退回刚才压入的历史记录
             if (!fromPopState && history.state && history.state.lightbox) {
                 history.back();
@@ -1153,10 +1126,6 @@
         function switchLBVersion(verIdx) {
             if (busy || verIdx === curVer) return;
             curVer = verIdx;
-            
-            // 同步更新网址标记当前选择的横/竖版本
-            history.replaceState(null, '', `#art=${cur}&ver=${curVer}`);
-
             const v = works[cur].versions[verIdx];
 
             // 1. 直接精准获取 DOM，同时更新手机端与 PC 端的图片
@@ -1191,8 +1160,6 @@
                 card.removeEventListener('animationend', h);
                 cur = next;
                 curVer = 0;
-                // 左右切换作品时，同步更新网址状态
-                history.replaceState(null, '', `#art=${cur}&ver=0`);
                 fillLB(cur, 0);
                 renderVersionBar();
                 card.className = 'lb-card';
@@ -1343,7 +1310,7 @@
             }
             // 在 onclick 中加入 event.stopPropagation()，阻止点击冒泡到手势容器
             container.innerHTML = w.versions.map((v, i) =>
-                `<button class="${i===curVer?'active':''}" style="font-size: 14px;" onclick="event.stopPropagation(); switchLBVersion(${i})">${v.label ? v.label.charAt(0) : (i === 0 ? '竖' : '横')}</button>`
+                `<button class="${i===curVer?'active':''}" style="font-size: 14px;" onclick="event.stopPropagation(); switchLBVersion(${i})">${i === 0 ? '竖' : '横'}</button>`
             ).join('');
         }
 
@@ -1538,7 +1505,7 @@
             const container = document.getElementById('purchaseVersionSwitch');
             if (!w || !w.versions || w.versions.length <= 1) { container.innerHTML = ''; return; }
             container.innerHTML = w.versions.map((v, i) =>
-                `<button class="v-switch-btn${i===purchaseVer?' active':''}" onclick="switchPurchaseVersion(${i})">${v.label ? v.label.charAt(0) : (i === 0 ? '竖' : '横')}</button>`
+                `<button class="v-switch-btn${i===purchaseVer?' active':''}" onclick="switchPurchaseVersion(${i})">${i === 0 ? '竖' : '横'}</button>`
             ).join('');
         }
 
