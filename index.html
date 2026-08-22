@@ -155,7 +155,7 @@
             position: relative;
             overflow: hidden;
             width: 100%;
-            aspect-ratio: 3 / 4; /* 初始 3:4 比例占位防抖动 */
+            aspect-ratio: 3 / 4;
             background: var(--bg2);
             transition: aspect-ratio 0.3s ease;
         }
@@ -168,7 +168,7 @@
             filter: brightness(0.9) saturate(0.95);
         }
         .img-wrap img.is-blur {
-            filter: blur(10px) brightness(0.9); /* 模糊色块加载时的过渡虚化 */
+            filter: blur(10px) brightness(0.9);
         }
         .art-card:hover .img-wrap img { transform: scale(1.05); filter: brightness(1.02) saturate(1.1); }
 
@@ -225,33 +225,33 @@
             object-fit: contain; border-radius: 4px; border: 1px solid rgba(124, 159, 75, 0.35);
             box-shadow: 0 48px 130px rgba(0, 0, 0, .85), 0 0 80px rgba(124, 159, 75, 0.06);
         }
-        /* 居中毛玻璃加载提示样式 */
-.loading-glass {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(20, 20, 30, 0.55);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    padding: 12px 28px;
-    border-radius: 12px;
-    color: var(--gold-l);
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 2px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
-    z-index: 100;
-    pointer-events: none;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-.loading-glass.visible {
-    opacity: 1;
-    visibility: visible;
-}
+
+        .loading-glass {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(20, 20, 30, 0.55);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 12px 28px;
+            border-radius: 12px;
+            color: var(--gold-l);
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .loading-glass.visible {
+            opacity: 1;
+            visibility: visible;
+        }
 
         @keyframes zoomIn { from { transform: scale(0.88); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .lb-card.enter { animation: zoomIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
@@ -264,19 +264,57 @@
         .lb-card.in-r { animation: inFromRight 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .lb-card.in-l { animation: inFromLeft 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        /* 胶囊按钮全局核心样式 */
-        .capsule-switch-btn {
-            padding: 8px 18px; border-radius: 30px; border: 1.5px solid rgba(255, 255, 255, 0.2);
-            background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            color: rgba(255, 255, 255, 0.95); font-size: 13px; font-weight: 600; letter-spacing: 1px;
-            cursor: pointer; pointer-events: auto; transition: all 0.25s ease; font-family: inherit;
-            display: flex; align-items: center; justify-content: center; gap: 6px; user-select: none;
-            -webkit-tap-highlight-color: transparent !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        /* ===== 胶囊切换按钮（通用） ===== */
+        .capsule-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px 8px 18px;
+            border-radius: 40px;
+            border: 1.5px solid rgba(201, 168, 76, 0.45);
+            background: rgba(8, 8, 15, 0.70);
+            backdrop-filter: blur(14px) saturate(1.6);
+            -webkit-backdrop-filter: blur(14px) saturate(1.6);
+            color: var(--gold-l);
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(201, 168, 76, 0.08) inset;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent !important;
+            white-space: nowrap;
         }
-        .capsule-switch-btn:active { transform: scale(0.92); border-color: var(--bamboo); color: var(--bamboo); }
-        .capsule-switch-btn:hover { background: rgba(124, 159, 75, 0.2); border-color: var(--bamboo); color: var(--bamboo); }
+        .capsule-toggle:hover {
+            border-color: var(--bamboo);
+            background: rgba(124, 159, 75, 0.18);
+            box-shadow: 0 6px 32px rgba(124, 159, 75, 0.20), 0 0 0 1px rgba(124, 159, 75, 0.15) inset;
+        }
+        .capsule-toggle:active {
+            transform: scale(0.94);
+        }
+        .capsule-toggle .toggle-icon {
+            font-size: 16px;
+            line-height: 1;
+            display: inline-block;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .capsule-toggle .toggle-label {
+            font-size: 13px;
+            letter-spacing: 1.5px;
+        }
 
-        .lb-version-bar { display: flex; justify-content: center; margin-top: 16px; z-index: 10; }
+        .lb-version-bar {
+            display: flex;
+            justify-content: center;
+            margin-top: 16px;
+            z-index: 10;
+            min-height: 44px;
+            align-items: center;
+        }
+
         .lb-dots { display: flex; gap: 10px; align-items: center; margin-top: 20px; }
         .lb-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, 0.25); border: 1px solid rgba(255, 255, 255, 0.3); cursor: pointer; transition: all .3s; }
         .lb-dot.on { background: var(--bamboo); width: 10px; height: 10px; border-color: var(--bamboo); box-shadow: 0 0 10px rgba(124, 159, 75, 0.9); }
@@ -334,9 +372,8 @@
                 -webkit-tap-highlight-color: transparent !important; transform-origin: top center;
             }
 
-            /* 手机端无 txt 模式强制居中 */
             .lb-mobile-container.no-story-mode .lb-mobile-img-area {
-                align-items: center; /* 让图片垂直居中 */
+                align-items: center;
             }
             .lb-mobile-container.no-story-mode .lb-mobile-img-area .lb-card {
                 align-items: center;
@@ -348,7 +385,48 @@
                 display: none !important;
             }
 
-            /* 手机端精简工具条（半透明毛玻璃效果） */
+            /* ---- 手机端切换按钮：图片右下外侧 ---- */
+            .lb-mobile-toggle-wrap {
+                position: absolute;
+                right: 8px;
+                bottom: 20px;
+                z-index: 18;
+                pointer-events: none;
+                -webkit-tap-highlight-color: transparent !important;
+            }
+            .lb-mobile-toggle-wrap .capsule-toggle {
+                pointer-events: auto;
+                font-size: 12px;
+                padding: 6px 16px 6px 14px;
+                border-radius: 30px;
+                background: rgba(8, 8, 15, 0.78);
+                backdrop-filter: blur(16px) saturate(1.8);
+                -webkit-backdrop-filter: blur(16px) saturate(1.8);
+                border: 1.5px solid rgba(201, 168, 76, 0.35);
+                box-shadow: 0 6px 28px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(201, 168, 76, 0.10) inset;
+                color: #f0e0b0;
+            }
+            .lb-mobile-toggle-wrap .capsule-toggle .toggle-icon {
+                font-size: 14px;
+            }
+            .lb-mobile-toggle-wrap .capsule-toggle .toggle-label {
+                font-size: 11px;
+                letter-spacing: 1px;
+            }
+            .lb-mobile-toggle-wrap .capsule-toggle:active {
+                transform: scale(0.92);
+            }
+
+            .lb-mobile-container.no-story-mode .lb-mobile-toggle-wrap {
+                bottom: 60px;
+                right: 12px;
+            }
+            .lb-mobile-container.no-story-mode .lb-mobile-toggle-wrap .capsule-toggle {
+                background: rgba(8, 8, 15, 0.85);
+                border-color: rgba(201, 168, 76, 0.55);
+            }
+
+            /* 手机端精简工具条 */
             .lb-mobile-simple-bar {
                 display: none; position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
                 width: 88%; height: 58px; background: rgba(20, 20, 30, 0.55);
@@ -368,11 +446,7 @@
             }
             .lb-mobile-simple-bar .ms-buy:active { transform: scale(0.95); }
 
-            /* ---- 胶囊型横竖版切换按钮（手机端） ---- */
-            .lb-mobile-version-switch { position: absolute; right: 16px; top: 60px; z-index: 15; pointer-events: none; -webkit-tap-highlight-color: transparent !important; }
-            .lb-mobile-version-switch .capsule-switch-btn { padding: 6px 14px; font-size: 11px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
-
-            /* ---- 信息区域 (紧贴图片底部) ---- */
+            /* 手机端信息区域 */
             .lb-mobile-info-area {
                 position: absolute; left: 0; right: 0; bottom: 0; z-index: 10; background: rgba(8, 8, 15, 0.88);
                 backdrop-filter: blur(24px) saturate(1.5); -webkit-backdrop-filter: blur(24px) saturate(1.5); border-top: 1px solid rgba(124, 159, 75, 0.15);
@@ -389,7 +463,7 @@
             .lb-mobile-info-area .mi-story-title { font-size: 10px; letter-spacing: 4px; color: var(--bamboo); margin: 10px 0 6px; text-transform: uppercase; }
             .lb-mobile-info-area .mi-story-text { font-size: 12px; color: var(--t2); line-height: 1.9; letter-spacing: 0.5px; margin-bottom: 10px; }
 
-            /* ---- 底部购买按钮 (固定始终显示，精致紧凑) ---- */
+            /* 底部购买按钮 */
             .lb-mobile-buy-fixed {
                 position: fixed; bottom: 0; left: 0; right: 0; z-index: 25; padding: 12px 20px 20px;
                 background: linear-gradient(to top, rgba(4, 4, 10, 0.88) 0%, transparent 100%); pointer-events: auto;
@@ -417,9 +491,11 @@
             .art-meta-text { font-size: 7px; letter-spacing: 1px; }
             .art-buy { padding: 3px 8px; font-size: 7px; bottom: 10px; right: 8px; }
 
-            /* 小屏手机适配 */
             @media (max-width: 480px) {
-                .lb-mobile-version-switch { right: 12px; top: 54px; }
+                .lb-mobile-toggle-wrap { right: 4px; bottom: 14px; }
+                .lb-mobile-toggle-wrap .capsule-toggle { font-size: 10px; padding: 4px 12px 4px 10px; }
+                .lb-mobile-toggle-wrap .capsule-toggle .toggle-icon { font-size: 12px; }
+                .lb-mobile-toggle-wrap .capsule-toggle .toggle-label { font-size: 9px; letter-spacing: 0.5px; }
                 .lb-mobile-info-area { padding: 12px 14px 16px; }
                 .lb-mobile-info-area .mi-title { font-size: 19px; }
                 .lb-mobile-info-area .mi-desc { font-size: 12px; }
@@ -451,8 +527,18 @@
         .purchase-thumb img { width: auto; height: auto; max-width: 140px; max-height: 180px; object-fit: contain; display: block; }
         .purchase-name { font-size: 16px; font-weight: 600; letter-spacing: 2px; color: var(--t1); text-align: left; line-height: 1.3; }
         .purchase-num { font-size: 10px; letter-spacing: 2px; color: var(--t2); text-align: left; }
-        .version-switch { display: flex; margin-top: 8px; }
-        .version-switch .capsule-switch-btn { padding: 6px 14px; font-size: 12px; background: rgba(0, 0, 0, 0.75); }
+        .version-switch { display: flex; gap: 8px; margin-top: 4px; align-items: center; }
+        /* 购买弹窗内的胶囊切换按钮 */
+        .version-switch .capsule-toggle {
+            font-size: 12px;
+            padding: 6px 16px 6px 14px;
+            border-radius: 30px;
+            background: rgba(8, 8, 15, 0.70);
+            border-color: rgba(201, 168, 76, 0.30);
+        }
+        .version-switch .capsule-toggle .toggle-icon { font-size: 14px; }
+        .version-switch .capsule-toggle .toggle-label { font-size: 11px; }
+
         .purchase-right { flex: 1; display: flex; flex-direction: column; gap: 18px; justify-content: center; }
         @keyframes softPulse { 0%, 100% { box-shadow: 0 0 8px rgba(255, 200, 80, 0.3); border-color: rgba(255, 200, 80, 0.4); } 50% { box-shadow: 0 0 20px rgba(255, 200, 80, 0.7), 0 0 40px rgba(255, 200, 80, 0.3); border-color: rgba(255, 200, 80, 0.8); } }
         .purchase-note-highlight { padding: 12px 14px; background: rgba(255, 200, 80, 0.05); border: 1px solid rgba(255, 200, 80, 0.5); border-radius: 6px; font-size: 11px; color: #ffd580; letter-spacing: 1px; animation: softPulse 2.2s ease-in-out infinite; line-height: 1.6; display: flex; justify-content: center; align-items: center; gap: 10px; }
@@ -479,6 +565,8 @@
             .purchase-left { width: 100%; flex-direction: row; gap: 16px; align-items: flex-start; border-right: none; padding-right: 0; }
             .purchase-thumb { width: auto; height: 110px; max-width: 55vw; flex-shrink: 0; }
             .purchase-thumb img { width: auto; height: 100%; max-height: 110px; object-fit: contain; }
+            .version-switch .capsule-toggle { font-size: 11px; padding: 5px 14px 5px 12px; }
+            .version-switch .capsule-toggle .toggle-label { font-size: 10px; }
             .tier-row { flex-direction: row; gap: 0; justify-content: space-around; }
             .p-tier { flex: 1; padding: 10px 6px; border: none !important; cursor: default; }
             .p-tier:not(:last-child)::after { width: 2px; height: 30px; background: rgba(255, 255, 255, 0.2); }
@@ -575,6 +663,7 @@
                 <div class="lb-card-wrap" id="lbCardWrap">
                     <div class="lb-card" id="lbCard"><img id="lbImg" src="" alt="" /></div>
                 </div>
+                <!-- PC 端版本切换栏：单个胶囊按钮 -->
                 <div class="lb-version-bar" id="lbVersionBar"></div>
                 <div class="lb-dots" id="lbDots"></div>
             </div>
@@ -685,26 +774,23 @@
             prices: [19.9, 89, 799]
         };
 
-        // 首页卡片渐进式加载（3:4占位 -> 模糊色块 -> 容器自适应比例 -> 600P缩略图）
+        // 首页卡片渐进式加载
         function loadGalleryCardImage(imgEl, wrapEl, ver) {
             if (!imgEl || !ver) return;
-            
+
             const blurUrl = ver.blur || ver.thumb || ver.src;
             const thumbUrl = ver.thumb || ver.src;
 
-            // 1. 先展示 10KB 内的模糊色块图并打上高斯模糊
             imgEl.classList.add('is-blur');
             imgEl.src = blurUrl;
 
-            // 当色块图加载完成后，立刻解封 3:4 比例限制，自适应图片真实比例
             imgEl.onload = () => {
                 if (wrapEl) {
                     wrapEl.style.aspectRatio = 'auto';
                     imgEl.style.height = 'auto';
                     imgEl.style.objectFit = 'contain';
                 }
-                
-                // 2. 静默后台加载 600P 缩略图，加载完毕无缝替换并解除虚化
+
                 if (thumbUrl && thumbUrl !== blurUrl) {
                     const tempThumb = new Image();
                     tempThumb.src = thumbUrl;
@@ -718,60 +804,53 @@
             };
         }
 
-        // 灯箱大图无感秒开与自动尺寸检测（修复错乱与切换闪烁Bug）
-function loadLightboxImage(imgEl, ver) {
-    if (!imgEl || !ver) return;
-    
-    const quickSrc = ver.thumb || ver.blur || ver.src;
-    const fullSrc = ver.src;
+        // 灯箱大图加载
+        function loadLightboxImage(imgEl, ver) {
+            if (!imgEl || !ver) return;
 
-    // 绑定当前期望加载的图片URL，彻底解决异步乱序导致变成其他作品图的Bug
-    imgEl.dataset.targetSrc = fullSrc;
+            const quickSrc = ver.thumb || ver.blur || ver.src;
+            const fullSrc = ver.src;
 
-    // 自动检测/创建毛玻璃加载提示
-    const cardEl = imgEl.parentElement;
-    let loadingGlass = cardEl ? cardEl.querySelector('.loading-glass') : null;
-    if (!loadingGlass && cardEl) {
-        loadingGlass = document.createElement('div');
-        loadingGlass.className = 'loading-glass';
-        loadingGlass.innerHTML = '加载中';
-        cardEl.appendChild(loadingGlass);
-    }
+            imgEl.dataset.targetSrc = fullSrc;
 
-    // 首次打开图片时优先展示600P缩略图；若已有图则平滑过渡，防止切换时画面闪烁
-    if (!imgEl.src || imgEl.src === window.location.href) {
-        imgEl.src = quickSrc;
-    }
+            const cardEl = imgEl.parentElement;
+            let loadingGlass = cardEl ? cardEl.querySelector('.loading-glass') : null;
+            if (!loadingGlass && cardEl) {
+                loadingGlass = document.createElement('div');
+                loadingGlass.className = 'loading-glass';
+                loadingGlass.innerHTML = '加载中';
+                cardEl.appendChild(loadingGlass);
+            }
 
-    if (loadingGlass) loadingGlass.classList.add('visible');
+            if (!imgEl.src || imgEl.src === window.location.href) {
+                imgEl.src = quickSrc;
+            }
 
-    // 后台预加载 1080P 高清原图
-    const highRes = new Image();
-    highRes.src = fullSrc;
-    highRes.onload = () => {
-        // 关键校验：如果加载完成时用户已经切换到其他图片，直接丢弃过期的加载结果
-        if (imgEl.dataset.targetSrc !== fullSrc) return;
+            if (loadingGlass) loadingGlass.classList.add('visible');
 
-        // 自动读取高清图实际宽高，精准绑定“横版”与“竖版”
-        if (highRes.naturalWidth && highRes.naturalHeight) {
-            const isHoriz = highRes.naturalWidth > highRes.naturalHeight;
-            ver.label = isHoriz ? '横版' : '竖版';
-            renderVersionBar();
-            renderMobileVersionSwitch();
+            const highRes = new Image();
+            highRes.src = fullSrc;
+            highRes.onload = () => {
+                if (imgEl.dataset.targetSrc !== fullSrc) return;
+
+                if (highRes.naturalWidth && highRes.naturalHeight) {
+                    const isHoriz = highRes.naturalWidth > highRes.naturalHeight;
+                    ver.label = isHoriz ? '横版' : '竖版';
+                    renderVersionBar();
+                    renderMobileVersionSwitch();
+                }
+
+                imgEl.src = fullSrc;
+                if (loadingGlass) loadingGlass.classList.remove('visible');
+            };
+
+            highRes.onerror = () => {
+                if (imgEl.dataset.targetSrc === fullSrc) {
+                    imgEl.src = quickSrc;
+                    if (loadingGlass) loadingGlass.classList.remove('visible');
+                }
+            };
         }
-
-        // 替换为高清大图并隐藏加载提示
-        imgEl.src = fullSrc;
-        if (loadingGlass) loadingGlass.classList.remove('visible');
-    };
-
-    highRes.onerror = () => {
-        if (imgEl.dataset.targetSrc === fullSrc) {
-            imgEl.src = quickSrc;
-            if (loadingGlass) loadingGlass.classList.remove('visible');
-        }
-    };
-}
 
         // ==========================================
         // 加载作品
@@ -822,7 +901,6 @@ function loadLightboxImage(imgEl, ver) {
                     } catch (e) {}
 
                     if (files.length === 0) {
-                        // 模拟数据 fallback：给部分模拟数据假定存在 txt 方便离线测试
                         if (folderName.includes('01')) { files = ['20260804财神七仔qsq01.webp', '20260804财神版七仔02.webp']; }
                         else if (folderName.includes('02')) { files = ['弥勒七仔mlq01.webp']; }
                         else if (folderName.includes('03')) { files = ['如来七仔rlq01.webp']; }
@@ -830,7 +908,6 @@ function loadLightboxImage(imgEl, ver) {
                         else if (folderName.includes('05')) { files = ['小女孩骑着七仔qzqz01.webp']; }
                     }
 
-                    // 异步读取目录下的 TXT 文件内容
                     let txtContent = '';
                     const txtFile = files.find(f => f.toLowerCase().endsWith('.txt'));
                     if (txtFile) {
@@ -848,26 +925,21 @@ function loadLightboxImage(imgEl, ver) {
                     if (images.length === 0) return null;
                     images.sort();
 
-                    // 1. 三级拆分：模糊色块图、600P缩略图、高清大图
                     const blurFiles = images.filter(f => f.includes('模糊色块'));
                     const thumbFiles = images.filter(f => f.includes('缩略图'));
                     const mainFiles = images.filter(f => !f.includes('模糊色块') && !f.includes('缩略图'));
                     const baseFiles = mainFiles.length > 0 ? mainFiles : (thumbFiles.length > 0 ? thumbFiles : blurFiles);
 
-                    // 提取不含“模糊色块”、“缩略图”的目标图片文件名
                     const cleanFiles = mainFiles.length > 0 ? mainFiles : images;
                     const targetImg = cleanFiles[0];
                     const nameWithoutExt = targetImg.substring(0, targetImg.lastIndexOf('.'));
 
-                    // 作品名称提取：提取不含“模糊色块”、“缩略图”图片文件名中的汉字
                     const cnMatches = nameWithoutExt.match(/[\u4e00-\u9fa5]+/g);
                     let extractedName = cnMatches ? cnMatches.join('') : folderName;
 
-                    // 作品编码读取：读取不含“模糊色块”、“缩略图”图片文件名中汉字后面的字母数字组合
                     const codeMatch = nameWithoutExt.match(/[\u4e00-\u9fa5]+([a-zA-Z0-9]+)/);
                     let extractedNum = codeMatch && codeMatch[1] ? codeMatch[1].toUpperCase() : '0000';
 
-                    // 系列名称提取：提取作品文件夹名里“-”后面的汉字
                     let extractedSeries = '神话系列';
                     const dashIdx = folderName.indexOf('-');
                     if (dashIdx !== -1) {
@@ -879,8 +951,6 @@ function loadLightboxImage(imgEl, ver) {
                     }
 
                     const textData = textDataDict[extractedName] || defaultText;
-                    
-                    // 若存在 TXT 文件且有内容则优先使用 TXT 内容，否则使用配置中的故事文字
                     const finalStory = txtContent || textData.story;
                     if (txtContent) {
                         hasTxt = true;
@@ -888,17 +958,16 @@ function loadLightboxImage(imgEl, ver) {
                         hasTxt = files.some(f => f.toLowerCase().endsWith('.txt'));
                     }
 
-                    // 2. 构建包含（原图 src + 缩略图 thumb + 色块图 blur）的版本结构，严格区分横竖版
                     const versions = baseFiles.map(imgName => {
                         const lower = imgName.toLowerCase();
                         const isHoriz = lower.includes('横') || lower.includes('02');
-                        const label = isHoriz ? '横版' : '竖版'; // 正确对应横竖版标签
+                        const label = isHoriz ? '横版' : '竖版';
 
                         const matchByDirection = (fileList) => fileList.find(file => {
                             const fLower = file.toLowerCase();
-                            return isHoriz 
-                                ? (fLower.includes('横') || fLower.includes('02')) 
-                                : (fLower.includes('竖') || (!fLower.includes('横') && !fLower.includes('02')));
+                            return isHoriz ?
+                                (fLower.includes('横') || fLower.includes('02')) :
+                                (fLower.includes('竖') || (!fLower.includes('横') && !fLower.includes('02')));
                         });
 
                         const matchedBlur = matchByDirection(blurFiles);
@@ -908,29 +977,26 @@ function loadLightboxImage(imgEl, ver) {
                         const thumbPath = matchedThumb ? `./熊猫创意/${folderName}/${matchedThumb}` : srcPath;
                         const blurPath = matchedBlur ? `./熊猫创意/${folderName}/${matchedBlur}` : thumbPath;
 
-                        return { 
-                            src: srcPath,      // 高清原图
-                            thumb: thumbPath,  // 600P 缩略图
-                            blur: blurPath,    // 480P 模糊色块图
-                            label: label 
+                        return {
+                            src: srcPath,
+                            thumb: thumbPath,
+                            blur: blurPath,
+                            label: label
                         };
                     });
-                    
-                    // 2.1 数据加载阶段：后台预检测真实像素长宽比，精确判定横竖版
+
                     await Promise.all(versions.map(v => new Promise(resolve => {
                         const img = new Image();
                         img.src = v.thumb || v.src;
                         img.onload = () => {
                             if (img.naturalWidth && img.naturalHeight) {
-                                // 宽度大于高度判为横版，否则精准判定为竖版
                                 v.label = (img.naturalWidth > img.naturalHeight) ? '横版' : '竖版';
                             }
                             resolve();
                         };
-                        img.onerror = () => resolve(); // 避免个别图片加载失败卡死页面
+                        img.onerror = () => resolve();
                     })));
 
-                    // 强制排序：确保通过真实像素识别出的“竖版”永远排在第1位，供首页默认加载
                     versions.sort((a, b) => {
                         if (a.label === '竖版' && b.label !== '竖版') return -1;
                         if (a.label !== '竖版' && b.label === '竖版') return 1;
@@ -946,7 +1012,7 @@ function loadLightboxImage(imgEl, ver) {
                         chips: textData.chips,
                         prices: textData.prices || defaultText.prices,
                         versions: versions,
-                        hasStory: hasTxt // 记录是否包含Txt文档
+                        hasStory: hasTxt
                     };
                 });
 
@@ -966,9 +1032,9 @@ function loadLightboxImage(imgEl, ver) {
             let cols = Array.from({ length: colCount }, () => []);
 
             works.forEach((w, i) => {
-                const seriesNumStr = `${w.series} ${String(i+1).padStart(2,'0')}`;
+                const seriesNumStr = `${w.series} ${String(i + 1).padStart(2, '0')}`;
                 const cardHTML = `
-                <div class="art-card" style="animation-delay: ${i*0.1}s;" onclick="openLB(${i})">
+                <div class="art-card" style="animation-delay: ${i * 0.1}s;" onclick="openLB(${i})">
                     <div class="img-wrap" id="img-wrap-${i}">
                         <img id="card-img-${i}" alt="${w.name}" loading="lazy" />
                     </div>
@@ -989,7 +1055,6 @@ function loadLightboxImage(imgEl, ver) {
                 const imgEl = document.getElementById(`card-img-${i}`);
                 const wrapEl = document.getElementById(`img-wrap-${i}`);
                 const firstVer = w.versions[0];
-                // 触发渐进式加载（3:4占位 -> 模糊色块 -> 容器比例自适应 -> 600P缩略图）
                 loadGalleryCardImage(imgEl, wrapEl, firstVer);
             });
         }
@@ -1026,15 +1091,29 @@ function loadLightboxImage(imgEl, ver) {
         let mobileInfoArea = null;
         let mobileVersionSwitch = null;
         let mobileBuyFixed = null;
-        let currentImgRatio = 0.70; 
+        let currentImgRatio = 0.70;
         const BUY_SHOW_PROGRESS = 0.30;
+
+        // ---- 切换逻辑 ----
+        function toggleVersion() {
+            const w = works[cur];
+            if (!w || !w.versions || w.versions.length <= 1) return;
+            const nextVer = (curVer + 1) % w.versions.length;
+            switchLBVersion(nextVer);
+        }
+
+        function togglePurchaseVersion() {
+            const w = works[purchaseArtIdx];
+            if (!w || !w.versions || w.versions.length <= 1) return;
+            const nextVer = (purchaseVer + 1) % w.versions.length;
+            switchPurchaseVersion(nextVer);
+        }
 
         function openLB(idx) {
             cur = idx;
             curVer = 0;
             isMobile = window.innerWidth < 1100;
 
-            // 打开大图时向浏览器历史压入一条记录，用于手机端侧滑返回
             if (!history.state || !history.state.lightbox) {
                 history.pushState({ lightbox: true }, '');
             }
@@ -1045,12 +1124,12 @@ function loadLightboxImage(imgEl, ver) {
                 fillMobileInfo(cur, curVer);
                 const w = works[cur];
                 const v = w.versions[curVer];
-                
+
                 if (mobileImg) {
-                    mobileImg.src = ''; // 清空上一次的残留画面
+                    mobileImg.src = '';
                     loadLightboxImage(mobileImg, v);
                 }
-                
+
                 mobileExpanded = false;
                 dragProgress = 0;
                 currentImgRatio = 0.70;
@@ -1064,8 +1143,8 @@ function loadLightboxImage(imgEl, ver) {
             } else {
                 document.getElementById('lightbox').classList.remove('is-mobile');
                 const pcImgEl = document.getElementById('lbImg');
-                if (pcImgEl) pcImgEl.src = ''; // 清空上一次的残留画面
-                fillLB(idx, 0);
+                if (pcImgEl) pcImgEl.src = '';
+                fillLB(cur, 0);
                 buildDots();
                 renderVersionBar();
                 document.getElementById('lightbox').classList.add('active');
@@ -1098,12 +1177,11 @@ function loadLightboxImage(imgEl, ver) {
             isDragging = false;
             isAnimating = false;
             touchOnInfoArea = false;
-            
+
             if (isMobile) {
                 cleanupMobileContainer();
             }
 
-            // 如果是用户主动点击关闭按钮而非手机返回键，则退回刚才压入的历史记录
             if (!fromPopState && history.state && history.state.lightbox) {
                 history.back();
             }
@@ -1118,7 +1196,7 @@ function loadLightboxImage(imgEl, ver) {
             document.getElementById('lbSeries').textContent = w.series;
             document.getElementById('lbGhost').textContent = w.num;
             document.getElementById('lbName').textContent = w.name;
-            
+
             const lbStoryArea = document.querySelector('.lb-story');
 
             if (w.hasStory) {
@@ -1127,17 +1205,18 @@ function loadLightboxImage(imgEl, ver) {
             } else {
                 lbStoryArea.style.display = 'none';
             }
-            
+
             document.querySelectorAll('.lb-dot').forEach((d, i) => d.classList.toggle('on', i === idx));
-            document.querySelectorAll('.lb-ver-btn').forEach((b, i) => b.classList.toggle('active', i === verIdx));
+            // 版本栏由 renderVersionBar 统一渲染
         }
 
         function buildDots() {
             document.getElementById('lbDots').innerHTML = works.map((_, i) =>
-                `<div class="lb-dot${i===cur?' on':''}" onclick="jumpTo(${i})"></div>`
+                `<div class="lb-dot${i === cur ? ' on' : ''}" onclick="jumpTo(${i})"></div>`
             ).join('');
         }
 
+        // ===== PC端版本切换栏：单个胶囊按钮 =====
         function renderVersionBar() {
             const bar = document.getElementById('lbVersionBar');
             const w = works[cur];
@@ -1145,8 +1224,14 @@ function loadLightboxImage(imgEl, ver) {
                 bar.innerHTML = '';
                 return;
             }
-            const nextVer = (curVer + 1) % w.versions.length;
-            bar.innerHTML = `<button class="capsule-switch-btn" onclick="switchLBVersion(${nextVer})">⇌ 横竖版切换</button>`;
+            // 显示当前版本名称：横版 / 竖版
+            const currentLabel = w.versions[curVer]?.label || '竖版';
+            bar.innerHTML = `
+                <button class="capsule-toggle" onclick="toggleVersion()">
+                    <span class="toggle-icon">⇌</span>
+                    <span class="toggle-label">${currentLabel}切换</span>
+                </button>
+            `;
         }
 
         function switchLBVersion(verIdx) {
@@ -1154,7 +1239,6 @@ function loadLightboxImage(imgEl, ver) {
             curVer = verIdx;
             const v = works[cur].versions[verIdx];
 
-            // 1. 直接精准获取 DOM，同时更新手机端与 PC 端的图片
             const mobileImgEl = document.getElementById('lbMobileImg');
             if (mobileImgEl) {
                 mobileImgEl.onload = updateImgRatio;
@@ -1165,9 +1249,10 @@ function loadLightboxImage(imgEl, ver) {
                 loadLightboxImage(pcImgEl, v);
             }
 
-            // 2. 重新渲染按钮以更新下一次切换的排队索引
-            renderVersionBar();
             renderMobileVersionSwitch();
+            renderVersionBar();
+            // 更新购买弹窗中的版本按钮状态
+            renderPurchaseVersions();
         }
 
         function nav(dir) {
@@ -1180,7 +1265,8 @@ function loadLightboxImage(imgEl, ver) {
             busy = true;
             const d = dir !== undefined ? dir : (next > cur ? 1 : -1);
             const card = document.getElementById('lbCard');
-            const outC = d > 0 ? 'out-l' : 'out-r', inC = d > 0 ? 'in-r' : 'in-l';
+            const outC = d > 0 ? 'out-l' : 'out-r',
+                inC = d > 0 ? 'in-r' : 'in-l';
             card.className = 'lb-card ' + outC;
             card.addEventListener('animationend', function h() {
                 card.removeEventListener('animationend', h);
@@ -1219,17 +1305,18 @@ function loadLightboxImage(imgEl, ver) {
                 imgArea.innerHTML = `<div class="lb-card"><img id="lbMobileImg" src="" alt="" /></div>`;
                 container.appendChild(imgArea);
 
-                const verSwitch = document.createElement('div');
-                verSwitch.className = 'lb-mobile-version-switch';
-                verSwitch.id = 'lbMobileVersionSwitch';
-                container.appendChild(verSwitch);
+                // ---- 手机端切换按钮（图片右下外侧） ----
+                const toggleWrap = document.createElement('div');
+                toggleWrap.className = 'lb-mobile-toggle-wrap';
+                toggleWrap.id = 'lbMobileToggleWrap';
+                // 初始占位，由 renderMobileVersionSwitch 填充
+                container.appendChild(toggleWrap);
 
                 const infoArea = document.createElement('div');
                 infoArea.className = 'lb-mobile-info-area';
                 infoArea.id = 'lbMobileInfoArea';
                 container.appendChild(infoArea);
-                
-                // 需求：新增低饱和度褐色的小条结构
+
                 const simpleBar = document.createElement('div');
                 simpleBar.className = 'lb-mobile-simple-bar';
                 simpleBar.id = 'lbMobileSimpleBar';
@@ -1247,7 +1334,7 @@ function loadLightboxImage(imgEl, ver) {
             mobileImgCard = document.querySelector('.lb-mobile-img-area .lb-card');
             mobileImg = document.querySelector('#lbMobileImg');
             mobileInfoArea = document.getElementById('lbMobileInfoArea');
-            mobileVersionSwitch = document.getElementById('lbMobileVersionSwitch');
+            mobileVersionSwitch = document.getElementById('lbMobileToggleWrap');
 
             mobileImg.onload = updateImgRatio;
 
@@ -1257,10 +1344,9 @@ function loadLightboxImage(imgEl, ver) {
         function updateImgRatio() {
             if (!isMobile || !mobileImg) return;
             const w = works[cur];
-            
-            // 需求：如果没有 txt 文档，手机大图强制屏幕上下左右居中
+
             if (!w.hasStory) {
-                currentImgRatio = 1.0; 
+                currentImgRatio = 1.0;
                 updateMobileTransform(0);
                 return;
             }
@@ -1272,7 +1358,7 @@ function loadLightboxImage(imgEl, ver) {
                 let actualH;
                 if (viewW / aspect > viewH) actualH = viewH;
                 else actualH = viewW / aspect;
-                
+
                 let ratio = actualH / viewH;
                 ratio = ratio + 0.02;
                 currentImgRatio = Math.min(Math.max(ratio, 0.35), 0.70);
@@ -1289,7 +1375,7 @@ function loadLightboxImage(imgEl, ver) {
             if (mobileImgCard) mobileImgCard.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
             if (mobileInfoArea) mobileInfoArea.style.transition = 'height 0.5s cubic-bezier(0.16, 1, 0.3, 1), top 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
             if (mobileBuyFixed) mobileBuyFixed.classList.remove('visible');
-            
+
             isAnimating = true;
             updateMobileTransform(0);
             setTimeout(() => { isAnimating = false; }, 550);
@@ -1301,12 +1387,12 @@ function loadLightboxImage(imgEl, ver) {
             const infoArea = document.getElementById('lbMobileInfoArea');
             const simpleBar = document.getElementById('lbMobileSimpleBar');
             const container = document.getElementById('lbMobileContainer');
-            
+
             if (!infoArea || !container) return;
 
             if (!w.hasStory) {
                 container.classList.add('no-story-mode');
-                if(simpleBar) {
+                if (simpleBar) {
                     simpleBar.innerHTML = `
                         <div class="ms-title">${w.name}</div>
                         <button class="ms-buy" onclick="event.stopPropagation(); openPurchaseFromLB()">购买收藏</button>
@@ -1326,24 +1412,22 @@ function loadLightboxImage(imgEl, ver) {
             }
         }
 
+        // ===== 手机端版本切换：单个胶囊按钮 =====
         function renderMobileVersionSwitch() {
             const w = works[cur];
-            const container = document.getElementById('lbMobileVersionSwitch');
+            const container = document.getElementById('lbMobileToggleWrap');
             if (!container) return;
             if (!w || !w.versions || w.versions.length <= 1) {
                 container.innerHTML = '';
                 return;
             }
-            const nextVer = (curVer + 1) % w.versions.length;
-            container.innerHTML = `<button class="capsule-switch-btn" onclick="event.stopPropagation(); switchLBVersion(${nextVer})">⇌ 横竖版切换</button>`;
-        }
-
-        function renderPurchaseVersions() {
-            const w = works[purchaseArtIdx];
-            const container = document.getElementById('purchaseVersionSwitch');
-            if (!w || !w.versions || w.versions.length <= 1) { container.innerHTML = ''; return; }
-            const nextVer = (purchaseVer + 1) % w.versions.length;
-            container.innerHTML = `<button class="capsule-switch-btn" onclick="switchPurchaseVersion(${nextVer})">⇌ 横竖版切换</button>`;
+            const currentLabel = w.versions[curVer]?.label || '竖版';
+            container.innerHTML = `
+                <button class="capsule-toggle" onclick="event.stopPropagation(); toggleVersion()">
+                    <span class="toggle-icon">⇌</span>
+                    <span class="toggle-label">${currentLabel}切换</span>
+                </button>
+            `;
         }
 
         // ─── 触摸处理 ───
@@ -1353,7 +1437,6 @@ function loadLightboxImage(imgEl, ver) {
         function onTouchStart(e) {
             if (e.touches.length !== 1) return;
             const container = document.getElementById('lbMobileContainer');
-            // 需求拦截：如果不存在 txt(处于no-story-mode)，直接禁止上滑动效果，固定居中
             if (container && container.classList.contains('no-story-mode')) return;
 
             if (isAnimating) isAnimating = false;
@@ -1417,7 +1500,8 @@ function loadLightboxImage(imgEl, ver) {
             const container = document.getElementById('lbMobileContainer');
             if (container && container.classList.contains('no-story-mode')) return;
 
-            if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+            if (rafId) { cancelAnimationFrame(rafId);
+                rafId = null; }
             if (touchOnInfoArea && !isDragging) { touchOnInfoArea = false; return; }
             touchOnInfoArea = false;
 
@@ -1439,7 +1523,7 @@ function loadLightboxImage(imgEl, ver) {
 
             if (mobileImgCard) mobileImgCard.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
             if (mobileInfoArea) mobileInfoArea.style.transition = 'height 0.5s cubic-bezier(0.16, 1, 0.3, 1), top 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
-            
+
             if (targetProgress >= BUY_SHOW_PROGRESS) {
                 if (mobileBuyFixed) mobileBuyFixed.classList.add('visible');
             } else {
@@ -1455,7 +1539,7 @@ function loadLightboxImage(imgEl, ver) {
 
         function updateMobileTransform(progress) {
             const w = works[cur];
-            if (!w || !w.hasStory) return; // 没有story时维持完全居中，不执行形变代码
+            if (!w || !w.hasStory) return;
 
             const minR = Math.min(0.30, currentImgRatio * 0.5);
             const scale = 1 - progress * (1 - minR / currentImgRatio);
@@ -1489,6 +1573,7 @@ function loadLightboxImage(imgEl, ver) {
             document.getElementById('wxQrModal').classList.add('active');
             document.body.style.overflow = 'hidden';
         }
+
         function closeWxQR() {
             document.getElementById('wxQrModal').classList.remove('active');
             document.body.style.overflow = '';
@@ -1499,167 +1584,4 @@ function loadLightboxImage(imgEl, ver) {
         // ==========================================
         function openPurchase(artIdx, verIdx) {
             purchaseArtIdx = artIdx;
-            purchaseVer = verIdx || 0;
-            purchaseTier = 0;
-            purchasePay = 0;
-            const w = works[artIdx];
-            document.getElementById('purchaseName').textContent = w.name;
-            document.getElementById('purchaseNum').textContent = w.num;
-            document.getElementById('purchaseNoteCode').textContent = w.num;
-            updatePurchaseThumb();
-            renderPurchaseVersions();
-            renderPurchaseTiers();
-            document.getElementById('qrWx').style.display = 'block';
-            document.getElementById('qrAli').style.display = 'none';
-            document.querySelectorAll('.pay-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
-            document.getElementById('purchaseModal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function openPurchaseFromLB() {
-            openPurchase(cur, curVer);
-        }
-
-        function closePurchaseModal() {
-            document.getElementById('purchaseModal').classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        function updatePurchaseThumb() {
-            const w = works[purchaseArtIdx];
-            const v = w.versions[purchaseVer];
-            const thumbImg = document.getElementById('purchaseThumb');
-            if (thumbImg) thumbImg.src = v.thumb || v.src;
-        }
-
-        function renderMobileVersionSwitch() {
-            const w = works[cur];
-            const container = document.getElementById('lbMobileVersionSwitch');
-            if (!container) return;
-            if (!w || !w.versions || w.versions.length <= 1) {
-                container.innerHTML = '';
-                return;
-            }
-            // 根据实际图片的 label 动态显示“横”或“竖”，避免硬编码反转
-            container.innerHTML = w.versions.map((v, i) =>
-                `<button class="${i===curVer?'active':''}" style="font-size: 14px;" onclick="event.stopPropagation(); switchLBVersion(${i})">${v.label === '横版' ? '横' : '竖'}</button>`
-            ).join('');
-        }
-
-        function renderPurchaseVersions() {
-            const w = works[purchaseArtIdx];
-            const container = document.getElementById('purchaseVersionSwitch');
-            if (!w || !w.versions || w.versions.length <= 1) { container.innerHTML = ''; return; }
-            container.innerHTML = w.versions.map((v, i) =>
-                `<button class="v-switch-btn${i===purchaseVer?' active':''}" onclick="switchPurchaseVersion(${i})">${v.label === '横版' ? '横' : '竖'}</button>`
-            ).join('');
-        }
-
-        function switchPurchaseVersion(idx) {
-            if (idx === purchaseVer) return;
-            purchaseVer = idx;
-            updatePurchaseThumb();
-            renderPurchaseVersions(); // 重新渲染按钮以更新下一次切换的排队索引
-        }
-
-        function renderPurchaseTiers() {
-            const w = works[purchaseArtIdx];
-            const container = document.getElementById('purchaseTiers');
-            container.innerHTML = tierNames.map((name, i) => `
-                    <div class="p-tier">
-                        <div class="p-tier-name">${name}</div>
-                        <div class="p-tier-spec">${i===0?'1080P 高清原图': i===1?'带实木相框装裱':'艺术微喷实体装裱'}</div>
-                        <div class="p-tier-price">¥${w.prices[i]}</div>
-                    </div>
-                `).join('');
-        }
-
-        function switchPurchasePay(idx) {
-            purchasePay = idx;
-            document.getElementById('qrWx').style.display = idx === 0 ? 'block' : 'none';
-            document.getElementById('qrAli').style.display = idx === 1 ? 'block' : 'none';
-            document.querySelectorAll('.pay-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
-        }
-
-        // ─── 键盘事件 ───
-        document.addEventListener('keydown', e => {
-            const purchaseActive = document.getElementById('purchaseModal').classList.contains('active');
-            const wxActive = document.getElementById('wxQrModal').classList.contains('active');
-            const lbActive = document.getElementById('lightbox').classList.contains('active');
-
-            if (purchaseActive) {
-                if (e.key === 'Escape') closePurchaseModal();
-                return;
-            }
-            if (wxActive) {
-                if (e.key === 'Escape') closeWxQR();
-                return;
-            }
-            if (!lbActive) return;
-            if (isMobile) {
-                if (e.key === 'Escape') closeLB();
-                return;
-            }
-            if (e.key === 'ArrowLeft') nav(-1);
-            if (e.key === 'ArrowRight') nav(1);
-            if (e.key === 'Escape') closeLB();
-        });
-
-        // ─── PC 触摸左右切换 ───
-        let tx = 0;
-        document.getElementById('lightbox').addEventListener('touchstart', e => {
-            if (isMobile) return;
-            tx = e.touches[0].clientX;
-        }, { passive: true });
-
-        document.getElementById('lightbox').addEventListener('touchend', e => {
-            if (isMobile) return;
-            if (document.getElementById('purchaseModal').classList.contains('active')) return;
-            const dx = e.changedTouches[0].clientX - tx;
-            if (Math.abs(dx) > 55) nav(dx < 0 ? 1 : -1);
-        });
-
-        // ─── 手机端侧滑/返回键拦截处理 ───
-        window.addEventListener('popstate', () => {
-            const purchaseModal = document.getElementById('purchaseModal');
-            const wxQrModal = document.getElementById('wxQrModal');
-            const lightbox = document.getElementById('lightbox');
-
-            // 若弹窗开启，优先关闭购买弹窗
-            if (purchaseModal && purchaseModal.classList.contains('active')) {
-                closePurchaseModal();
-                return;
-            }
-            // 若微信客服二维码开启，关闭客服弹窗
-            if (wxQrModal && wxQrModal.classList.contains('active')) {
-                closeWxQR();
-                return;
-            }
-            // 若大图灯箱开启，关闭大图返回首页
-            if (lightbox && lightbox.classList.contains('active')) {
-                closeLB(true);
-            }
-        });
-
-        // ─── 启动 ───
-        window.addEventListener('DOMContentLoaded', loadWorksFromGitHub);
-
-        window.addEventListener('resize', () => {
-            if (window.innerWidth >= 1100) {
-                isMobile = false;
-            } else {
-                isMobile = true;
-            }
-        });
-
-        document.querySelector('.wx-qr-bg').addEventListener('click', closeWxQR);
-
-        const purchaseBgEl = document.querySelector('.purchase-bg');
-        if (purchaseBgEl) {
-            purchaseBgEl.addEventListener('touchmove', function(e) {
-                e.preventDefault();
-            }, { passive: false });
-        }
-    </script>
-</body>
-</html>
+            purchaseVer = verIdx || 0
