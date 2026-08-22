@@ -225,6 +225,45 @@
             object-fit: contain; border-radius: 4px; border: 1px solid rgba(124, 159, 75, 0.35);
             box-shadow: 0 48px 130px rgba(0, 0, 0, .85), 0 0 80px rgba(124, 159, 75, 0.06);
         }
+        /* HD 状态感知指示灯样式 */
+        .hd-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            background: rgba(8, 8, 15, 0.65);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(201, 168, 76, 0.3);
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #e8c97a;
+            letter-spacing: 1px;
+            pointer-events: none;
+            user-select: none;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+        }
+        .hd-badge .hd-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #c9a84c;
+            box-shadow: 0 0 6px #c9a84c;
+        }
+        /* 载入中状态：淡金光呼吸闪烁 */
+        .hd-badge.loading .hd-dot {
+            animation: hdPulse 1.2s infinite ease-in-out;
+        }
+        @keyframes hdPulse {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); box-shadow: 0 0 2px rgba(201, 168, 76, 0.4); }
+            50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 10px rgba(232, 201, 122, 0.9); }
+        }
+
         @keyframes zoomIn { from { transform: scale(0.88); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .lb-card.enter { animation: zoomIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes outLeft { 0% { transform: translateX(0) scale(1); opacity: 1; } 100% { transform: translateX(-45%) scale(0.93); opacity: 0; } }
@@ -694,23 +733,37 @@
             };
         }
 
-        // 灯箱大图无感秒开（先展示已缓存的 600P 缩略图，后台静默替换高清原图）
+        // 灯箱大图无感秒开（带 HD 状态感知微提示，载入中闪烁淡金光，替换完成后常亮）
         function loadLightboxImage(imgEl, ver) {
             if (!imgEl || !ver) return;
             
             const quickSrc = ver.thumb || ver.blur || ver.src;
             const fullSrc = ver.src;
 
-            // 瞬间先渲染已有的 600P 缩略图，实现 0 延迟秒开，解决逐行漫长加载问题
+            // 自动检测/创建角标
+            const cardEl = imgEl.parentElement;
+            let hdBadge = cardEl ? cardEl.querySelector('.hd-badge') : null;
+            if (!hdBadge && cardEl) {
+                hdBadge = document.createElement('div');
+                hdBadge.className = 'hd-badge loading';
+                hdBadge.innerHTML = '<span class="hd-dot"></span>HD';
+                cardEl.appendChild(hdBadge);
+            }
+
+            // 瞬间先渲染已有的 600P 缩略图
             imgEl.src = quickSrc;
 
-            // 在后台异步加载高清原图，下载完毕后无缝替换
+            // 后台加载高清原图
             if (fullSrc && fullSrc !== quickSrc) {
+                if (hdBadge) hdBadge.classList.add('loading'); // 载入中闪烁
                 const highRes = new Image();
                 highRes.src = fullSrc;
                 highRes.onload = () => {
                     imgEl.src = fullSrc;
+                    if (hdBadge) hdBadge.classList.remove('loading'); // 替换完成常亮
                 };
+            } else {
+                if (hdBadge) hdBadge.classList.remove('loading');
             }
         }
 
@@ -789,15 +842,34 @@
                     if (images.length === 0) return null;
                     images.sort();
 
-                    const firstImg = images[0];
-                    const nameWithoutExt = firstImg.substring(0, firstImg.lastIndexOf('.'));
-                    const match = nameWithoutExt.match(/([\u4e00-\u9fa5]+)([a-zA-Z0-9]*)$/);
+                    // 1. 三级拆分：模糊色块图、600P缩略图、高清大图
+                    const blurFiles = images.filter(f => f.includes('模糊色块'));
+                    const thumbFiles = images.filter(f => f.includes('缩略图'));
+                    const mainFiles = images.filter(f => !f.includes('模糊色块') && !f.includes('缩略图'));
+                    const baseFiles = mainFiles.length > 0 ? mainFiles : (thumbFiles.length > 0 ? thumbFiles : blurFiles);
 
-                    let extractedName = folderName;
-                    let extractedNum = '0000';
-                    if (match) {
-                        extractedName = match[1];
-                        extractedNum = match[2] ? match[2].toUpperCase() : '0000';
+                    // 提取不含“模糊色块”、“缩略图”的目标图片文件名
+                    const cleanFiles = mainFiles.length > 0 ? mainFiles : images;
+                    const targetImg = cleanFiles[0];
+                    const nameWithoutExt = targetImg.substring(0, targetImg.lastIndexOf('.'));
+
+                    // 作品名称提取：提取不含“模糊色块”、“缩略图”图片文件名中的汉字
+                    const cnMatches = nameWithoutExt.match(/[\u4e00-\u9fa5]+/g);
+                    let extractedName = cnMatches ? cnMatches.join('') : folderName;
+
+                    // 作品编码读取：读取不含“模糊色块”、“缩略图”图片文件名中汉字后面的字母数字组合
+                    const codeMatch = nameWithoutExt.match(/[\u4e00-\u9fa5]+([a-zA-Z0-9]+)/);
+                    let extractedNum = codeMatch && codeMatch[1] ? codeMatch[1].toUpperCase() : '0000';
+
+                    // 系列名称提取：提取作品文件夹名里“-”后面的汉字
+                    let extractedSeries = '神话系列';
+                    const dashIdx = folderName.indexOf('-');
+                    if (dashIdx !== -1) {
+                        const afterDash = folderName.substring(dashIdx + 1);
+                        const seriesCn = afterDash.match(/[\u4e00-\u9fa5]+/g);
+                        if (seriesCn) {
+                            extractedSeries = seriesCn.join('');
+                        }
                     }
 
                     const textData = textDataDict[extractedName] || defaultText;
@@ -809,12 +881,6 @@
                     } else {
                         hasTxt = files.some(f => f.toLowerCase().endsWith('.txt'));
                     }
-
-                    // 1. 三级拆分：模糊色块图、600P缩略图、高清大图
-                    const blurFiles = images.filter(f => f.includes('模糊色块'));
-                    const thumbFiles = images.filter(f => f.includes('缩略图'));
-                    const mainFiles = images.filter(f => !f.includes('模糊色块') && !f.includes('缩略图'));
-                    const baseFiles = mainFiles.length > 0 ? mainFiles : (thumbFiles.length > 0 ? thumbFiles : blurFiles);
 
                     // 2. 构建包含（原图 src + 缩略图 thumb + 色块图 blur）的版本结构，严格区分横竖版
                     const versions = baseFiles.map(imgName => {
@@ -853,7 +919,7 @@
 
                     return {
                         name: extractedName,
-                        series: '神话系列',
+                        series: extractedSeries,
                         num: extractedNum,
                         desc: textData.desc,
                         story: finalStory,
