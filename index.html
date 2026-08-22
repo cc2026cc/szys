@@ -507,10 +507,10 @@ transform: translateY(0); } }
         .purchase-num { font-size: 10px; letter-spacing: 2px; color: var(--t2); text-align: left; }
         .version-switch { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
  .v-switch-btn {
-   width: auto;
-   height: auto;
-   padding: 8px 16px;
-   border-radius: 999px;
+ width: auto;
+ height: auto;
+ padding: 8px 12px;
+ border-radius: 999px;
    border: 1.5px solid rgba(201, 168, 76, 0.55);
    background: rgba(10, 10, 18, 0.65);
    backdrop-filter: blur(10px);
@@ -538,7 +538,7 @@ transform: translateY(0); } }
         .purchase-note-highlight { padding: 12px 14px; background: rgba(255, 200, 80, 0.05); border: 1px solid rgba(255, 200, 80, 0.5); border-radius: 6px; font-size: 11px; color: #ffd580; letter-spacing: 1px; animation: softPulse 2.2s ease-in-out infinite; line-height: 1.6; display: flex; justify-content: center; align-items: center; gap: 10px; }
         .purchase-note-highlight strong { font-size: 13px; color: #fff; letter-spacing: 2px; }
         .warn-icon { font-size: 36px; line-height: 1; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-        .note-text { line-height: 1.6; text-align: left; }
+        .note-text { line-height: 1.6; text-align: justify; text-justify: inter-ideograph; word-break: normal; line-break: strict; }
         .tier-row { display: flex; gap: 0; }
         .p-tier { flex: 1; padding: 14px 10px; text-align: center; position: relative; cursor: default; border: none; transition: none; }
         .p-tier:not(:last-child)::after { content: ''; position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: 2px; height: 36px; background: rgba(255, 255, 255, 0.25); }
@@ -1416,7 +1416,8 @@ font-weight: 600; letter-spacing: 2px;">横竖版切换</span>
  const w = works[purchaseArtIdx];
  const container = document.getElementById('purchaseVersionSwitch');
  if (!w || !w.versions || w.versions.length <= 1) { container.innerHTML = ''; return; }
- container.innerHTML = `<button class="v-switch-btn" onclick="togglePurchaseVersion()">⇌ 横竖版切换</button>`;
+ container.innerHTML = `<button class="v-switch-btn" 
+onclick="togglePurchaseVersion()">横竖版切换</button>`;
  }
 
         // ─── 触摸处理 ───
@@ -1622,7 +1623,8 @@ font-weight: 600; letter-spacing: 2px;">横竖版切换</span>
  const w = works[purchaseArtIdx];
  const container = document.getElementById('purchaseVersionSwitch');
  if (!w || !w.versions || w.versions.length <= 1) { container.innerHTML = ''; return; }
- container.innerHTML = `<button class="v-switch-btn" onclick="togglePurchaseVersion()">⇌ 横竖版切换</button>`;
+ container.innerHTML = `<button class="v-switch-btn" 
+onclick="togglePurchaseVersion()">横竖版切换</button>`;
  }
 
         function switchPurchaseVersion(idx) {
