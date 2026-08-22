@@ -689,10 +689,11 @@
             prices: [19.9, 89, 799]
         };
 
-        // 首页卡片渐进式加载（3:4占位 -> 模糊色块 -> 容器自适应比例 -> 600P缩略图）
-        function loadGalleryCardImage(imgEl, wrapEl, ver) {
-            if (!imgEl || !ver) return;
+        // 首页卡片渐进式加载（根据图片实际长宽比例判定竖版：模糊色块图 -> 600P缩略图）
+        function loadGalleryCardImage(imgEl, wrapEl, work) {
+            if (!imgEl || !work || !work.versions || work.versions.length === 0) return;
             
+            let ver = work.versions[0];
             const blurUrl = ver.blur || ver.thumb || ver.src;
             const thumbUrl = ver.thumb || ver.src;
 
@@ -700,8 +701,32 @@
             imgEl.classList.add('is-blur');
             imgEl.src = blurUrl;
 
-            // 当色块图加载完成后，立刻解封 3:4 比例限制，自适应图片真实比例
+            // 当色块图加载完成后，根据图片实际长宽比例检测是否为竖版
             imgEl.onload = () => {
+                if (imgEl.naturalWidth && imgEl.naturalHeight) {
+                    const isVert = imgEl.naturalHeight >= imgEl.naturalWidth;
+                    ver.label = isVert ? '竖版' : '横版';
+
+                    // 如果当前第0版实际是横版，但作品有多个版本，自动检测第1版是否才是真正的竖版
+                    if (!isVert && work.versions.length > 1 && !work._checkedRatio) {
+                        work._checkedRatio = true;
+                        const otherVer = work.versions[1];
+                        const checkImg = new Image();
+                        checkImg.src = otherVer.blur || otherVer.thumb || otherVer.src;
+                        checkImg.onload = () => {
+                            if (checkImg.naturalHeight >= checkImg.naturalWidth) {
+                                otherVer.label = '竖版';
+                                // 将真正的竖版调至第0位，确保首页及大图模式默认加载竖版
+                                work.versions[0] = otherVer;
+                                work.versions[1] = ver;
+                                // 重新以第0位的竖版触发加载
+                                loadGalleryCardImage(imgEl, wrapEl, work);
+                                return;
+                            }
+                        };
+                    }
+                }
+
                 if (wrapEl) {
                     wrapEl.style.aspectRatio = 'auto';
                     imgEl.style.height = 'auto';
@@ -760,13 +785,6 @@ function loadLightboxImage(imgEl, ver) {
         if (highRes.naturalWidth && highRes.naturalHeight) {
             const isHoriz = highRes.naturalWidth > highRes.naturalHeight;
             ver.label = isHoriz ? '横版' : '竖版';
-            
-            // 确保当前作品 versions 数组中“竖版”始终排在 index 0（默认优先显示竖版）
-            const w = works[cur];
-            if (w && w.versions && w.versions.length > 1) {
-                w.versions.sort((a, b) => (a.label === '竖版' ? -1 : 1));
-            }
-
             renderVersionBar();
             renderMobileVersionSwitch();
         }
@@ -774,20 +792,12 @@ function loadLightboxImage(imgEl, ver) {
         // 替换为高清大图并隐藏加载提示
         imgEl.src = fullSrc;
         if (loadingGlass) loadingGlass.classList.remove('visible');
-
-        // 重新调用比例计算，彻底解决手机端浏览器缓存导致的图片变小、留空 Bug
-        if (typeof updateImgRatio === 'function') {
-            updateImgRatio();
-        }
     };
 
     highRes.onerror = () => {
         if (imgEl.dataset.targetSrc === fullSrc) {
             imgEl.src = quickSrc;
             if (loadingGlass) loadingGlass.classList.remove('visible');
-            if (typeof updateImgRatio === 'function') {
-                updateImgRatio();
-            }
         }
     };
 }
@@ -910,14 +920,14 @@ function loadLightboxImage(imgEl, ver) {
                     // 2. 构建包含（原图 src + 缩略图 thumb + 色块图 blur）的版本结构，严格区分横竖版
                     const versions = baseFiles.map(imgName => {
                         const lower = imgName.toLowerCase();
-                        const isHoriz = lower.includes('横') || lower.includes('02');
-                        const label = isHoriz ? '横版' : '竖版'; // 正确对应横竖版标签
+                        const isHoriz = lower.includes('横');
+                        const label = isHoriz ? '横版' : '竖版';
 
                         const matchByDirection = (fileList) => fileList.find(file => {
                             const fLower = file.toLowerCase();
                             return isHoriz 
-                                ? (fLower.includes('横') || fLower.includes('02')) 
-                                : (fLower.includes('竖') || (!fLower.includes('横') && !fLower.includes('02')));
+                                ? fLower.includes('横') 
+                                : (fLower.includes('竖') || !fLower.includes('横'));
                         });
 
                         const matchedBlur = matchByDirection(blurFiles);
@@ -935,7 +945,7 @@ function loadLightboxImage(imgEl, ver) {
                         };
                     });
                     
-                    // 强制排序：确保“竖版”永远在数组的第一个位置
+                    // 初始排序：优先将标记为“竖版”的版本排在第0位
                     versions.sort((a, b) => {
                         if (a.label === '竖版' && b.label !== '竖版') return -1;
                         if (a.label !== '竖版' && b.label === '竖版') return 1;
@@ -993,9 +1003,8 @@ function loadLightboxImage(imgEl, ver) {
             works.forEach((w, i) => {
                 const imgEl = document.getElementById(`card-img-${i}`);
                 const wrapEl = document.getElementById(`img-wrap-${i}`);
-                const firstVer = w.versions[0];
-                // 触发渐进式加载（3:4占位 -> 模糊色块 -> 容器比例自适应 -> 600P缩略图）
-                loadGalleryCardImage(imgEl, wrapEl, firstVer);
+                // 触发渐进式加载（模糊色块 -> 容器自适应 -> 600P缩略图，默认加载实际竖版）
+                loadGalleryCardImage(imgEl, wrapEl, w);
             });
         }
 
@@ -1036,17 +1045,13 @@ function loadLightboxImage(imgEl, ver) {
 
         function openLB(idx) {
             cur = idx;
-            curVer = 0; // 默认选中 0 号索引（已被强制排序为竖版）
+            curVer = 0;
             isMobile = window.innerWidth < 1100;
 
             // 打开大图时向浏览器历史压入一条记录，用于手机端侧滑返回
             if (!history.state || !history.state.lightbox) {
                 history.pushState({ lightbox: true }, '');
             }
-
-            // 先激活灯箱，确保 DOM 容器已建立正确尺寸布局
-            document.getElementById('lightbox').classList.add('active');
-            document.body.style.overflow = 'hidden';
 
             if (isMobile) {
                 document.getElementById('lightbox').classList.add('is-mobile');
@@ -1063,16 +1068,13 @@ function loadLightboxImage(imgEl, ver) {
                 mobileExpanded = false;
                 dragProgress = 0;
                 currentImgRatio = 0.70;
-                renderMobileVersionSwitch();
-
+                updateMobileTransform(0);
                 if (mobileBuyFixed && w.hasStory) {
                     mobileBuyFixed.classList.remove('visible');
                 }
-
-                // 确保在灯箱激活后重置并精准计算比例，彻底防止缓存图片变小留空
-                requestAnimationFrame(() => {
-                    updateImgRatio();
-                });
+                renderMobileVersionSwitch();
+                document.getElementById('lightbox').classList.add('active');
+                document.body.style.overflow = 'hidden';
             } else {
                 document.getElementById('lightbox').classList.remove('is-mobile');
                 const pcImgEl = document.getElementById('lbImg');
@@ -1080,6 +1082,8 @@ function loadLightboxImage(imgEl, ver) {
                 fillLB(idx, 0);
                 buildDots();
                 renderVersionBar();
+                document.getElementById('lightbox').classList.add('active');
+                document.body.style.overflow = 'hidden';
                 const card = document.getElementById('lbCard');
                 card.className = 'lb-card';
                 void card.offsetWidth;
@@ -1264,18 +1268,11 @@ function loadLightboxImage(imgEl, ver) {
         function updateImgRatio() {
             if (!isMobile || !mobileImg) return;
             const w = works[cur];
-            if (!w) return;
             
             // 需求：如果没有 txt 文档，手机大图强制屏幕上下左右居中
             if (!w.hasStory) {
                 currentImgRatio = 1.0; 
                 updateMobileTransform(0);
-                return;
-            }
-
-            // 若图片尺寸尚未就绪（如从缓存读取中），等待下一帧重载，防止计算出错误比例
-            if (!mobileImg.naturalWidth || !mobileImg.naturalHeight) {
-                requestAnimationFrame(updateImgRatio);
                 return;
             }
 
@@ -1293,35 +1290,7 @@ function loadLightboxImage(imgEl, ver) {
             } else {
                 currentImgRatio = 0.70;
             }
-            updateMobileTransform(dragProgress || 0);
-        }
-
-        // 驱动手机端图片与下方内容面板的动态布局
-        function updateMobileTransform(p) {
-            if (!isMobile || !mobileContainer) return;
-            const w = works[cur];
-            const imgArea = document.querySelector('.lb-mobile-img-area');
-            const infoArea = document.getElementById('lbMobileInfoArea');
-            
-            if (!w || !w.hasStory) {
-                if (imgArea) imgArea.style.height = '100%';
-                if (mobileImgCard) mobileImgCard.style.height = '100%';
-                if (infoArea) infoArea.style.display = 'none';
-                return;
-            }
-
-            if (infoArea) infoArea.style.display = 'block';
-
-            const viewH = window.innerHeight;
-            const currentH = viewH * currentImgRatio * (1 - p * 0.45);
-            
-            if (imgArea) {
-                imgArea.style.height = currentH + 'px';
-            }
-            if (infoArea) {
-                infoArea.style.top = currentH + 'px';
-                infoArea.style.height = (viewH - currentH) + 'px';
-            }
+            updateMobileTransform(dragProgress);
         }
 
         function collapseMobileInfo() {
