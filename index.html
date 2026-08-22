@@ -151,9 +151,18 @@
         }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
         .art-card:hover { border-color: rgba(124, 159, 75, 0.35); box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65), 0 0 40px rgba(124, 159, 75, 0.06); }
-        .img-wrap { position: relative; overflow: hidden; width: 100%; }
+        .img-wrap {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            aspect-ratio: 3 / 4; /* 强制 3:4 比例防抖动占位 */
+            background: var(--bg2); /* 预加载防白块背景 */
+        }
         .img-wrap img {
-            display: block; width: 100%; height: auto;
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 保证缩略图完美裁切填充 3:4 容器 */
             transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s;
             filter: brightness(0.9) saturate(0.95);
         }
@@ -526,7 +535,7 @@
             <div style="font-size: 17px; font-weight: 300; letter-spacing: 8px; color: var(--t2); margin-bottom: 7px;">熊猫创意</div>
             <div style="font-size: 9px; letter-spacing: 2px; color: var(--t3);">© 2024 · 七仔数字艺术 · 未经授权不得转载或商用</div>
         </div>
-        <div style="font-size: 9px; letter-spacing: 2px; color: var(--t3);">精品限量作品 · 多种收藏规格</div>
+        <div style="font-size: 9px; letter-spacing: 2px; color: var(--t3);">多种收藏规格</div>
     </footer>
 
     <!-- ===== 灯箱 ===== -->
@@ -749,10 +758,35 @@
                         hasTxt = files.some(f => f.toLowerCase().endsWith('.txt'));
                     }
 
-                    const versions = images.map(imgName => {
+                    // 1. 拆分“原图/大图”与“缩略图”文件
+                    const thumbFiles = images.filter(f => f.includes('缩略图'));
+                    const mainFiles = images.filter(f => !f.includes('缩略图'));
+                    const baseFiles = mainFiles.length > 0 ? mainFiles : thumbFiles;
+
+                    // 2. 构建包含双尺寸 (src原图 + thumb缩略图) 的版本对象
+                    const versions = baseFiles.map(imgName => {
                         const lower = imgName.toLowerCase();
-                        const label = (lower.includes('横') || lower.includes('02')) ? '横版' : '竖版';
-                        return { src: `./熊猫创意/${folderName}/${imgName}`, label: label };
+                        const isHoriz = lower.includes('横') || lower.includes('02');
+                        const label = isHoriz ? '横版' : '竖版';
+
+                        // 精准匹配同为“横版”或“竖版”的“缩略图”文件
+                        const matchedThumb = thumbFiles.find(tf => {
+                            const tfLower = tf.toLowerCase();
+                            return isHoriz 
+                                ? (tfLower.includes('横') || tfLower.includes('02')) 
+                                : (tfLower.includes('竖') || (!tfLower.includes('横') && !tfLower.includes('02')));
+                        });
+
+                        const srcPath = `./熊猫创意/${folderName}/${imgName}`;
+                        const thumbPath = matchedThumb 
+                            ? `./熊猫创意/${folderName}/${matchedThumb}` 
+                            : srcPath; // 降级策略：无对应缩略图时使用原图
+
+                        return { 
+                            src: srcPath,      // 高清原图 (用于灯箱大图)
+                            thumb: thumbPath,  // 双尺寸 WebP 缩略图 (用于首页网格与购买卡片)
+                            label: label 
+                        };
                     });
                     
                     // 强制排序：确保“竖版”永远在数组的第一个位置
@@ -815,7 +849,8 @@
             works.forEach((w, i) => {
                 const imgEl = document.getElementById(`card-img-${i}`);
                 const firstVer = w.versions[0];
-                setImageWithBlur(imgEl, firstVer.src);
+                // 首页网格渲染优先读取带“缩略图”的文件，结合 HTML 中的 loading="lazy" 实现懒加载
+                setImageWithBlur(imgEl, firstVer.thumb || firstVer.src);
             });
         }
 
@@ -1342,7 +1377,8 @@
             const w = works[purchaseArtIdx];
             const v = w.versions[purchaseVer];
             const thumbImg = document.getElementById('purchaseThumb');
-            setImageWithBlur(thumbImg, v.src);
+            // 购买弹窗预览加载对应横/竖版的 WebP 缩略图
+            setImageWithBlur(thumbImg, v.thumb || v.src);
         }
 
         function renderPurchaseVersions() {
