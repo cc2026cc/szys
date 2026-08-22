@@ -323,8 +323,8 @@
                 transform: translateY(0) scale(1); transform-origin: top center; will-change: transform; transition: none; position: relative;
             }
             .lb-mobile-img-area .lb-card img {
-                width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: contain;
-                border: none; box-shadow: none; border-radius: 0; display: block;
+                max-width: 100vw; max-height: 100vh; width: auto; height: auto; object-fit: contain;
+                border: none; box-shadow: none; border-radius: 0; display: block; max-width: 100%; max-height: 100%;
                 -webkit-tap-highlight-color: transparent !important; transform-origin: top center;
             }
 
@@ -760,6 +760,13 @@ function loadLightboxImage(imgEl, ver) {
         if (highRes.naturalWidth && highRes.naturalHeight) {
             const isHoriz = highRes.naturalWidth > highRes.naturalHeight;
             ver.label = isHoriz ? '横版' : '竖版';
+            
+            // 确保当前作品 versions 数组中“竖版”始终排在 index 0（默认优先显示竖版）
+            const w = works[cur];
+            if (w && w.versions && w.versions.length > 1) {
+                w.versions.sort((a, b) => (a.label === '竖版' ? -1 : 1));
+            }
+
             renderVersionBar();
             renderMobileVersionSwitch();
         }
@@ -768,9 +775,9 @@ function loadLightboxImage(imgEl, ver) {
         imgEl.src = fullSrc;
         if (loadingGlass) loadingGlass.classList.remove('visible');
 
-        // 触发手机端尺寸重新校验，彻底解决移动端缓存导致的图片变小/留空问题
+        // 重新调用比例计算，彻底解决手机端浏览器缓存导致的图片变小、留空 Bug
         if (typeof updateImgRatio === 'function') {
-            requestAnimationFrame(updateImgRatio);
+            updateImgRatio();
         }
     };
 
@@ -779,7 +786,7 @@ function loadLightboxImage(imgEl, ver) {
             imgEl.src = quickSrc;
             if (loadingGlass) loadingGlass.classList.remove('visible');
             if (typeof updateImgRatio === 'function') {
-                requestAnimationFrame(updateImgRatio);
+                updateImgRatio();
             }
         }
     };
@@ -903,13 +910,8 @@ function loadLightboxImage(imgEl, ver) {
                     // 2. 构建包含（原图 src + 缩略图 thumb + 色块图 blur）的版本结构，严格区分横竖版
                     const versions = baseFiles.map(imgName => {
                         const lower = imgName.toLowerCase();
-                        // 准确判断横竖版：文件名明确含“横”时定为横版；含“竖”字或不含横字时默认均定为竖版
-                        let isHoriz = lower.includes('横');
-                        if (!isHoriz && !lower.includes('竖')) {
-                            // 仅当多图且含 02 时辅助判定横版
-                            isHoriz = lower.includes('02') && baseFiles.length > 1;
-                        }
-                        const label = isHoriz ? '横版' : '竖版';
+                        const isHoriz = lower.includes('横') || lower.includes('02');
+                        const label = isHoriz ? '横版' : '竖版'; // 正确对应横竖版标签
 
                         const matchByDirection = (fileList) => fileList.find(file => {
                             const fLower = file.toLowerCase();
@@ -933,7 +935,7 @@ function loadLightboxImage(imgEl, ver) {
                         };
                     });
                     
-                    // 强制排序：确保“竖版”永远排在第 1 个位置（首页缩略图与大图模式均默认显示竖版）
+                    // 强制排序：确保“竖版”永远在数组的第一个位置
                     versions.sort((a, b) => {
                         if (a.label === '竖版' && b.label !== '竖版') return -1;
                         if (a.label !== '竖版' && b.label === '竖版') return 1;
@@ -1034,13 +1036,17 @@ function loadLightboxImage(imgEl, ver) {
 
         function openLB(idx) {
             cur = idx;
-            curVer = 0;
+            curVer = 0; // 默认选中 0 号索引（已被强制排序为竖版）
             isMobile = window.innerWidth < 1100;
 
             // 打开大图时向浏览器历史压入一条记录，用于手机端侧滑返回
             if (!history.state || !history.state.lightbox) {
                 history.pushState({ lightbox: true }, '');
             }
+
+            // 先激活灯箱，确保 DOM 容器已建立正确尺寸布局
+            document.getElementById('lightbox').classList.add('active');
+            document.body.style.overflow = 'hidden';
 
             if (isMobile) {
                 document.getElementById('lightbox').classList.add('is-mobile');
@@ -1057,13 +1063,16 @@ function loadLightboxImage(imgEl, ver) {
                 mobileExpanded = false;
                 dragProgress = 0;
                 currentImgRatio = 0.70;
-                updateMobileTransform(0);
+                renderMobileVersionSwitch();
+
                 if (mobileBuyFixed && w.hasStory) {
                     mobileBuyFixed.classList.remove('visible');
                 }
-                renderMobileVersionSwitch();
-                document.getElementById('lightbox').classList.add('active');
-                document.body.style.overflow = 'hidden';
+
+                // 确保在灯箱激活后重置并精准计算比例，彻底防止缓存图片变小留空
+                requestAnimationFrame(() => {
+                    updateImgRatio();
+                });
             } else {
                 document.getElementById('lightbox').classList.remove('is-mobile');
                 const pcImgEl = document.getElementById('lbImg');
@@ -1071,8 +1080,6 @@ function loadLightboxImage(imgEl, ver) {
                 fillLB(idx, 0);
                 buildDots();
                 renderVersionBar();
-                document.getElementById('lightbox').classList.add('active');
-                document.body.style.overflow = 'hidden';
                 const card = document.getElementById('lbCard');
                 card.className = 'lb-card';
                 void card.offsetWidth;
@@ -1257,6 +1264,7 @@ function loadLightboxImage(imgEl, ver) {
         function updateImgRatio() {
             if (!isMobile || !mobileImg) return;
             const w = works[cur];
+            if (!w) return;
             
             // 需求：如果没有 txt 文档，手机大图强制屏幕上下左右居中
             if (!w.hasStory) {
@@ -1265,12 +1273,14 @@ function loadLightboxImage(imgEl, ver) {
                 return;
             }
 
-            // 防缓存兼容：优先获取图片 naturalWidth/Height，若未拿到则读取渲染宽高
-            const imgW = mobileImg.naturalWidth || mobileImg.width || 0;
-            const imgH = mobileImg.naturalHeight || mobileImg.height || 0;
+            // 若图片尺寸尚未就绪（如从缓存读取中），等待下一帧重载，防止计算出错误比例
+            if (!mobileImg.naturalWidth || !mobileImg.naturalHeight) {
+                requestAnimationFrame(updateImgRatio);
+                return;
+            }
 
-            if (imgW > 0 && imgH > 0) {
-                const aspect = imgW / imgH;
+            const aspect = mobileImg.naturalWidth / mobileImg.naturalHeight;
+            if (aspect && aspect > 0) {
                 const viewW = window.innerWidth;
                 const viewH = window.innerHeight;
                 let actualH;
@@ -1283,7 +1293,35 @@ function loadLightboxImage(imgEl, ver) {
             } else {
                 currentImgRatio = 0.70;
             }
-            updateMobileTransform(dragProgress);
+            updateMobileTransform(dragProgress || 0);
+        }
+
+        // 驱动手机端图片与下方内容面板的动态布局
+        function updateMobileTransform(p) {
+            if (!isMobile || !mobileContainer) return;
+            const w = works[cur];
+            const imgArea = document.querySelector('.lb-mobile-img-area');
+            const infoArea = document.getElementById('lbMobileInfoArea');
+            
+            if (!w || !w.hasStory) {
+                if (imgArea) imgArea.style.height = '100%';
+                if (mobileImgCard) mobileImgCard.style.height = '100%';
+                if (infoArea) infoArea.style.display = 'none';
+                return;
+            }
+
+            if (infoArea) infoArea.style.display = 'block';
+
+            const viewH = window.innerHeight;
+            const currentH = viewH * currentImgRatio * (1 - p * 0.45);
+            
+            if (imgArea) {
+                imgArea.style.height = currentH + 'px';
+            }
+            if (infoArea) {
+                infoArea.style.top = currentH + 'px';
+                infoArea.style.height = (viewH - currentH) + 'px';
+            }
         }
 
         function collapseMobileInfo() {
