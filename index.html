@@ -323,12 +323,15 @@ transform: translateY(0); } }
            手机端专用 (宽度 < 1100px)
            ============================================================ */
         @media (max-width: 1100px) {
-            .lb-close {
-                width: 34px; height: 34px; font-size: 15px; top: 12px; right: 12px;
-                background: rgba(0, 0, 0, 0.32); border-color: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.5);
-                border-radius: 50%; z-index: 30; backdrop-filter: blur(8px); -webkit-tap-highlight-color: transparent !important;
-            }
-            .lb-close:active { border-color: var(--bamboo); color: var(--bamboo); transform: scale(0.92); }
+ .lb-close {
+ width: 38px; height: 38px; font-size: 15px; top: 12px; right: 12px;
+ background: rgba(0, 0, 0, 0.32); border-color: rgba(255, 255, 255, 0.1); color: 
+rgba(255, 255, 255, 0.5);
+ border-radius: 50%; z-index: 30; backdrop-filter: blur(8px); 
+-webkit-tap-highlight-color: transparent !important;
+ }
+ .lb-close:active { border-color: var(--bamboo); color: var(--bamboo); transform: 
+scale(0.92); }
             .lb-stage { padding: 0 !important; flex: 1; width: 100%; height: 100%; overflow: hidden; position: relative; }
             .lb-mobile-container { position: relative; width: 100%; height: 100%; overflow: hidden; touch-action: none; background: var(--bg); }
 
@@ -384,46 +387,59 @@ transform: translateY(0); } }
 
             /* ---- 竖向胶囊型横竖版切换按钮（手机大图） ---- */
  .lb-mobile-version-switch {
-   position: absolute;
-   right: 12px;
-   top: 58px;
-   z-index: 15;
-   display: flex;
-   flex-direction: column;
-   gap: 0;
-   pointer-events: none;
-   -webkit-tap-highlight-color: transparent !important;
+ position: absolute;
+ right: 12px;
+ top: 58px;
+ z-index: 15;
+ display: flex;
+ flex-direction: column;
+ gap: 0;
+ pointer-events: none;
+ -webkit-tap-highlight-color: transparent !important;
  }
  .lb-mobile-version-switch button {
-   width: 34px;
-   height: auto;
-   min-height: 72px;
-   padding: 10px 0;
-   border-radius: 999px;
-   border: 1.5px solid rgba(201, 168, 76, 0.6);
-   background: rgba(10, 10, 18, 0.72);
-   backdrop-filter: blur(12px);
-   -webkit-backdrop-filter: blur(12px);
-   color: var(--gold-l);
-   font-size: 11px;
-   font-weight: 600;
-   letter-spacing: 2px;
-   white-space: normal;
-   word-break: break-all;
-   writing-mode: vertical-rl;
-   text-orientation: mixed;
-   display: flex;
-   align-items: center;
+ width: 38px;
+ height: auto;
+ min-height: 80px;
+ padding: 10px 0;
+ border-radius: 999px;
+ border: 1.5px solid rgba(201, 168, 76, 0.6);
+ background: rgba(10, 10, 18, 0.72);
+ backdrop-filter: blur(12px);
+ -webkit-backdrop-filter: blur(12px);
+ color: var(--gold-l);
+ font-size: 11px;
+ font-weight: 600;
+ letter-spacing: 2px;
+ white-space: normal;
+ word-break: break-all;
+ writing-mode: vertical-rl;
+ text-orientation: mixed;
+ display: flex;
+ align-items: center;
    justify-content: center;
-   line-height: 1.4;
-   cursor: pointer;
-   pointer-events: auto;
-   transition: all 0.25s ease;
-   -webkit-tap-highlight-color: transparent !important;
-   user-select: none;
-   box-shadow: 0 4px 16px rgba(0,0,0,0.45), 0 0 12px rgba(201,168,76,0.15);
+ line-height: 1.4;
+ cursor: pointer;
+ pointer-events: auto;
+ transition: all 0.25s ease;
+ -webkit-tap-highlight-color: transparent !important;
+ user-select: none;
+ box-shadow: 0 4px 16px rgba(0,0,0,0.45), 0 0 12px rgba(201,168,76,0.15);
  }
  .lb-mobile-version-switch button:active { transform: scale(0.93); }
+ .lb-mobile-version-switch button .switch-icon {
+ font-size: 20px;
+ line-height: 1;
+ display: block;
+ margin-bottom: 4px;
+ writing-mode: horizontal-tb;
+ }
+ .lb-mobile-version-switch button .switch-text {
+ font-size: 10px;
+ letter-spacing: 2px;
+ writing-mode: vertical-rl;
+ text-orientation: mixed;
+ }
 
             /* ---- 信息区域 (紧贴图片底部) ---- */
             .lb-mobile-info-area {
@@ -471,8 +487,8 @@ transform: translateY(0); } }
             .art-buy { padding: 3px 8px; font-size: 7px; bottom: 10px; right: 8px; }
 
             /* 小屏手机适配 */
-            @media (max-width: 480px) {
-                .lb-mobile-version-switch button { width: 30px; min-height: 64px; font-size: 10px; }
+ @media (max-width: 480px) {
+ .lb-mobile-version-switch button { width: 34px; min-height: 72px; font-size: 10px; }
  .lb-mobile-version-switch { right: 8px; top: 52px; }
                 .lb-mobile-info-area { padding: 12px 14px 16px; }
                 .lb-mobile-info-area .mi-title { font-size: 19px; }
@@ -765,38 +781,65 @@ transform: translateY(0); } }
             prices: [19.9, 89, 799]
         };
 
-        // 首页卡片渐进式加载（3:4占位 -> 模糊色块 -> 容器自适应比例 -> 600P缩略图）
-        function loadGalleryCardImage(imgEl, wrapEl, ver) {
-            if (!imgEl || !ver) return;
-            
-            const blurUrl = ver.blur || ver.thumb || ver.src;
-            const thumbUrl = ver.thumb || ver.src;
+        // 首页卡片渐进式加载（骨架占位 -> 模糊色块 -> 容器自适应比例 -> 600P缩略图）
+ function loadGalleryCardImage(imgEl, wrapEl, ver) {
+ if (!imgEl || !ver) return;
+ 
+ const blurUrl = ver.blur || ver.thumb || ver.src;
+ const thumbUrl = ver.thumb || ver.src;
 
-            // 1. 先展示 10KB 内的模糊色块图并打上高斯模糊
-            imgEl.classList.add('is-blur');
-            imgEl.src = blurUrl;
+ // 先重置状态
+ imgEl.onload = null;
+ imgEl.onerror = null;
 
-            // 当色块图加载完成后，立刻解封 3:4 比例限制，自适应图片真实比例
-            imgEl.onload = () => {
-                if (wrapEl) {
-                    wrapEl.style.aspectRatio = 'auto';
-                    imgEl.style.height = 'auto';
-                    imgEl.style.objectFit = 'contain';
-                }
-                
-                // 2. 静默后台加载 600P 缩略图，加载完毕无缝替换并解除虚化
-                if (thumbUrl && thumbUrl !== blurUrl) {
-                    const tempThumb = new Image();
-                    tempThumb.src = thumbUrl;
-                    tempThumb.onload = () => {
-                        imgEl.src = thumbUrl;
-                        imgEl.classList.remove('is-blur');
-                    };
-                } else {
-                    imgEl.classList.remove('is-blur');
-                }
-            };
-        }
+ function onBlurLoaded() {
+ // 色块图加载完成：停骨架动画，显示图片，自适应比例
+ if (wrapEl) {
+ wrapEl.style.background = 'none';
+ wrapEl.style.animation = 'none';
+ wrapEl.style.aspectRatio = 'auto';
+ imgEl.style.height = 'auto';
+ imgEl.style.objectFit = 'contain';
+ }
+ imgEl.style.opacity = '1';
+
+ // 静默后台加载 600P 缩略图，加载完毕无缝替换并解除虚化
+ if (thumbUrl && thumbUrl !== blurUrl) {
+ const tempThumb = new Image();
+ tempThumb.onload = () => {
+ imgEl.src = thumbUrl;
+ imgEl.classList.remove('is-blur');
+ };
+ tempThumb.onerror = () => {
+ imgEl.classList.remove('is-blur');
+ };
+ tempThumb.src = thumbUrl;
+ } else {
+ imgEl.classList.remove('is-blur');
+ }
+ }
+
+ // 1. 先展示模糊色块图
+ imgEl.classList.add('is-blur');
+ // 关键修复：先绑定onload，再赋src，避免手机浏览器缓存时onload不触发
+ imgEl.onload = onBlurLoaded;
+ imgEl.onerror = () => {
+ // 色块图加载失败，直接尝试缩略图
+ imgEl.classList.remove('is-blur');
+ imgEl.style.opacity = '1';
+ if (wrapEl) {
+ wrapEl.style.background = 'none';
+ wrapEl.style.animation = 'none';
+ wrapEl.style.aspectRatio = 'auto';
+ }
+ };
+ imgEl.src = blurUrl;
+
+ // 兼容处理：如果图片已在缓存中（complete状态），手动触发
+ if (imgEl.complete && imgEl.naturalWidth > 0) {
+ onBlurLoaded();
+ }
+ }
 
         // 灯箱大图无感秒开与自动尺寸检测（修复错乱与切换闪烁Bug）
 function loadLightboxImage(imgEl, ver) {
@@ -859,9 +902,6 @@ function loadLightboxImage(imgEl, ver) {
         async function loadWorksFromGitHub() {
  const grid = document.getElementById('galleryGrid');
  const colCount = window.innerWidth <= 900 ? 2 : 3;
- const skeletonCard = `<div style="border-radius:6px;overflow:hidden;background:var(--bg3);border:1px solid var(--b-sub);animation:fadeUp 0.7s ease both;"><div style="width:100%;aspect-ratio:3/4;background:linear-gradient(135deg,var(--bg2) 0%,var(--bg3) 50%,var(--bg2) 100%);background-size:200% 200%;animation:skeletonShimmer 1.8s ease infinite;"></div></div>`;
- const skeletonCol = Array(3).fill(skeletonCard).join('');
- grid.innerHTML = Array(colCount).fill(`<div class="g-col">${skeletonCol}</div>`).join('');
  let folders = [];
  const timestamp = new Date().getTime();
 
@@ -1043,38 +1083,37 @@ function loadLightboxImage(imgEl, ver) {
         // 首页网格渲染
         // ==========================================
         function renderGallery() {
-            const grid = document.getElementById('galleryGrid');
-            const colCount = window.innerWidth <= 900 ? 2 : 3;
-            let cols = Array.from({ length: colCount }, () => []);
-
-            works.forEach((w, i) => {
-                const seriesNumStr = `${w.series} ${String(i+1).padStart(2,'0')}`;
-                const cardHTML = `
-                <div class="art-card" style="animation-delay: ${i*0.1}s;" onclick="openLB(${i})">
-                    <div class="img-wrap" id="img-wrap-${i}">
-                        <img id="card-img-${i}" alt="${w.name}" loading="lazy" />
-                    </div>
-                    <div class="art-overlay"></div>
-                    <div class="art-info">
-                        <div class="art-series">${seriesNumStr}</div>
-                        <div class="art-title-text">${w.name}</div>
-                        <div class="art-meta-text">${w.num}</div>
-                    </div>
-                    <button class="art-buy" onclick="event.stopPropagation(); openPurchase(${i},0)">购买收藏</button>
-                </div>`;
-                cols[i % colCount].push(cardHTML);
-            });
-
-            grid.innerHTML = cols.map(colHTML => `<div class="g-col">${colHTML.join('')}</div>`).join('');
-
-            works.forEach((w, i) => {
-                const imgEl = document.getElementById(`card-img-${i}`);
-                const wrapEl = document.getElementById(`img-wrap-${i}`);
-                const firstVer = w.versions[0];
-                // 触发渐进式加载（3:4占位 -> 模糊色块 -> 容器比例自适应 -> 600P缩略图）
-                loadGalleryCardImage(imgEl, wrapEl, firstVer);
-            });
-        }
+ const grid = document.getElementById('galleryGrid');
+ const colCount = window.innerWidth <= 900 ? 2 : 3;
+ let cols = Array.from({ length: colCount }, () => []);
+ works.forEach((w, i) => {
+ const seriesNumStr = `${w.series} ${String(i+1).padStart(2,'0')}`;
+ const cardHTML = `
+ <div class="art-card" style="animation-delay: ${i*0.1}s;" onclick="openLB(${i})">
+ <div class="img-wrap" id="img-wrap-${i}" style="aspect-ratio:3/4;background:linear-gradient(135deg,var(--bg2) 0%,var(--bg3) 50%,var(--bg2) 100%);background-size:200% 200%;animation:skeletonShimmer 1.8s ease infinite;">
+ <img id="card-img-${i}" alt="${w.name}" style="opacity:0;transition:opacity 0.4s;" />
+ </div>
+ <div class="art-overlay"></div>
+ <div class="art-info">
+ <div class="art-series">${seriesNumStr}</div>
+ <div class="art-title-text">${w.name}</div>
+ <div class="art-meta-text">${w.num}</div>
+ </div>
+ <button class="art-buy" onclick="event.stopPropagation(); 
+openPurchase(${i},0)">购买收藏</button>
+ </div>`;
+ cols[i % colCount].push(cardHTML);
+ });
+ grid.innerHTML = cols.map(colHTML => `<div 
+class="g-col">${colHTML.join('')}</div>`).join('');
+ works.forEach((w, i) => {
+ const imgEl = document.getElementById(`card-img-${i}`);
+ const wrapEl = document.getElementById(`img-wrap-${i}`);
+ const firstVer = w.versions[0];
+ // 修复：不用lazy，直接加载，确保手机端触发onload
+ loadGalleryCardImage(imgEl, wrapEl, firstVer);
+ });
+ }
 
         let lastWindowWidth = window.innerWidth;
         window.addEventListener('resize', () => {
@@ -1412,7 +1451,7 @@ function loadLightboxImage(imgEl, ver) {
  container.innerHTML = '';
  return;
  }
- container.innerHTML = `<button onclick="event.stopPropagation(); toggleLBVersion()">⇌ 横竖版切换</button>`;
+ container.innerHTML = `<button onclick="event.stopPropagation(); toggleLBVersion()"><span class="switch-icon">⇌</span><span class="switch-text">横竖版切换</span></button>`;
  }
 
         function renderPurchaseVersions() {
@@ -1616,7 +1655,7 @@ function loadLightboxImage(imgEl, ver) {
  container.innerHTML = '';
  return;
  }
- container.innerHTML = `<button onclick="event.stopPropagation(); toggleLBVersion()">⇌ 横竖版切换</button>`;
+ container.innerHTML = `<button onclick="event.stopPropagation(); toggleLBVersion()"><span class="switch-icon">⇌</span><span class="switch-text">横竖版切换</span></button>`;
  }
  function renderPurchaseVersions() {
  const w = works[purchaseArtIdx];
