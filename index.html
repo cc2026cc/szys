@@ -751,12 +751,11 @@ function loadLightboxImage(imgEl, ver) {
 
     // 后台预加载 1080P 高清原图
     const highRes = new Image();
-    highRes.src = fullSrc;
     highRes.onload = () => {
         // 关键校验：如果加载完成时用户已经切换到其他图片，直接丢弃过期的加载结果
         if (imgEl.dataset.targetSrc !== fullSrc) return;
 
-        // 自动读取高清图实际宽高，精准绑定“横版”与“竖版”
+        // 自动检测/读取高清图实际宽高，精准绑定“横版”与“竖版”
         if (highRes.naturalWidth && highRes.naturalHeight) {
             const isHoriz = highRes.naturalWidth > highRes.naturalHeight;
             ver.label = isHoriz ? '横版' : '竖版';
@@ -767,14 +766,26 @@ function loadLightboxImage(imgEl, ver) {
         // 替换为高清大图并隐藏加载提示
         imgEl.src = fullSrc;
         if (loadingGlass) loadingGlass.classList.remove('visible');
+
+        // 【纠正关键】大图加载/缓存读取完毕后，立即重新计算手机端显示比例与高度，防止留空
+        if (typeof updateImgRatio === 'function') {
+            updateImgRatio();
+        }
     };
 
     highRes.onerror = () => {
         if (imgEl.dataset.targetSrc === fullSrc) {
             imgEl.src = quickSrc;
             if (loadingGlass) loadingGlass.classList.remove('visible');
+            if (typeof updateImgRatio === 'function') updateImgRatio();
         }
     };
+
+    highRes.src = fullSrc;
+    // 针对浏览器缓存处理：若图片已在本地缓存中，立即主动触发 onload 逻辑
+    if (highRes.complete && highRes.naturalWidth) {
+        highRes.onload();
+    }
 }
 
         // ==========================================
@@ -892,11 +903,11 @@ function loadLightboxImage(imgEl, ver) {
                         hasTxt = files.some(f => f.toLowerCase().endsWith('.txt'));
                     }
 
-                    // 2. 构建包含（原图 src + 缩略图 thumb + 色块图 blur）的版本结构，严格区分横竖版
+                    // 2. 构建包含（原图 src + 缩略图 thumb + 色块图 blur）的版本结构
                     const versions = baseFiles.map(imgName => {
                         const lower = imgName.toLowerCase();
-                        const isHoriz = lower.includes('横') || lower.includes('02');
-                        const label = isHoriz ? '横版' : '竖版'; // 正确对应横竖版标签
+                        const isHoriz = lower.includes('横') || lower.includes('land') || lower.includes('horiz');
+                        const label = isHoriz ? '横版' : '竖版';
 
                         const matchByDirection = (fileList) => fileList.find(file => {
                             const fLower = file.toLowerCase();
@@ -919,8 +930,24 @@ function loadLightboxImage(imgEl, ver) {
                             label: label 
                         };
                     });
-                    
-                    // 强制排序：确保“竖版”永远在数组的第一个位置
+
+                    // 预检测所有版本的真实图片宽高，精确定位横竖版并确保竖版排在首位 (index 0)
+                    await Promise.all(versions.map(v => new Promise((resolve) => {
+                        const checkImg = new Image();
+                        checkImg.src = v.thumb || v.blur || v.src;
+                        if (checkImg.complete && checkImg.naturalWidth) {
+                            v.label = checkImg.naturalWidth > checkImg.naturalHeight ? '横版' : '竖版';
+                            resolve();
+                        } else {
+                            checkImg.onload = () => {
+                                v.label = checkImg.naturalWidth > checkImg.naturalHeight ? '横版' : '竖版';
+                                resolve();
+                            };
+                            checkImg.onerror = () => resolve();
+                        }
+                    })));
+
+                    // 强制排序：确保真实尺寸测出的“竖版”永远在数组的第一个位置 (index 0)
                     versions.sort((a, b) => {
                         if (a.label === '竖版' && b.label !== '竖版') return -1;
                         if (a.label !== '竖版' && b.label === '竖版') return 1;
@@ -1244,6 +1271,7 @@ function loadLightboxImage(imgEl, ver) {
         function updateImgRatio() {
             if (!isMobile || !mobileImg) return;
             const w = works[cur];
+            if (!w) return;
             
             // 需求：如果没有 txt 文档，手机大图强制屏幕上下左右居中
             if (!w.hasStory) {
@@ -1252,7 +1280,10 @@ function loadLightboxImage(imgEl, ver) {
                 return;
             }
 
-            const aspect = mobileImg.naturalWidth / mobileImg.naturalHeight;
+            const nw = mobileImg.naturalWidth;
+            const nh = mobileImg.naturalHeight;
+            const aspect = (nw && nh) ? (nw / nh) : 0;
+
             if (aspect && aspect > 0) {
                 const viewW = window.innerWidth;
                 const viewH = window.innerHeight;
