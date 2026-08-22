@@ -689,11 +689,10 @@
             prices: [19.9, 89, 799]
         };
 
-        // 首页卡片渐进式加载（根据图片实际长宽比例判定竖版：模糊色块图 -> 600P缩略图）
-        function loadGalleryCardImage(imgEl, wrapEl, work) {
-            if (!imgEl || !work || !work.versions || work.versions.length === 0) return;
+        // 首页卡片渐进式加载（3:4占位 -> 模糊色块 -> 容器自适应比例 -> 600P缩略图）
+        function loadGalleryCardImage(imgEl, wrapEl, ver) {
+            if (!imgEl || !ver) return;
             
-            let ver = work.versions[0];
             const blurUrl = ver.blur || ver.thumb || ver.src;
             const thumbUrl = ver.thumb || ver.src;
 
@@ -701,32 +700,8 @@
             imgEl.classList.add('is-blur');
             imgEl.src = blurUrl;
 
-            // 当色块图加载完成后，根据图片实际长宽比例检测是否为竖版
+            // 当色块图加载完成后，立刻解封 3:4 比例限制，自适应图片真实比例
             imgEl.onload = () => {
-                if (imgEl.naturalWidth && imgEl.naturalHeight) {
-                    const isVert = imgEl.naturalHeight >= imgEl.naturalWidth;
-                    ver.label = isVert ? '竖版' : '横版';
-
-                    // 如果当前第0版实际是横版，但作品有多个版本，自动检测第1版是否才是真正的竖版
-                    if (!isVert && work.versions.length > 1 && !work._checkedRatio) {
-                        work._checkedRatio = true;
-                        const otherVer = work.versions[1];
-                        const checkImg = new Image();
-                        checkImg.src = otherVer.blur || otherVer.thumb || otherVer.src;
-                        checkImg.onload = () => {
-                            if (checkImg.naturalHeight >= checkImg.naturalWidth) {
-                                otherVer.label = '竖版';
-                                // 将真正的竖版调至第0位，确保首页及大图模式默认加载竖版
-                                work.versions[0] = otherVer;
-                                work.versions[1] = ver;
-                                // 重新以第0位的竖版触发加载
-                                loadGalleryCardImage(imgEl, wrapEl, work);
-                                return;
-                            }
-                        };
-                    }
-                }
-
                 if (wrapEl) {
                     wrapEl.style.aspectRatio = 'auto';
                     imgEl.style.height = 'auto';
@@ -920,14 +895,14 @@ function loadLightboxImage(imgEl, ver) {
                     // 2. 构建包含（原图 src + 缩略图 thumb + 色块图 blur）的版本结构，严格区分横竖版
                     const versions = baseFiles.map(imgName => {
                         const lower = imgName.toLowerCase();
-                        const isHoriz = lower.includes('横');
-                        const label = isHoriz ? '横版' : '竖版';
+                        const isHoriz = lower.includes('横') || lower.includes('02');
+                        const label = isHoriz ? '横版' : '竖版'; // 正确对应横竖版标签
 
                         const matchByDirection = (fileList) => fileList.find(file => {
                             const fLower = file.toLowerCase();
                             return isHoriz 
-                                ? fLower.includes('横') 
-                                : (fLower.includes('竖') || !fLower.includes('横'));
+                                ? (fLower.includes('横') || fLower.includes('02')) 
+                                : (fLower.includes('竖') || (!fLower.includes('横') && !fLower.includes('02')));
                         });
 
                         const matchedBlur = matchByDirection(blurFiles);
@@ -945,7 +920,21 @@ function loadLightboxImage(imgEl, ver) {
                         };
                     });
                     
-                    // 初始排序：优先将标记为“竖版”的版本排在第0位
+                    // 2.1 数据加载阶段：后台预检测真实像素长宽比，精确判定横竖版
+                    await Promise.all(versions.map(v => new Promise(resolve => {
+                        const img = new Image();
+                        img.src = v.thumb || v.src;
+                        img.onload = () => {
+                            if (img.naturalWidth && img.naturalHeight) {
+                                // 宽度大于高度判为横版，否则精准判定为竖版
+                                v.label = (img.naturalWidth > img.naturalHeight) ? '横版' : '竖版';
+                            }
+                            resolve();
+                        };
+                        img.onerror = () => resolve(); // 避免个别图片加载失败卡死页面
+                    })));
+
+                    // 强制排序：确保通过真实像素识别出的“竖版”永远排在第1位，供首页默认加载
                     versions.sort((a, b) => {
                         if (a.label === '竖版' && b.label !== '竖版') return -1;
                         if (a.label !== '竖版' && b.label === '竖版') return 1;
@@ -1003,8 +992,9 @@ function loadLightboxImage(imgEl, ver) {
             works.forEach((w, i) => {
                 const imgEl = document.getElementById(`card-img-${i}`);
                 const wrapEl = document.getElementById(`img-wrap-${i}`);
-                // 触发渐进式加载（模糊色块 -> 容器自适应 -> 600P缩略图，默认加载实际竖版）
-                loadGalleryCardImage(imgEl, wrapEl, w);
+                const firstVer = w.versions[0];
+                // 触发渐进式加载（3:4占位 -> 模糊色块 -> 容器比例自适应 -> 600P缩略图）
+                loadGalleryCardImage(imgEl, wrapEl, firstVer);
             });
         }
 
