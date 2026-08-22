@@ -402,29 +402,22 @@ transform: translateY(0); } }
  -webkit-tap-highlight-color: transparent !important;
  }
  .lb-mobile-version-switch button {
- width: 30px;
-   height: auto;
-   min-height: 72px;
-   padding: 10px 0;
-   border-radius: 999px;
-   border: 1.5px solid rgba(201, 168, 76, 0.6);
-   background: rgba(10, 10, 18, 0.72);
-   backdrop-filter: blur(12px);
-   -webkit-backdrop-filter: blur(12px);
-   color: var(--gold-l);
-   font-size: 11px;
-   font-weight: 600;
-   letter-spacing: 2px;
-   white-space: normal;
-   word-break: break-all;
-   writing-mode: vertical-rl;
-   text-orientation: mixed;
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   line-height: 1.4;
-   cursor: pointer;
-   pointer-events: auto;
+ width: 34px; /* 适当放宽避免文字被挤换行 */
+ height: auto;
+ min-height: 80px;
+ padding: 14px 0;
+ border-radius: 999px;
+ border: 1.5px solid rgba(201, 168, 76, 0.6);
+ background: rgba(10, 10, 18, 0.72);
+ backdrop-filter: blur(12px);
+ -webkit-backdrop-filter: blur(12px);
+ color: var(--gold-l);
+ display: flex;
+ flex-direction: column; /* 采用万无一失的Flex纵向布局，兼容所有手机 */
+ align-items: center;
+ justify-content: center;
+ cursor: pointer;
+ pointer-events: auto;
    transition: all 0.25s ease;
    -webkit-tap-highlight-color: transparent !important;
    user-select: none;
@@ -804,10 +797,7 @@ transform: translateY(0); } }
  } else {
  imgEl.classList.remove('is-blur');
  }
- // 后台修正标签判定，不再阻塞页面渲染
- if (imgEl.naturalWidth && imgEl.naturalHeight) {
- ver.label = (imgEl.naturalWidth > imgEl.naturalHeight) ? '横版' : '竖版';
- }
+ // （尺寸检测代码已按最优方案摘除，由文件名直接匹配决定横竖版）
  };
  }
 
@@ -831,10 +821,8 @@ function loadLightboxImage(imgEl, ver) {
         cardEl.appendChild(loadingGlass);
     }
 
-    // 首次打开图片时优先展示600P缩略图；若已有图则平滑过渡，防止切换时画面闪烁
-    if (!imgEl.src || imgEl.src === window.location.href) {
-        imgEl.src = quickSrc;
-    }
+    // 立即切换为新作品的缩略图/色块，彻底解决网络差时“图文不同步”的Bug
+ imgEl.src = quickSrc;
 
     if (loadingGlass) loadingGlass.classList.add('visible');
 
@@ -845,13 +833,10 @@ function loadLightboxImage(imgEl, ver) {
         // 关键校验：如果加载完成时用户已经切换到其他图片，直接丢弃过期的加载结果
         if (imgEl.dataset.targetSrc !== fullSrc) return;
 
-        // 自动读取高清图实际宽高，精准绑定“横版”与“竖版”
-        if (highRes.naturalWidth && highRes.naturalHeight) {
-            const isHoriz = highRes.naturalWidth > highRes.naturalHeight;
-            ver.label = isHoriz ? '横版' : '竖版';
-            renderVersionBar();
-            renderMobileVersionSwitch();
-        }
+        // 尺寸检测已被彻底摘除。横竖版已在初始化时通过文件名极速锁定。
+ // 如果因网络波动或首次渲染没来得及展示按钮，这里做一次安全的按钮刷新兜底
+ renderVersionBar();
+ renderMobileVersionSwitch();
 
         // 替换为高清大图并隐藏加载提示
         imgEl.src = fullSrc;
@@ -1420,7 +1405,11 @@ style="width:100%;padding-bottom:133.33%;background:linear-gradient(135deg,var(-
  container.innerHTML = '';
  return;
  }
- container.innerHTML = `<button onclick="event.stopPropagation(); toggleLBVersion()"><span style="font-size:16px; transform:rotate(90deg); display:inline-block; margin-bottom:4px; line-height:1;">⇌</span>横竖版切换</button>`;
+ // 提示：下方的 font-size: 18px 就是控制 ⇌ 符号大小的地方，你可以随时改这里的数值
+ container.innerHTML = `<button onclick="event.stopPropagation(); toggleLBVersion()">
+ <span style="font-size: 23px; line-height: 1; margin-bottom: 6px; transform: rotate(90deg);">⇌</span>
+ <span style="writing-mode: vertical-rl; text-orientation: upright; font-size: 11px; font-weight: 600; letter-spacing: 2px;">横竖版切换</span>
+ </button>`;
  }
 
         function renderPurchaseVersions() {
@@ -1624,7 +1613,11 @@ style="width:100%;padding-bottom:133.33%;background:linear-gradient(135deg,var(-
  container.innerHTML = '';
  return;
  }
- container.innerHTML = `<button onclick="event.stopPropagation(); toggleLBVersion()">⇌ 横竖版切换</button>`;
+ // 提示：下方的 font-size: 18px 就是控制 ⇌ 符号大小的地方，你可以随时改这里的数值
+ container.innerHTML = `<button onclick="event.stopPropagation(); toggleLBVersion()">
+ <span style="font-size: 23px; line-height: 1; margin-bottom: 6px; transform: rotate(90deg);">⇌</span>
+ <span style="writing-mode: vertical-rl; text-orientation: upright; font-size: 11px; font-weight: 600; letter-spacing: 2px;">横竖版切换</span>
+ </button>`;
  }
  function renderPurchaseVersions() {
  const w = works[purchaseArtIdx];
