@@ -149,7 +149,9 @@
             background: var(--bg3); border: 1px solid var(--b-sub);
             transition: border-color 0.4s, box-shadow 0.4s; animation: fadeUp 0.7s ease both;
         }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; 
+transform: translateY(0); } }
+ @keyframes skeletonShimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         .art-card:hover { border-color: rgba(124, 159, 75, 0.35); box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65), 0 0 40px rgba(124, 159, 75, 0.06); }
         .img-wrap {
             position: relative;
@@ -380,36 +382,40 @@
             }
             .lb-mobile-simple-bar .ms-buy:active { transform: scale(0.95); }
 
-            /* ---- 胶囊型横竖版切换按钮（手机大图） ---- */
+            /* ---- 竖向胶囊型横竖版切换按钮（手机大图） ---- */
  .lb-mobile-version-switch {
    position: absolute;
    right: 12px;
-   bottom: 100px;
+   top: 58px;
    z-index: 15;
    display: flex;
    flex-direction: column;
-   gap: 8px;
+   gap: 0;
    pointer-events: none;
    -webkit-tap-highlight-color: transparent !important;
  }
  .lb-mobile-version-switch button {
-   width: auto;
+   width: 34px;
    height: auto;
-   padding: 8px 16px;
+   min-height: 72px;
+   padding: 10px 0;
    border-radius: 999px;
    border: 1.5px solid rgba(201, 168, 76, 0.6);
    background: rgba(10, 10, 18, 0.72);
    backdrop-filter: blur(12px);
    -webkit-backdrop-filter: blur(12px);
    color: var(--gold-l);
-   font-size: 13px;
+   font-size: 11px;
    font-weight: 600;
-   letter-spacing: 1px;
-   white-space: nowrap;
+   letter-spacing: 2px;
+   white-space: normal;
+   word-break: break-all;
+   writing-mode: vertical-rl;
+   text-orientation: mixed;
    display: flex;
    align-items: center;
    justify-content: center;
-   line-height: 1;
+   line-height: 1.4;
    cursor: pointer;
    pointer-events: auto;
    transition: all 0.25s ease;
@@ -466,8 +472,8 @@
 
             /* 小屏手机适配 */
             @media (max-width: 480px) {
-                .lb-mobile-version-switch button { width: 32px; height: 32px; font-size: 12px; }
-                .lb-mobile-version-switch { right: 8px; top: 124px; gap: 6px; }
+                .lb-mobile-version-switch button { width: 30px; min-height: 64px; font-size: 10px; }
+ .lb-mobile-version-switch { right: 8px; top: 52px; }
                 .lb-mobile-info-area { padding: 12px 14px 16px; }
                 .lb-mobile-info-area .mi-title { font-size: 19px; }
                 .lb-mobile-info-area .mi-desc { font-size: 12px; }
@@ -851,11 +857,13 @@ function loadLightboxImage(imgEl, ver) {
         // 加载作品
         // ==========================================
         async function loadWorksFromGitHub() {
-            const grid = document.getElementById('galleryGrid');
-            grid.innerHTML = '<p style="color:#888; text-align:center; padding:40px; grid-column: span 12;">正在加载最新作品...</p>';
-
-            let folders = [];
-            const timestamp = new Date().getTime();
+ const grid = document.getElementById('galleryGrid');
+ const colCount = window.innerWidth <= 900 ? 2 : 3;
+ const skeletonCard = `<div style="border-radius:6px;overflow:hidden;background:var(--bg3);border:1px solid var(--b-sub);animation:fadeUp 0.7s ease both;"><div style="width:100%;aspect-ratio:3/4;background:linear-gradient(135deg,var(--bg2) 0%,var(--bg3) 50%,var(--bg2) 100%);background-size:200% 200%;animation:skeletonShimmer 1.8s ease infinite;"></div></div>`;
+ const skeletonCol = Array(3).fill(skeletonCard).join('');
+ grid.innerHTML = Array(colCount).fill(`<div class="g-col">${skeletonCol}</div>`).join('');
+ let folders = [];
+ const timestamp = new Date().getTime();
 
             try {
                 const repoRes = await fetch(`${API_BASE}?t=${timestamp}`);
