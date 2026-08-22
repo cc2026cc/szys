@@ -155,16 +155,20 @@
             position: relative;
             overflow: hidden;
             width: 100%;
-            aspect-ratio: 3 / 4; /* 强制 3:4 比例防抖动占位 */
-            background: var(--bg2); /* 预加载防白块背景 */
+            aspect-ratio: 3 / 4; /* 初始 3:4 比例占位防抖动 */
+            background: var(--bg2);
+            transition: aspect-ratio 0.3s ease;
         }
         .img-wrap img {
             display: block;
             width: 100%;
             height: 100%;
-            object-fit: cover; /* 保证缩略图完美裁切填充 3:4 容器 */
-            transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s;
+            object-fit: cover;
+            transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
             filter: brightness(0.9) saturate(0.95);
+        }
+        .img-wrap img.is-blur {
+            filter: blur(10px) brightness(0.9); /* 模糊色块加载时的过渡虚化 */
         }
         .art-card:hover .img-wrap img { transform: scale(1.05); filter: brightness(1.02) saturate(1.1); }
 
@@ -657,9 +661,57 @@
             prices: [19.9, 89, 799]
         };
 
-        function setImageWithBlur(imgElement, highResSrc) {
-            if (!imgElement) return;
-            imgElement.src = highResSrc;
+        // 首页卡片渐进式加载（3:4占位 -> 模糊色块 -> 容器自适应比例 -> 600P缩略图）
+        function loadGalleryCardImage(imgEl, wrapEl, ver) {
+            if (!imgEl || !ver) return;
+            
+            const blurUrl = ver.blur || ver.thumb || ver.src;
+            const thumbUrl = ver.thumb || ver.src;
+
+            // 1. 先展示 10KB 内的模糊色块图并打上高斯模糊
+            imgEl.classList.add('is-blur');
+            imgEl.src = blurUrl;
+
+            // 当色块图加载完成后，立刻解封 3:4 比例限制，自适应图片真实比例
+            imgEl.onload = () => {
+                if (wrapEl) {
+                    wrapEl.style.aspectRatio = 'auto';
+                    imgEl.style.height = 'auto';
+                    imgEl.style.objectFit = 'contain';
+                }
+                
+                // 2. 静默后台加载 600P 缩略图，加载完毕无缝替换并解除虚化
+                if (thumbUrl && thumbUrl !== blurUrl) {
+                    const tempThumb = new Image();
+                    tempThumb.src = thumbUrl;
+                    tempThumb.onload = () => {
+                        imgEl.src = thumbUrl;
+                        imgEl.classList.remove('is-blur');
+                    };
+                } else {
+                    imgEl.classList.remove('is-blur');
+                }
+            };
+        }
+
+        // 灯箱大图无感秒开（先展示已缓存的 600P 缩略图，后台静默替换高清原图）
+        function loadLightboxImage(imgEl, ver) {
+            if (!imgEl || !ver) return;
+            
+            const quickSrc = ver.thumb || ver.blur || ver.src;
+            const fullSrc = ver.src;
+
+            // 瞬间先渲染已有的 600P 缩略图，实现 0 延迟秒开，解决逐行漫长加载问题
+            imgEl.src = quickSrc;
+
+            // 在后台异步加载高清原图，下载完毕后无缝替换
+            if (fullSrc && fullSrc !== quickSrc) {
+                const highRes = new Image();
+                highRes.src = fullSrc;
+                highRes.onload = () => {
+                    imgEl.src = fullSrc;
+                };
+            }
         }
 
         // ==========================================
@@ -758,33 +810,36 @@
                         hasTxt = files.some(f => f.toLowerCase().endsWith('.txt'));
                     }
 
-                    // 1. 拆分“原图/大图”与“缩略图”文件
+                    // 1. 三级拆分：模糊色块图、600P缩略图、高清大图
+                    const blurFiles = images.filter(f => f.includes('模糊色块'));
                     const thumbFiles = images.filter(f => f.includes('缩略图'));
-                    const mainFiles = images.filter(f => !f.includes('缩略图'));
-                    const baseFiles = mainFiles.length > 0 ? mainFiles : thumbFiles;
+                    const mainFiles = images.filter(f => !f.includes('模糊色块') && !f.includes('缩略图'));
+                    const baseFiles = mainFiles.length > 0 ? mainFiles : (thumbFiles.length > 0 ? thumbFiles : blurFiles);
 
-                    // 2. 构建包含双尺寸 (src原图 + thumb缩略图) 的版本对象
+                    // 2. 构建包含（原图 src + 缩略图 thumb + 色块图 blur）的版本结构，严格区分横竖版
                     const versions = baseFiles.map(imgName => {
                         const lower = imgName.toLowerCase();
                         const isHoriz = lower.includes('横') || lower.includes('02');
                         const label = isHoriz ? '横版' : '竖版';
 
-                        // 精准匹配同为“横版”或“竖版”的“缩略图”文件
-                        const matchedThumb = thumbFiles.find(tf => {
-                            const tfLower = tf.toLowerCase();
+                        const matchByDirection = (fileList) => fileList.find(file => {
+                            const fLower = file.toLowerCase();
                             return isHoriz 
-                                ? (tfLower.includes('横') || tfLower.includes('02')) 
-                                : (tfLower.includes('竖') || (!tfLower.includes('横') && !tfLower.includes('02')));
+                                ? (fLower.includes('横') || fLower.includes('02')) 
+                                : (fLower.includes('竖') || (!fLower.includes('横') && !fLower.includes('02')));
                         });
 
+                        const matchedBlur = matchByDirection(blurFiles);
+                        const matchedThumb = matchByDirection(thumbFiles);
+
                         const srcPath = `./熊猫创意/${folderName}/${imgName}`;
-                        const thumbPath = matchedThumb 
-                            ? `./熊猫创意/${folderName}/${matchedThumb}` 
-                            : srcPath; // 降级策略：无对应缩略图时使用原图
+                        const thumbPath = matchedThumb ? `./熊猫创意/${folderName}/${matchedThumb}` : srcPath;
+                        const blurPath = matchedBlur ? `./熊猫创意/${folderName}/${matchedBlur}` : thumbPath;
 
                         return { 
-                            src: srcPath,      // 高清原图 (用于灯箱大图)
-                            thumb: thumbPath,  // 双尺寸 WebP 缩略图 (用于首页网格与购买卡片)
+                            src: srcPath,      // 高清原图
+                            thumb: thumbPath,  // 600P 缩略图
+                            blur: blurPath,    // 480P 模糊色块图
                             label: label 
                         };
                     });
@@ -825,15 +880,13 @@
             let cols = Array.from({ length: colCount }, () => []);
 
             works.forEach((w, i) => {
-                // 需求：将序号直接写在缩略图下方，“神话系列”后面
                 const seriesNumStr = `${w.series} ${String(i+1).padStart(2,'0')}`;
                 const cardHTML = `
                 <div class="art-card" style="animation-delay: ${i*0.1}s;" onclick="openLB(${i})">
-                    <div class="img-wrap">
+                    <div class="img-wrap" id="img-wrap-${i}">
                         <img id="card-img-${i}" alt="${w.name}" loading="lazy" />
                     </div>
                     <div class="art-overlay"></div>
-                    <!-- 原来的悬浮 art-num 已被取消 -->
                     <div class="art-info">
                         <div class="art-series">${seriesNumStr}</div>
                         <div class="art-title-text">${w.name}</div>
@@ -848,9 +901,10 @@
 
             works.forEach((w, i) => {
                 const imgEl = document.getElementById(`card-img-${i}`);
+                const wrapEl = document.getElementById(`img-wrap-${i}`);
                 const firstVer = w.versions[0];
-                // 首页网格渲染优先读取带“缩略图”的文件，结合 HTML 中的 loading="lazy" 实现懒加载
-                setImageWithBlur(imgEl, firstVer.thumb || firstVer.src);
+                // 触发渐进式加载（3:4占位 -> 模糊色块 -> 容器比例自适应 -> 600P缩略图）
+                loadGalleryCardImage(imgEl, wrapEl, firstVer);
             });
         }
 
@@ -907,7 +961,7 @@
                 const v = w.versions[curVer];
                 
                 if (mobileImg) {
-                    setImageWithBlur(mobileImg, v.src);
+                    loadLightboxImage(mobileImg, v);
                 }
                 
                 mobileExpanded = false;
@@ -970,7 +1024,7 @@
             const w = works[idx];
             const v = w.versions[verIdx];
             const lbImg = document.getElementById('lbImg');
-            setImageWithBlur(lbImg, v.src);
+            loadLightboxImage(lbImg, v);
 
             document.getElementById('lbSeries').textContent = w.series;
             document.getElementById('lbGhost').textContent = w.num;
@@ -1011,12 +1065,12 @@
             // 1. 直接精准获取 DOM，同时更新手机端与 PC 端的图片
             const mobileImgEl = document.getElementById('lbMobileImg');
             if (mobileImgEl) {
-                mobileImgEl.onload = updateImgRatio; // 重新绑定加载完成回调，确保切换横竖版后自动重算容器比例
-                setImageWithBlur(mobileImgEl, v.src);
+                mobileImgEl.onload = updateImgRatio;
+                loadLightboxImage(mobileImgEl, v);
             }
             const pcImgEl = document.getElementById('lbImg');
             if (pcImgEl) {
-                setImageWithBlur(pcImgEl, v.src);
+                loadLightboxImage(pcImgEl, v);
             }
 
             // 2. 同步刷新两端切换按钮的状态
@@ -1377,8 +1431,7 @@
             const w = works[purchaseArtIdx];
             const v = w.versions[purchaseVer];
             const thumbImg = document.getElementById('purchaseThumb');
-            // 购买弹窗预览加载对应横/竖版的 WebP 缩略图
-            setImageWithBlur(thumbImg, v.thumb || v.src);
+            if (thumbImg) thumbImg.src = v.thumb || v.src;
         }
 
         function renderPurchaseVersions() {
