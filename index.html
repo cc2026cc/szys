@@ -388,7 +388,7 @@ scale(0.92); }
             /* ---- 竖向胶囊型横竖版切换按钮（手机大图） ---- */
  .lb-mobile-version-switch {
  position: absolute;
- right: 12px;
+ right: 16px;
  top: 58px;
  z-index: 15;
  display: flex;
@@ -398,9 +398,9 @@ scale(0.92); }
  -webkit-tap-highlight-color: transparent !important;
  }
  .lb-mobile-version-switch button {
- width: 38px;
+ width: 30px;
  height: auto;
- min-height: 80px;
+ min-height: 88px;
  padding: 10px 0;
  border-radius: 999px;
  border: 1.5px solid rgba(201, 168, 76, 0.6);
@@ -428,11 +428,12 @@ scale(0.92); }
  }
  .lb-mobile-version-switch button:active { transform: scale(0.93); }
  .lb-mobile-version-switch button .switch-icon {
- font-size: 20px;
+ font-size: 18px;
  line-height: 1;
  display: block;
- margin-bottom: 4px;
- writing-mode: horizontal-tb;
+ margin-bottom: 6px;
+ writing-mode: vertical-rl;
+ text-orientation: mixed;
  }
  .lb-mobile-version-switch button .switch-text {
  font-size: 10px;
@@ -488,8 +489,8 @@ scale(0.92); }
 
             /* 小屏手机适配 */
  @media (max-width: 480px) {
- .lb-mobile-version-switch button { width: 34px; min-height: 72px; font-size: 10px; }
- .lb-mobile-version-switch { right: 8px; top: 52px; }
+ .lb-mobile-version-switch button { width: 28px; min-height: 80px; font-size: 10px; }
+ .lb-mobile-version-switch { right: 13px; top: 52px; }
                 .lb-mobile-info-area { padding: 12px 14px 16px; }
                 .lb-mobile-info-area .mi-title { font-size: 19px; }
                 .lb-mobile-info-area .mi-desc { font-size: 12px; }
@@ -899,30 +900,64 @@ function loadLightboxImage(imgEl, ver) {
         // ==========================================
         // 加载作品
         // ==========================================
-        async function loadWorksFromGitHub() {
+        // 本地预设作品列表（用于立即渲染骨架，与GitHub实际目录保持一致）
+ const LOCAL_FOLDERS = [
+ { name: '01财神七仔', type: 'dir' },
+ { name: '02弥勒七仔', type: 'dir' },
+ { name: '03如来七仔', type: 'dir' },
+ { name: '04悟空七仔', type: 'dir' },
+ { name: '05小女孩骑着七仔', type: 'dir' }
+ ];
+
+ // 立即渲染骨架（网页打开瞬间执行，无需等待网络）
+ function renderSkeletons(folderList) {
  const grid = document.getElementById('galleryGrid');
  const colCount = window.innerWidth <= 900 ? 2 : 3;
+ let cols = Array.from({ length: colCount }, () => []);
+ folderList.forEach((folder, i) => {
+ // 从文件夹名提取汉字作为临时名称
+ const cnMatches = folder.name.match(/[\u4e00-\u9fa5]+/g);
+ const tmpName = cnMatches ? cnMatches.join('') : folder.name;
+ const tmpSeries = '神话系列';
+ const tmpNum = String(i + 1).padStart(2, '0');
+ const cardHTML = `
+ <div class="art-card" style="animation-delay:${i*0.08}s;" id="art-card-${i}">
+ <div class="img-wrap" id="img-wrap-${i}" style="aspect-ratio:3/4;background:linear-gradient(135deg,var(--bg2) 0%,var(--bg3) 50%,var(--bg2) 100%);background-size:200% 200%;animation:skeletonShimmer 1.8s ease infinite;">
+ <img id="card-img-${i}" alt="${tmpName}" style="opacity:0;transition:opacity 0.4s;" />
+ </div>
+ <div class="art-overlay"></div>
+ <div class="art-info">
+ <div class="art-series" id="card-series-${i}">${tmpSeries} ${tmpNum}</div>
+ <div class="art-title-text" id="card-title-${i}">${tmpName}</div>
+ <div class="art-meta-text" id="card-meta-${i}">加载中...</div>
+ </div>
+ <button class="art-buy" style="opacity:0.4;pointer-events:none;">购买收藏</button>
+ </div>`;
+ cols[i % colCount].push(cardHTML);
+ });
+ grid.innerHTML = cols.map(colHTML => `<div class="g-col">${colHTML.join('')}</div>`).join('');
+ }
+
+ async function loadWorksFromGitHub() {
+ const grid = document.getElementById('galleryGrid');
+ const colCount = window.innerWidth <= 900 ? 2 : 3;
+
+ // 第一步：立刻渲染骨架，用户不用干等
+ renderSkeletons(LOCAL_FOLDERS);
+
  let folders = [];
  const timestamp = new Date().getTime();
-
-            try {
-                const repoRes = await fetch(`${API_BASE}?t=${timestamp}`);
-                if (repoRes.ok) {
-                    folders = await repoRes.json();
-                }
-            } catch (e) {
-                console.warn('动态读取目录超时，启用本地结构');
-            }
-
-            if (!Array.isArray(folders) || folders.length === 0) {
-                folders = [
-                    { name: '01财神七仔', type: 'dir' },
-                    { name: '02弥勒七仔', type: 'dir' },
-                    { name: '03如来七仔', type: 'dir' },
-                    { name: '04悟空七仔', type: 'dir' },
-                    { name: '05小女孩骑着七仔', type: 'dir' }
-                ];
-            }
+ try {
+ const repoRes = await fetch(`${API_BASE}?t=${timestamp}`);
+ if (repoRes.ok) {
+ folders = await repoRes.json();
+ }
+ } catch (e) {
+ console.warn('动态读取目录超时，启用本地结构');
+ }
+ if (!Array.isArray(folders) || folders.length === 0) {
+ folders = LOCAL_FOLDERS;
+ }
 
             try {
                 let sortedFolders = folders
@@ -1085,32 +1120,63 @@ function loadLightboxImage(imgEl, ver) {
         function renderGallery() {
  const grid = document.getElementById('galleryGrid');
  const colCount = window.innerWidth <= 900 ? 2 : 3;
- let cols = Array.from({ length: colCount }, () => []);
+
+ // 检查骨架列数是否与当前一致，不一致才重新构建列结构
+ const existingCols = grid.querySelectorAll('.g-col').length;
+ if (existingCols !== colCount) {
+ // 列数变化（如屏幕旋转），重新渲染骨架再填充
+ renderSkeletons(works.map((w, i) => ({ name: String(i+1).padStart(2,'0') + w.name, type: 'dir' })));
+ }
+
+ // 逐个更新已有骨架卡片的内容和交互，不重建DOM
  works.forEach((w, i) => {
  const seriesNumStr = `${w.series} ${String(i+1).padStart(2,'0')}`;
- const cardHTML = `
- <div class="art-card" style="animation-delay: ${i*0.1}s;" onclick="openLB(${i})">
- <div class="img-wrap" id="img-wrap-${i}" style="aspect-ratio:3/4;background:linear-gradient(135deg,var(--bg2) 0%,var(--bg3) 50%,var(--bg2) 100%);background-size:200% 200%;animation:skeletonShimmer 1.8s ease infinite;">
- <img id="card-img-${i}" alt="${w.name}" style="opacity:0;transition:opacity 0.4s;" />
- </div>
- <div class="art-overlay"></div>
- <div class="art-info">
- <div class="art-series">${seriesNumStr}</div>
- <div class="art-title-text">${w.name}</div>
- <div class="art-meta-text">${w.num}</div>
- </div>
- <button class="art-buy" onclick="event.stopPropagation(); 
-openPurchase(${i},0)">购买收藏</button>
- </div>`;
- cols[i % colCount].push(cardHTML);
+ const card = document.getElementById(`art-card-${i}`);
+ if (card) {
+ // 激活点击事件
+ card.onclick = () => openLB(i);
+ // 更新文字信息
+ const seriesEl = document.getElementById(`card-series-${i}`);
+ const titleEl = document.getElementById(`card-title-${i}`);
+ const metaEl = document.getElementById(`card-meta-${i}`);
+ if (seriesEl) seriesEl.textContent = seriesNumStr;
+ if (titleEl) titleEl.textContent = w.name;
+ if (metaEl) metaEl.textContent = w.num;
+ // 激活购买按钮
+ const buyBtn = card.querySelector('.art-buy');
+ if (buyBtn) {
+ buyBtn.style.opacity = '1';
+ buyBtn.style.pointerEvents = 'auto';
+ buyBtn.onclick = (e) => { e.stopPropagation(); openPurchase(i, 0); };
+ }
+ } else {
+ // 骨架不存在（works数量比LOCAL_FOLDERS多），重新完整渲染
+ renderSkeletons(works.map((w2, j) => ({ name: String(j+1).padStart(2,'0') + w2.name, type: 'dir' })));
+ works.forEach((w2, j) => {
+ const c = document.getElementById(`art-card-${j}`);
+ if (c) {
+ c.onclick = () => openLB(j);
+ const sEl = document.getElementById(`card-series-${j}`);
+ const tEl = document.getElementById(`card-title-${j}`);
+ const mEl = document.getElementById(`card-meta-${j}`);
+ const sNumStr = `${w2.series} ${String(j+1).padStart(2,'0')}`;
+ if (sEl) sEl.textContent = sNumStr;
+ if (tEl) tEl.textContent = w2.name;
+ if (mEl) mEl.textContent = w2.num;
+ const bBtn = c.querySelector('.art-buy');
+ if (bBtn) {
+ bBtn.style.opacity = '1';
+ bBtn.style.pointerEvents = 'auto';
+ bBtn.onclick = (e2) => { e2.stopPropagation(); openPurchase(j, 0); };
+ }
+ }
  });
- grid.innerHTML = cols.map(colHTML => `<div 
-class="g-col">${colHTML.join('')}</div>`).join('');
- works.forEach((w, i) => {
+ return;
+ }
+ // 触发图片渐进加载
  const imgEl = document.getElementById(`card-img-${i}`);
  const wrapEl = document.getElementById(`img-wrap-${i}`);
  const firstVer = w.versions[0];
- // 修复：不用lazy，直接加载，确保手机端触发onload
  loadGalleryCardImage(imgEl, wrapEl, firstVer);
  });
  }
@@ -1761,7 +1827,16 @@ class="g-col">${colHTML.join('')}</div>`).join('');
         });
 
         // ─── 启动 ───
-        window.addEventListener('DOMContentLoaded', loadWorksFromGitHub);
+ // 网页打开瞬间立刻渲染骨架，不等DOMContentLoaded
+ if (document.readyState === 'loading') {
+ document.addEventListener('DOMContentLoaded', () => {
+ renderSkeletons(LOCAL_FOLDERS);
+ loadWorksFromGitHub();
+ });
+ } else {
+ renderSkeletons(LOCAL_FOLDERS);
+ loadWorksFromGitHub();
+ }
 
         window.addEventListener('resize', () => {
             if (window.innerWidth >= 1100) {
