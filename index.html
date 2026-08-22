@@ -722,12 +722,15 @@
             };
         }
 
-        // 灯箱大图无感秒开（600P秒开，1080P加载时显示毛玻璃提示）
+        // 灯箱大图加载（彻底解决切图闪烁 和 乱串图Bug）
 function loadLightboxImage(imgEl, ver) {
     if (!imgEl || !ver) return;
     
     const quickSrc = ver.thumb || ver.blur || ver.src;
     const fullSrc = ver.src;
+
+    // 核心防串图：给当前图片框打上这层图片的专属烙印，防止上一张没加载完的高清图覆盖现在的画面
+    imgEl.dataset.currentSrc = fullSrc;
 
     // 自动检测/创建毛玻璃加载提示
     const cardEl = imgEl.parentElement;
@@ -739,17 +742,29 @@ function loadLightboxImage(imgEl, ver) {
         cardEl.appendChild(loadingGlass);
     }
 
-    // 瞬间先渲染已有的 600P 缩略图全屏显示
-    imgEl.src = quickSrc;
+    // 显示加载中提示
+    if (loadingGlass) loadingGlass.classList.add('visible');
 
-    // 后台加载 1080P 高清原图
+    // 1. 后台静默加载 600P 缩略图（消除黑屏闪烁）
+    const thumbImg = new Image();
+    thumbImg.src = quickSrc;
+    thumbImg.onload = () => {
+        // 验证标识：确认用户没有切走，才执行替换
+        if (imgEl.dataset.currentSrc === fullSrc) {
+            imgEl.src = quickSrc;
+        }
+    };
+
+    // 2. 后台加载 1080P 高清原图
     if (fullSrc && fullSrc !== quickSrc) {
-        if (loadingGlass) loadingGlass.classList.add('visible'); // 1080P没加载完时显示“加载中”毛玻璃
         const highRes = new Image();
         highRes.src = fullSrc;
         highRes.onload = () => {
-            imgEl.src = fullSrc;
-            if (loadingGlass) loadingGlass.classList.remove('visible'); // 1080P加载完成后提示消失
+            // 核心防串图：如果用户此时切走了，直接丢弃这张晚到的高清图！
+            if (imgEl.dataset.currentSrc === fullSrc) {
+                imgEl.src = fullSrc;
+                if (loadingGlass) loadingGlass.classList.remove('visible'); // 替换完消除毛玻璃
+            }
         };
     } else {
         if (loadingGlass) loadingGlass.classList.remove('visible');
@@ -871,33 +886,43 @@ function loadLightboxImage(imgEl, ver) {
                         hasTxt = files.some(f => f.toLowerCase().endsWith('.txt'));
                     }
 
-                    // 2. 构建包含（原图 src + 缩略图 thumb + 色块图 blur）的版本结构，严格区分横竖版
-        const versions = baseFiles.map(imgName => {
+                    // 2. 构建包含（原图 src + 缩略图 thumb + 色块图 blur）的版本结构，自动识别图片长宽判断横竖版
+        const versions = await Promise.all(baseFiles.map(async imgName => {
             const lower = imgName.toLowerCase();
-            const isHoriz = lower.includes('横') || lower.includes('02');
-            const label = isHoriz ? '竖版' : '横版'; /* 互换横竖版标签映射，解决按钮对应反了的问题 */
+            // 仅用于尝试匹配对应名字的缩略图
+            const isHorizName = lower.includes('横') || lower.includes('02'); 
 
-                        const matchByDirection = (fileList) => fileList.find(file => {
-                            const fLower = file.toLowerCase();
-                            return isHoriz 
-                                ? (fLower.includes('横') || fLower.includes('02')) 
-                                : (fLower.includes('竖') || (!fLower.includes('横') && !fLower.includes('02')));
-                        });
+            const matchByDirection = (fileList) => fileList.find(file => {
+                const fLower = file.toLowerCase();
+                return isHorizName 
+                    ? (fLower.includes('横') || fLower.includes('02')) 
+                    : (fLower.includes('竖') || (!fLower.includes('横') && !fLower.includes('02')));
+            });
 
-                        const matchedBlur = matchByDirection(blurFiles);
-                        const matchedThumb = matchByDirection(thumbFiles);
+            const matchedBlur = matchByDirection(blurFiles);
+            const matchedThumb = matchByDirection(thumbFiles);
 
-                        const srcPath = `./熊猫创意/${folderName}/${imgName}`;
-                        const thumbPath = matchedThumb ? `./熊猫创意/${folderName}/${matchedThumb}` : srcPath;
-                        const blurPath = matchedBlur ? `./熊猫创意/${folderName}/${matchedBlur}` : thumbPath;
+            const srcPath = `./熊猫创意/${folderName}/${imgName}`;
+            const thumbPath = matchedThumb ? `./熊猫创意/${folderName}/${matchedThumb}` : srcPath;
+            const blurPath = matchedBlur ? `./熊猫创意/${folderName}/${matchedBlur}` : thumbPath;
 
-                        return { 
-                            src: srcPath,      // 高清原图
-                            thumb: thumbPath,  // 600P 缩略图
-                            blur: blurPath,    // 480P 模糊色块图
-                            label: label 
-                        };
-                    });
+            // 核心修复：通过代码在后台读取图片的真实长宽，宽大于高绝对是横版，否则绝对是竖版！
+            const realLabel = await new Promise(resolve => {
+                const tempImg = new Image();
+                tempImg.onload = () => {
+                    resolve(tempImg.width > tempImg.height ? '横版' : '竖版');
+                };
+                tempImg.onerror = () => resolve('竖版'); // 默认兜底
+                tempImg.src = thumbPath;
+            });
+
+            return { 
+                src: srcPath,     
+                thumb: thumbPath, 
+                blur: blurPath,   
+                label: realLabel  // 使用真实长宽算出的横竖版标识
+            };
+        }));
                     
                     // 强制排序：确保“竖版”永远在数组的第一个位置
                     versions.sort((a, b) => {
