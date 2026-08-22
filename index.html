@@ -225,44 +225,33 @@
             object-fit: contain; border-radius: 4px; border: 1px solid rgba(124, 159, 75, 0.35);
             box-shadow: 0 48px 130px rgba(0, 0, 0, .85), 0 0 80px rgba(124, 159, 75, 0.06);
         }
-        /* HD 状态感知指示灯样式 */
-        .hd-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 10;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 3px 8px;
-            background: rgba(8, 8, 15, 0.65);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(201, 168, 76, 0.3);
-            border-radius: 12px;
-            font-size: 10px;
-            font-weight: 600;
-            color: #e8c97a;
-            letter-spacing: 1px;
-            pointer-events: none;
-            user-select: none;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-        }
-        .hd-badge .hd-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #c9a84c;
-            box-shadow: 0 0 6px #c9a84c;
-        }
-        /* 载入中状态：淡金光呼吸闪烁 */
-        .hd-badge.loading .hd-dot {
-            animation: hdPulse 1.2s infinite ease-in-out;
-        }
-        @keyframes hdPulse {
-            0%, 100% { opacity: 0.3; transform: scale(0.8); box-shadow: 0 0 2px rgba(201, 168, 76, 0.4); }
-            50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 10px rgba(232, 201, 122, 0.9); }
-        }
+        /* 居中毛玻璃加载提示样式 */
+.loading-glass {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(20, 20, 30, 0.55);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    padding: 12px 28px;
+    border-radius: 12px;
+    color: var(--gold-l);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.loading-glass.visible {
+    opacity: 1;
+    visibility: visible;
+}
 
         @keyframes zoomIn { from { transform: scale(0.88); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .lb-card.enter { animation: zoomIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
@@ -733,39 +722,39 @@
             };
         }
 
-        // 灯箱大图无感秒开（带 HD 状态感知微提示，载入中闪烁淡金光，替换完成后常亮）
-        function loadLightboxImage(imgEl, ver) {
-            if (!imgEl || !ver) return;
-            
-            const quickSrc = ver.thumb || ver.blur || ver.src;
-            const fullSrc = ver.src;
+        // 灯箱大图无感秒开（600P秒开，1080P加载时显示毛玻璃提示）
+function loadLightboxImage(imgEl, ver) {
+    if (!imgEl || !ver) return;
+    
+    const quickSrc = ver.thumb || ver.blur || ver.src;
+    const fullSrc = ver.src;
 
-            // 自动检测/创建角标
-            const cardEl = imgEl.parentElement;
-            let hdBadge = cardEl ? cardEl.querySelector('.hd-badge') : null;
-            if (!hdBadge && cardEl) {
-                hdBadge = document.createElement('div');
-                hdBadge.className = 'hd-badge loading';
-                hdBadge.innerHTML = '<span class="hd-dot"></span>HD';
-                cardEl.appendChild(hdBadge);
-            }
+    // 自动检测/创建毛玻璃加载提示
+    const cardEl = imgEl.parentElement;
+    let loadingGlass = cardEl ? cardEl.querySelector('.loading-glass') : null;
+    if (!loadingGlass && cardEl) {
+        loadingGlass = document.createElement('div');
+        loadingGlass.className = 'loading-glass';
+        loadingGlass.innerHTML = '加载中';
+        cardEl.appendChild(loadingGlass);
+    }
 
-            // 瞬间先渲染已有的 600P 缩略图
-            imgEl.src = quickSrc;
+    // 瞬间先渲染已有的 600P 缩略图全屏显示
+    imgEl.src = quickSrc;
 
-            // 后台加载高清原图
-            if (fullSrc && fullSrc !== quickSrc) {
-                if (hdBadge) hdBadge.classList.add('loading'); // 载入中闪烁
-                const highRes = new Image();
-                highRes.src = fullSrc;
-                highRes.onload = () => {
-                    imgEl.src = fullSrc;
-                    if (hdBadge) hdBadge.classList.remove('loading'); // 替换完成常亮
-                };
-            } else {
-                if (hdBadge) hdBadge.classList.remove('loading');
-            }
-        }
+    // 后台加载 1080P 高清原图
+    if (fullSrc && fullSrc !== quickSrc) {
+        if (loadingGlass) loadingGlass.classList.add('visible'); // 1080P没加载完时显示“加载中”毛玻璃
+        const highRes = new Image();
+        highRes.src = fullSrc;
+        highRes.onload = () => {
+            imgEl.src = fullSrc;
+            if (loadingGlass) loadingGlass.classList.remove('visible'); // 1080P加载完成后提示消失
+        };
+    } else {
+        if (loadingGlass) loadingGlass.classList.remove('visible');
+    }
+}
 
         // ==========================================
         // 加载作品
@@ -883,10 +872,10 @@
                     }
 
                     // 2. 构建包含（原图 src + 缩略图 thumb + 色块图 blur）的版本结构，严格区分横竖版
-                    const versions = baseFiles.map(imgName => {
-                        const lower = imgName.toLowerCase();
-                        const isHoriz = lower.includes('横') || lower.includes('02');
-                        const label = isHoriz ? '横版' : '竖版';
+        const versions = baseFiles.map(imgName => {
+            const lower = imgName.toLowerCase();
+            const isHoriz = lower.includes('横') || lower.includes('02');
+            const label = isHoriz ? '竖版' : '横版'; /* 互换横竖版标签映射，解决按钮对应反了的问题 */
 
                         const matchByDirection = (fileList) => fileList.find(file => {
                             const fLower = file.toLowerCase();
