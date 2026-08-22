@@ -228,8 +228,9 @@
         /* HD 状态感知指示灯样式 */
         .hd-badge {
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 10;
             display: inline-flex;
             align-items: center;
@@ -882,15 +883,14 @@
                         hasTxt = files.some(f => f.toLowerCase().endsWith('.txt'));
                     }
 
-                    // 2. 构建包含（原图 src + 缩略图 thumb + 色块图 blur）的版本结构，严格区分横竖版
-                    const versions = baseFiles.map(imgName => {
+                    // 2. 构建版本结构，自动感知图片真实宽高比例（自动精准识别横竖版）
+                    const versions = await Promise.all(baseFiles.map(async (imgName) => {
                         const lower = imgName.toLowerCase();
-                        const isHoriz = lower.includes('横') || lower.includes('02');
-                        const label = isHoriz ? '横版' : '竖版';
+                        const isHorizByFile = lower.includes('横') || lower.includes('02');
 
                         const matchByDirection = (fileList) => fileList.find(file => {
                             const fLower = file.toLowerCase();
-                            return isHoriz 
+                            return isHorizByFile 
                                 ? (fLower.includes('横') || fLower.includes('02')) 
                                 : (fLower.includes('竖') || (!fLower.includes('横') && !fLower.includes('02')));
                         });
@@ -902,13 +902,25 @@
                         const thumbPath = matchedThumb ? `./熊猫创意/${folderName}/${matchedThumb}` : srcPath;
                         const blurPath = matchedBlur ? `./熊猫创意/${folderName}/${matchedBlur}` : thumbPath;
 
+                        // 核心：自动加载图片宽高比，宽度 > 高度 则自动判断为横版，否则为竖版
+                        const label = await new Promise((resolve) => {
+                            const checkImg = new Image();
+                            checkImg.onload = () => {
+                                resolve(checkImg.naturalWidth > checkImg.naturalHeight ? '横版' : '竖版');
+                            };
+                            checkImg.onerror = () => {
+                                resolve(isHorizByFile ? '横版' : '竖版');
+                            };
+                            checkImg.src = thumbPath || srcPath;
+                        });
+
                         return { 
                             src: srcPath,      // 高清原图
                             thumb: thumbPath,  // 600P 缩略图
                             blur: blurPath,    // 480P 模糊色块图
                             label: label 
                         };
-                    });
+                    }));
                     
                     // 强制排序：确保“竖版”永远在数组的第一个位置
                     versions.sort((a, b) => {
@@ -932,8 +944,29 @@
 
                 works = (await Promise.all(promises)).filter(Boolean);
                 renderGallery();
+                // 页面数据加载完毕后，自动检查地址栏，如果是在大图模式下刷新的，自动恢复大图
+                checkUrlHashAndOpen();
             } catch (err) {
                 console.error('渲染异常:', err);
+            }
+        }
+
+        // 解析 URL 中的大图记录标记，实现刷新网页不退回首页
+        function checkUrlHashAndOpen() {
+            const hash = location.hash;
+            if (hash && hash.includes('art=')) {
+                const matchArt = hash.match(/art=(\d+)/);
+                const matchVer = hash.match(/ver=(\d+)/);
+                if (matchArt) {
+                    const artIdx = parseInt(matchArt[1], 10);
+                    const verIdx = matchVer ? parseInt(matchVer[1], 10) : 0;
+                    if (artIdx >= 0 && artIdx < works.length) {
+                        openLB(artIdx);
+                        if (verIdx > 0 && verIdx < works[artIdx].versions.length) {
+                            switchLBVersion(verIdx);
+                        }
+                    }
+                }
             }
         }
 
@@ -1014,6 +1047,9 @@
             curVer = 0;
             isMobile = window.innerWidth < 1100;
 
+            // 记录当前大图序号到网址，防止刷新网页退回首页
+            history.replaceState(null, '', `#art=${idx}&ver=0`);
+
             // 打开大图时向浏览器历史压入一条记录，用于手机端侧滑返回
             if (!history.state || !history.state.lightbox) {
                 history.pushState({ lightbox: true }, '');
@@ -1080,6 +1116,11 @@
                 cleanupMobileContainer();
             }
 
+            // 关闭大图时恢复为普通首页网址
+            if (location.hash.includes('art=')) {
+                history.replaceState(null, '', location.pathname + location.search);
+            }
+
             // 如果是用户主动点击关闭按钮而非手机返回键，则退回刚才压入的历史记录
             if (!fromPopState && history.state && history.state.lightbox) {
                 history.back();
@@ -1126,6 +1167,10 @@
         function switchLBVersion(verIdx) {
             if (busy || verIdx === curVer) return;
             curVer = verIdx;
+            
+            // 同步更新网址标记当前选择的横/竖版本
+            history.replaceState(null, '', `#art=${cur}&ver=${curVer}`);
+
             const v = works[cur].versions[verIdx];
 
             // 1. 直接精准获取 DOM，同时更新手机端与 PC 端的图片
@@ -1160,6 +1205,8 @@
                 card.removeEventListener('animationend', h);
                 cur = next;
                 curVer = 0;
+                // 左右切换作品时，同步更新网址状态
+                history.replaceState(null, '', `#art=${cur}&ver=0`);
                 fillLB(cur, 0);
                 renderVersionBar();
                 card.className = 'lb-card';
