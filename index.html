@@ -264,15 +264,14 @@
         .lb-card.in-r { animation: inFromRight 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .lb-card.in-l { animation: inFromLeft 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        .lb-version-bar { display: flex; gap: 10px; margin-top: 16px; z-index: 10; }
+        .lb-version-bar { display: flex; justify-content: center; margin-top: 16px; z-index: 10; }
         .lb-ver-btn {
-            display: inline-flex; align-items: center; gap: 6px; padding: 7px 18px;
-            border: 1px solid var(--b-gold); background: rgba(15, 15, 25, 0.75);
-            backdrop-filter: blur(12px); color: var(--gold-l); font-size: 11px; letter-spacing: 1.5px;
-            cursor: pointer; transition: all 0.3s ease; border-radius: 30px; font-family: inherit;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35); -webkit-tap-highlight-color: transparent !important; user-select: none;
+            padding: 7px 20px; border: 1px solid rgba(124, 159, 75, 0.5); background: rgba(124, 159, 75, 0.15);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: var(--bamboo); font-size: 11px; letter-spacing: 2px;
+            cursor: pointer; transition: all 0.25s ease; border-radius: 30px; font-family: inherit;
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
         }
-        .lb-ver-btn:hover, .lb-ver-btn:active { background: rgba(124, 159, 75, 0.22); border-color: var(--bamboo); color: var(--bamboo); transform: scale(0.96); }
+        .lb-ver-btn:active { transform: scale(0.95); background: rgba(124, 159, 75, 0.25); }
         .lb-dots { display: flex; gap: 10px; align-items: center; margin-top: 20px; }
         .lb-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, 0.25); border: 1px solid rgba(255, 255, 255, 0.3); cursor: pointer; transition: all .3s; }
         .lb-dot.on { background: var(--bamboo); width: 10px; height: 10px; border-color: var(--bamboo); box-shadow: 0 0 10px rgba(124, 159, 75, 0.9); }
@@ -364,16 +363,16 @@
             }
             .lb-mobile-simple-bar .ms-buy:active { transform: scale(0.95); }
 
-            /* ---- 胶囊型横竖版切换按钮 ---- */
-            .lb-mobile-version-switch { position: absolute; right: 12px; top: 136px; z-index: 15; display: flex; flex-direction: column; gap: 8px; pointer-events: none; -webkit-tap-highlight-color: transparent !important; }
-            .lb-mobile-version-switch .capsule-btn {
-                display: inline-flex; align-items: center; gap: 5px; padding: 6px 14px;
-                border-radius: 30px; border: 1.5px solid rgba(255, 255, 255, 0.25); background: rgba(0, 0, 0, 0.65);
-                backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: rgba(255, 255, 255, 0.9); font-size: 11px;
-                font-weight: 600; line-height: 1; cursor: pointer; pointer-events: auto; transition: all 0.25s ease;
-                -webkit-tap-highlight-color: transparent !important; user-select: none; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            /* ---- 胶囊型横竖版切换按钮 (固定左上角不遮挡画面) ---- */
+            .lb-mobile-version-switch { position: absolute; left: 14px; top: 12px; z-index: 35; pointer-events: auto; -webkit-tap-highlight-color: transparent !important; }
+            .lb-mobile-version-switch button {
+                padding: 6px 14px; border-radius: 30px; border: 1px solid rgba(124, 159, 75, 0.5); background: rgba(15, 20, 28, 0.65);
+                backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: var(--bamboo); font-size: 11px;
+                font-weight: 600; letter-spacing: 1.5px; display: flex; align-items: center; gap: 4px;
+                cursor: pointer; transition: all 0.25s ease; -webkit-tap-highlight-color: transparent !important; user-select: none;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
             }
-            .lb-mobile-version-switch .capsule-btn:active { transform: scale(0.92); border-color: var(--bamboo); color: var(--bamboo); background: rgba(124, 159, 75, 0.25); }
+            .lb-mobile-version-switch button:active { transform: scale(0.92); background: rgba(124, 159, 75, 0.25); }
 
             /* ---- 信息区域 (紧贴图片底部) ---- */
             .lb-mobile-info-area {
@@ -422,8 +421,8 @@
 
             /* 小屏手机适配 */
             @media (max-width: 480px) {
-                .lb-mobile-version-switch .capsule-btn { padding: 5px 11px; font-size: 10px; }
-                .lb-mobile-version-switch { right: 8px; top: 124px; gap: 6px; }
+                .lb-mobile-version-switch { left: 10px; top: 12px; }
+                .lb-mobile-version-switch button { padding: 5px 11px; font-size: 10px; }
                 .lb-mobile-info-area { padding: 12px 14px 16px; }
                 .lb-mobile-info-area .mi-title { font-size: 19px; }
                 .lb-mobile-info-area .mi-desc { font-size: 12px; }
@@ -455,15 +454,9 @@
         .purchase-thumb img { width: auto; height: auto; max-width: 140px; max-height: 180px; object-fit: contain; display: block; }
         .purchase-name { font-size: 16px; font-weight: 600; letter-spacing: 2px; color: var(--t1); text-align: left; line-height: 1.3; }
         .purchase-num { font-size: 10px; letter-spacing: 2px; color: var(--t2); text-align: left; }
-        .version-switch { display: flex; gap: 8px; margin-top: 4px; }
-        .v-switch-btn {
-            display: inline-flex; align-items: center; gap: 5px; padding: 6px 14px;
-            border-radius: 30px; border: 1.5px solid rgba(255, 255, 255, 0.2); background: rgba(0, 0, 0, 0.55);
-            backdrop-filter: blur(10px); color: rgba(255, 255, 255, 0.85); font-size: 11px; font-weight: 500;
-            line-height: 1; margin: 0; cursor: pointer; transition: all 0.25s ease;
-            font-family: inherit; -webkit-tap-highlight-color: transparent !important; user-select: none;
-        }
-        .v-switch-btn:active, .v-switch-btn:hover { transform: scale(0.94); border-color: var(--bamboo); color: var(--bamboo); background: rgba(124, 159, 75, 0.2); }
+        .version-switch { display: flex; margin-top: 6px; }
+        .v-switch-btn { padding: 6px 14px; border-radius: 30px; border: 1px solid rgba(124, 159, 75, 0.5); background: rgba(124, 159, 75, 0.12); backdrop-filter: blur(10px); color: var(--bamboo); font-size: 11px; font-weight: 600; letter-spacing: 1.5px; display: flex; align-items: center; gap: 4px; cursor: pointer; transition: all 0.25s ease; font-family: inherit; -webkit-tap-highlight-color: transparent !important; user-select: none; }
+        .v-switch-btn:active { transform: scale(0.92); background: rgba(124, 159, 75, 0.25); }
         .purchase-right { flex: 1; display: flex; flex-direction: column; gap: 18px; justify-content: center; }
         @keyframes softPulse { 0%, 100% { box-shadow: 0 0 8px rgba(255, 200, 80, 0.3); border-color: rgba(255, 200, 80, 0.4); } 50% { box-shadow: 0 0 20px rgba(255, 200, 80, 0.7), 0 0 40px rgba(255, 200, 80, 0.3); border-color: rgba(255, 200, 80, 0.8); } }
         .purchase-note-highlight { padding: 12px 14px; background: rgba(255, 200, 80, 0.05); border: 1px solid rgba(255, 200, 80, 0.5); border-radius: 6px; font-size: 11px; color: #ffd580; letter-spacing: 1px; animation: softPulse 2.2s ease-in-out infinite; line-height: 1.6; display: flex; justify-content: center; align-items: center; gap: 10px; }
@@ -1149,16 +1142,20 @@ function loadLightboxImage(imgEl, ver) {
             ).join('');
         }
 
+        function toggleLBVersion() {
+            if (!works[cur] || !works[cur].versions || works[cur].versions.length <= 1) return;
+            const nextVer = (curVer + 1) % works[cur].versions.length;
+            switchLBVersion(nextVer);
+        }
+
         function renderVersionBar() {
             const bar = document.getElementById('lbVersionBar');
             const w = works[cur];
-            if (!w || !w.versions || w.versions.length <= 1) {
+            if (w && w.versions && w.versions.length > 1) {
+                bar.innerHTML = `<button class="lb-ver-btn" onclick="toggleLBVersion()">🔄 横竖版切换</button>`;
+            } else {
                 bar.innerHTML = '';
-                return;
             }
-            const nextVerIdx = (curVer + 1) % w.versions.length;
-            const nextVer = w.versions[nextVerIdx];
-            bar.innerHTML = `<button class="lb-ver-btn" onclick="switchLBVersion(${nextVerIdx})"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> 切换至${nextVer.label}</button>`;
         }
 
         function switchLBVersion(verIdx) {
@@ -1177,9 +1174,9 @@ function loadLightboxImage(imgEl, ver) {
                 loadLightboxImage(pcImgEl, v);
             }
 
-            // 2. 同步刷新两端胶囊按钮的状态与文本
+            // 2. 同步刷新两端切换按钮的状态
             renderMobileVersionSwitch();
-            renderVersionBar();
+            document.querySelectorAll('.lb-ver-btn').forEach((b, i) => b.classList.toggle('active', i === verIdx));
         }
 
         function nav(dir) {
@@ -1346,18 +1343,29 @@ function loadLightboxImage(imgEl, ver) {
                 container.innerHTML = '';
                 return;
             }
-            const nextVerIdx = (curVer + 1) % w.versions.length;
-            const nextVer = w.versions[nextVerIdx];
-            container.innerHTML = `<button class="capsule-btn" onclick="event.stopPropagation(); switchLBVersion(${nextVerIdx})"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> 切至${nextVer.label}</button>`;
+            container.innerHTML = `<button onclick="event.stopPropagation(); toggleLBVersion()">🔄 横竖版切换</button>`;
+        }
+
+        function togglePurchaseVersion() {
+            const w = works[purchaseArtIdx];
+            if (!w || !w.versions || w.versions.length <= 1) return;
+            const nextVer = (purchaseVer + 1) % w.versions.length;
+            if (typeof switchPurchaseVersion === 'function') {
+                switchPurchaseVersion(nextVer);
+            } else {
+                purchaseVer = nextVer;
+                const thumbImg = document.getElementById('purchaseThumb');
+                if (thumbImg && w.versions[purchaseVer]) {
+                    thumbImg.src = w.versions[purchaseVer].thumb || w.versions[purchaseVer].src;
+                }
+            }
         }
 
         function renderPurchaseVersions() {
             const w = works[purchaseArtIdx];
             const container = document.getElementById('purchaseVersionSwitch');
             if (!w || !w.versions || w.versions.length <= 1) { container.innerHTML = ''; return; }
-            const nextVerIdx = (purchaseVer + 1) % w.versions.length;
-            const nextVer = w.versions[nextVerIdx];
-            container.innerHTML = `<button class="v-switch-btn" onclick="switchPurchaseVersion(${nextVerIdx})"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> 切换至${nextVer.label}</button>`;
+            container.innerHTML = `<button class="v-switch-btn" onclick="togglePurchaseVersion()">🔄 横竖版切换</button>`;
         }
 
         // ─── 触摸处理 ───
