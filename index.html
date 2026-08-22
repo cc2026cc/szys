@@ -151,94 +151,33 @@
         }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; 
 transform: translateY(0); } }
- @keyframes skeletonShimmer {
- 0% { background-position: 200% 0; }
- 100% { background-position: -200% 0; }
- }
-
- .initial-skeleton-card {
- border-radius: 6px;
- overflow: hidden;
- background: var(--bg3);
- border: 1px solid var(--b-sub);
- }
-
- .initial-skeleton-image {
- width: 100%;
- aspect-ratio: 3 / 4;
- background: linear-gradient(
-   110deg,
-   var(--bg2) 20%,
-   #11111d 38%,
-   var(--bg2) 56%
- );
- background-size: 220% 100%;
- animation: skeletonShimmer 1.8s linear infinite;
- }
-
- @media (max-width: 900px) {
- .desktop-skeleton-col {
- display: none !important;
- }
- }
+ @keyframes skeletonShimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         .art-card:hover { border-color: rgba(124, 159, 75, 0.35); box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65), 0 0 40px rgba(124, 159, 75, 0.06); }
         .img-wrap {
-            position: relative;
-            overflow: hidden;
-            width: 100%;
-            aspect-ratio: 3 / 4; /* 初始 3:4 比例占位防抖动 */
-            background: var(--bg2);
-            transition: aspect-ratio 0.3s ease;
-        }
-        .img-wrap img {
-            display: block;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
-            filter: brightness(0.9) saturate(0.95);
-        }
-        .img-wrap img.is-blur {
- filter: blur(10px) brightness(0.9);
- transform: scale(1.04);
- }
-
- .progressive-card .img-wrap {
- aspect-ratio: 3 / 4;
- }
-
- .progressive-card .img-wrap img {
  position: relative;
- z-index: 2;
- opacity: 0;
- transition:
-   opacity 0.35s ease,
-   filter 0.45s ease,
-   transform 0.45s ease;
+ overflow: hidden;
+ width: 100%;
+ padding-bottom: 133.33%; /* 兼容老设备 3:4 比例占位 */
+ background: var(--bg2);
+ transition: padding-bottom 0.3s ease;
  }
-
- .progressive-skeleton {
+ .img-wrap img {
  position: absolute;
- inset: 0;
- z-index: 1;
- background: linear-gradient(
-   110deg,
-   var(--bg2) 20%,
-   #11111d 38%,
-   var(--bg2) 56%
- );
- background-size: 220% 100%;
- animation: skeletonShimmer 1.8s linear infinite;
- transition: opacity 0.35s ease;
+ top: 0; left: 0;
+ display: block;
+ width: 100%;
+ height: 100%;
+ object-fit: cover;
+ transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease, opacity 0.4s ease;
+ filter: brightness(0.9) saturate(0.95);
+ opacity: 0; /* 初始透明，避免破损图标 */
  }
-
- .progressive-skeleton.is-hidden {
- opacity: 0;
- pointer-events: none;
+ .img-wrap img.is-loaded {
+ opacity: 1;
  }
-
- .progressive-info {
- min-height: 46px;
+ .img-wrap img.is-blur {
+ filter: blur(10px) brightness(0.9); /* 模糊色块加载时的过渡虚化 */
+ opacity: 1;
  }
         .art-card:hover .img-wrap img { transform: scale(1.05); filter: brightness(1.02) saturate(1.1); }
 
@@ -456,72 +395,42 @@ transform: translateY(0); } }
  right: 14px;
  top: 58px;
  z-index: 15;
- width: 30px;
  display: flex;
  flex-direction: column;
- align-items: center;
+ gap: 0;
  pointer-events: none;
  -webkit-tap-highlight-color: transparent !important;
  }
-
  .lb-mobile-version-switch button {
  width: 30px;
- height: auto;
- min-height: 72px;
- padding: 9px 0 10px;
- border-radius: 999px;
- border: 1.5px solid rgba(201, 168, 76, 0.6);
- background: rgba(10, 10, 18, 0.72);
- backdrop-filter: blur(12px);
- -webkit-backdrop-filter: blur(12px);
- color: var(--gold-l);
- font-size: 11px;
- font-weight: 600;
- letter-spacing: 2px;
- white-space: normal;
- word-break: normal;
- writing-mode: vertical-rl;
- text-orientation: upright;
- display: flex;
- flex-direction: column;
- align-items: center;
- justify-content: center;
- line-height: 1.4;
- cursor: pointer;
- pointer-events: auto;
- transition: all 0.25s ease;
- -webkit-tap-highlight-color: transparent !important;
- user-select: none;
- box-shadow: 0 4px 16px rgba(0,0,0,0.45), 0 0 12px rgba(201,168,76,0.15);
+   height: auto;
+   min-height: 72px;
+   padding: 10px 0;
+   border-radius: 999px;
+   border: 1.5px solid rgba(201, 168, 76, 0.6);
+   background: rgba(10, 10, 18, 0.72);
+   backdrop-filter: blur(12px);
+   -webkit-backdrop-filter: blur(12px);
+   color: var(--gold-l);
+   font-size: 11px;
+   font-weight: 600;
+   letter-spacing: 2px;
+   white-space: normal;
+   word-break: break-all;
+   writing-mode: vertical-rl;
+   text-orientation: mixed;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   line-height: 1.4;
+   cursor: pointer;
+   pointer-events: auto;
+   transition: all 0.25s ease;
+   -webkit-tap-highlight-color: transparent !important;
+   user-select: none;
+   box-shadow: 0 4px 16px rgba(0,0,0,0.45), 0 0 12px rgba(201,168,76,0.15);
  }
-
- .lb-mobile-version-switch .switch-symbol {
- display: inline-block;
- writing-mode: horizontal-tb;
- text-orientation: mixed;
- font-size: 18px;
- font-family: Arial, sans-serif;
- font-weight: 400;
- line-height: 1;
- width: 18px;
- height: 18px;
- margin: 0 0 4px 0;
- transform: rotate(90deg);
- transform-origin: center;
- letter-spacing: 0;
- }
-
- .lb-mobile-version-switch .switch-text {
- writing-mode: vertical-rl;
- text-orientation: upright;
- font-size: 11px;
- line-height: 1.4;
- letter-spacing: 2px;
- }
-
- .lb-mobile-version-switch button:active {
- transform: scale(0.93);
- }
+ .lb-mobile-version-switch button:active { transform: scale(0.93); }
 
             /* ---- 信息区域 (紧贴图片底部) ---- */
             .lb-mobile-info-area {
@@ -570,28 +479,13 @@ transform: translateY(0); } }
 
             /* 小屏手机适配 */
             @media (max-width: 480px) {
- .lb-mobile-version-switch button {
- width: 30px;
- min-height: 64px;
- font-size: 11px;
- }
-
- .lb-mobile-version-switch {
- right: 14px;
- top: 52px;
- }
-
- .lb-mobile-version-switch .switch-symbol {
- font-size: 18px;
- width: 18px;
- height: 18px;
- }
-
- .lb-mobile-info-area { padding: 12px 14px 16px; }
- .lb-mobile-info-area .mi-title { font-size: 19px; }
- .lb-mobile-info-area .mi-desc { font-size: 12px; }
- .lb-mobile-buy-fixed button { padding: 7px 18px; font-size: 12px; }
- }
+                .lb-mobile-version-switch button { width: 30px; min-height: 64px; font-size: 10px; }
+ .lb-mobile-version-switch { right: 14px; top: 52px; }
+                .lb-mobile-info-area { padding: 12px 14px 16px; }
+                .lb-mobile-info-area .mi-title { font-size: 19px; }
+                .lb-mobile-info-area .mi-desc { font-size: 12px; }
+                .lb-mobile-buy-fixed button { padding: 7px 18px; font-size: 12px; }
+            }
         }
 
         /* ============================================================
@@ -748,24 +642,8 @@ transform: translateY(0); } }
     </div>
 
     <section class="gallery">
- <div class="g-grid" id="galleryGrid">
-   <div class="g-col initial-skeleton-col">
-     <div class="initial-skeleton-card"><div class="initial-skeleton-image"></div></div>
-     <div class="initial-skeleton-card"><div class="initial-skeleton-image"></div></div>
-     <div class="initial-skeleton-card"><div class="initial-skeleton-image"></div></div>
-   </div>
-   <div class="g-col initial-skeleton-col">
-     <div class="initial-skeleton-card"><div class="initial-skeleton-image"></div></div>
-     <div class="initial-skeleton-card"><div class="initial-skeleton-image"></div></div>
-     <div class="initial-skeleton-card"><div class="initial-skeleton-image"></div></div>
-   </div>
-   <div class="g-col initial-skeleton-col desktop-skeleton-col">
-     <div class="initial-skeleton-card"><div class="initial-skeleton-image"></div></div>
-     <div class="initial-skeleton-card"><div class="initial-skeleton-image"></div></div>
-     <div class="initial-skeleton-card"><div class="initial-skeleton-image"></div></div>
-   </div>
- </div>
- </section>
+        <div class="g-grid" id="galleryGrid"></div>
+    </section>
 
     <footer class="footer" style="position: relative; z-index: 1; padding: 56px 52px; border-top: 1px solid rgba(124, 159, 75, 0.12); display: flex; align-items: center; justify-content: space-between;">
         <div>
@@ -896,64 +774,41 @@ transform: translateY(0); } }
 
         // 首页卡片渐进式加载（3:4占位 -> 模糊色块 -> 容器自适应比例 -> 600P缩略图）
         function loadGalleryCardImage(imgEl, wrapEl, ver) {
- if (!imgEl || !ver) return;
+            if (!imgEl || !ver) return;
+            
+            const blurUrl = ver.blur || ver.thumb || ver.src;
+            const thumbUrl = ver.thumb || ver.src;
 
- const blurUrl = ver.blur || ver.thumb || ver.src;
- const thumbUrl = ver.thumb || ver.src;
+            // 1. 先展示 10KB 内的模糊色块图并打上高斯模糊
+            imgEl.classList.add('is-blur');
+            imgEl.src = blurUrl;
 
- imgEl.classList.add('is-blur');
-
- const blurImage = new Image();
-
- blurImage.onload = () => {
-   imgEl.src = blurUrl;
-   imgEl.style.opacity = '1';
-
-   const thumbImage = new Image();
-
-   thumbImage.onload = () => {
-     imgEl.src = thumbUrl;
-     imgEl.classList.remove('is-blur');
-
-     if (
-       wrapEl &&
-       thumbImage.naturalWidth &&
-       thumbImage.naturalHeight
-     ) {
-       wrapEl.style.aspectRatio =
-         `${thumbImage.naturalWidth} / ${thumbImage.naturalHeight}`;
-     }
-   };
-
-   thumbImage.onerror = () => {
-     imgEl.classList.remove('is-blur');
-   };
-
-   thumbImage.src = thumbUrl;
+            // 当色块图加载完成后，立刻解封 3:4 比例限制，自适应图片真实比例
+ imgEl.onload = () => {
+ if (wrapEl) {
+ wrapEl.style.paddingBottom = '0';
+ imgEl.style.position = 'relative';
+ imgEl.style.height = 'auto';
+ imgEl.style.objectFit = 'contain';
+ }
+ imgEl.classList.add('is-loaded');
+ 
+ // 2. 静默后台加载 600P 缩略图，加载完毕无缝替换并解除虚化
+ if (thumbUrl && thumbUrl !== blurUrl) {
+ const tempThumb = new Image();
+ tempThumb.src = thumbUrl;
+ tempThumb.onload = () => {
+ imgEl.src = thumbUrl;
+ imgEl.classList.remove('is-blur');
  };
-
- blurImage.onerror = () => {
-   const thumbImage = new Image();
-
-   thumbImage.onload = () => {
-     imgEl.src = thumbUrl;
-     imgEl.style.opacity = '1';
-     imgEl.classList.remove('is-blur');
-
-     if (
-       wrapEl &&
-       thumbImage.naturalWidth &&
-       thumbImage.naturalHeight
-     ) {
-       wrapEl.style.aspectRatio =
-         `${thumbImage.naturalWidth} / ${thumbImage.naturalHeight}`;
-     }
-   };
-
-   thumbImage.src = thumbUrl;
+ } else {
+ imgEl.classList.remove('is-blur');
+ }
+ // 后台修正标签判定，不再阻塞页面渲染
+ if (imgEl.naturalWidth && imgEl.naturalHeight) {
+ ver.label = (imgEl.naturalWidth > imgEl.naturalHeight) ? '横版' : '竖版';
+ }
  };
-
- blurImage.src = blurUrl;
  }
 
         // 灯箱大图无感秒开与自动尺寸检测（修复错乱与切换闪烁Bug）
@@ -1016,357 +871,181 @@ function loadLightboxImage(imgEl, ver) {
         // ==========================================
         async function loadWorksFromGitHub() {
  const grid = document.getElementById('galleryGrid');
-
- let folders = [];
-
- try {
- const repoRes = await fetch(API_BASE, {
-   headers: { 'Accept': 'application/vnd.github+json' }
- });
-
- if (repoRes.ok) {
-   folders = await repoRes.json();
- }
- } catch (e) {
- console.warn('GitHub目录读取失败，启用备用目录');
- }
-
- if (!Array.isArray(folders) || folders.length === 0) {
- folders = [
-   { name: '01财神七仔', type: 'dir' },
-   { name: '02弥勒七仔', type: 'dir' },
-   { name: '03如来七仔', type: 'dir' },
-   { name: '04悟空七仔', type: 'dir' },
-   { name: '05小女孩骑着七仔', type: 'dir' }
- ];
- }
-
- const sortedFolders = folders
-   .filter(item => item.type === 'dir' || item.name)
-   .sort((a, b) => a.name.localeCompare(b.name, 'zh-CN', { numeric: true }));
-
- // 目录一旦拿到，就立即把对应数量的3:4稳定骨架放好。
- // 后面只填内容，不再重建整个网格，因此页面不会二次跳变。
- createStableGallerySlots(sortedFolders.length);
-
- // 每个文件夹独立加载。
- // 一个作品完成就立即显示一个，绝不等待其他作品。
- sortedFolders.forEach((folder, index) => {
-   loadSingleWork(folder, index).catch(err => {
-     console.warn('作品加载失败:', folder.name, err);
-   });
- });
- }
-
- function createStableGallerySlots(count) {
- const grid = document.getElementById('galleryGrid');
  const colCount = window.innerWidth <= 900 ? 2 : 3;
- const cols = Array.from({ length: colCount }, () => []);
+ const skeletonCard = `<div 
+style="position:relative;border-radius:6px;overflow:hidden;background:var(--bg3);border:1px solid 
+var(--b-sub);animation:fadeUp 0.7s ease both;"><div 
+style="width:100%;padding-bottom:133.33%;background:linear-gradient(135deg,var(--bg2) 
+0%,var(--bg3) 50%,var(--bg2) 100%);background-size:200% 
+200%;animation:skeletonShimmer 1.8s ease infinite;"></div></div>`;
+ const skeletonCol = Array(3).fill(skeletonCard).join('');
+ // 开启网页瞬间注入骨架，无缝衔接获取数据过程
+ grid.innerHTML = Array(colCount).fill(`<div class="g-col">${skeletonCol}</div>`).join('');
+ let folders = [];
+ const timestamp = new Date().getTime();
 
- for (let i = 0; i < count; i++) {
-   cols[i % colCount].push(`
-     <div class="art-card progressive-card" id="progressive-card-${i}">
-       <div class="img-wrap" id="img-wrap-${i}">
-         <div class="progressive-skeleton" id="progressive-skeleton-${i}"></div>
-         <img id="card-img-${i}" alt="" />
-       </div>
-       <div class="art-overlay progressive-overlay" id="progressive-overlay-${i}"></div>
-       <div class="art-info progressive-info" id="progressive-info-${i}"></div>
-       <button class="art-buy progressive-buy" id="progressive-buy-${i}" style="visibility:hidden;">购买收藏</button>
-     </div>
-   `);
- }
+            try {
+                const repoRes = await fetch(`${API_BASE}?t=${timestamp}`);
+                if (repoRes.ok) {
+                    folders = await repoRes.json();
+                }
+            } catch (e) {
+                console.warn('动态读取目录超时，启用本地结构');
+            }
 
- grid.innerHTML = cols.map(col =>
-   `<div class="g-col">${col.join('')}</div>`
- ).join('');
- }
+            if (!Array.isArray(folders) || folders.length === 0) {
+                folders = [
+                    { name: '01财神七仔', type: 'dir' },
+                    { name: '02弥勒七仔', type: 'dir' },
+                    { name: '03如来七仔', type: 'dir' },
+                    { name: '04悟空七仔', type: 'dir' },
+                    { name: '05小女孩骑着七仔', type: 'dir' }
+                ];
+            }
 
- async function loadSingleWork(folder, index) {
- const folderName = folder.name;
- let files = [];
+            try {
+                let sortedFolders = folders
+                    .filter(item => item.type === 'dir' || item.name)
+                    .sort((a, b) => a.name.localeCompare(b.name, 'zh-CN', { numeric: true }));
 
- try {
-   const folderUrl = `${API_BASE}/${encodeURIComponent(folderName)}`;
-   const fileRes = await fetch(folderUrl, {
-     headers: { 'Accept': 'application/vnd.github+json' }
-   });
+                const promises = sortedFolders.map(async (folder) => {
+                    const folderName = folder.name;
+                    let files = [];
+                    let hasTxt = false;
 
-   if (fileRes.ok) {
-     const fileData = await fileRes.json();
-     if (Array.isArray(fileData)) {
-       files = fileData.map(f => f.name);
-     }
-   }
- } catch (e) {
-   console.warn('目录读取失败:', folderName);
- }
+                    try {
+                        const folderUrl = `${API_BASE}/${encodeURIComponent(folderName)}?t=${timestamp}`;
+                        const fileRes = await fetch(folderUrl);
+                        if (fileRes.ok) {
+                            const fileData = await fileRes.json();
+                            files = fileData.map(f => f.name);
+                        }
+                    } catch (e) {}
 
- if (files.length === 0) {
-   if (folderName.includes('01')) files = ['20260804财神七仔qsq01.webp', '20260804财神版七仔02.webp'];
-   else if (folderName.includes('02')) files = ['弥勒七仔mlq01.webp'];
-   else if (folderName.includes('03')) files = ['如来七仔rlq01.webp'];
-   else if (folderName.includes('04')) files = ['悟空七仔wqkz01.webp'];
-   else if (folderName.includes('05')) files = ['小女孩骑着七仔qzqz01.webp'];
- }
+                    if (files.length === 0) {
+                        // 模拟数据 fallback：给部分模拟数据假定存在 txt 方便离线测试
+                        if (folderName.includes('01')) { files = ['20260804财神七仔qsq01.webp', '20260804财神版七仔02.webp']; }
+                        else if (folderName.includes('02')) { files = ['弥勒七仔mlq01.webp']; }
+                        else if (folderName.includes('03')) { files = ['如来七仔rlq01.webp']; }
+                        else if (folderName.includes('04')) { files = ['悟空七仔wqkz01.webp']; }
+                        else if (folderName.includes('05')) { files = ['小女孩骑着七仔qzqz01.webp']; }
+                    }
 
- let txtContent = '';
- const txtFile = files.find(f => f.toLowerCase().endsWith('.txt'));
+                    // 异步读取目录下的 TXT 文件内容
+                    let txtContent = '';
+                    const txtFile = files.find(f => f.toLowerCase().endsWith('.txt'));
+                    if (txtFile) {
+                        try {
+                            const txtRes = await fetch(`./熊猫创意/${encodeURIComponent(folderName)}/${encodeURIComponent(txtFile)}?t=${timestamp}`);
+                            if (txtRes.ok) {
+                                txtContent = (await txtRes.text()).trim();
+                            }
+                        } catch (e) {
+                            console.warn('读取TXT文档失败:', e);
+                        }
+                    }
 
- if (txtFile) {
-   try {
-     const txtRes = await fetch(
-       `./熊猫创意/${encodeURIComponent(folderName)}/${encodeURIComponent(txtFile)}`
-     );
-     if (txtRes.ok) txtContent = (await txtRes.text()).trim();
-   } catch (e) {
-     console.warn('TXT读取失败:', folderName);
-   }
- }
+                    let images = files.filter(f => ['jpg', 'jpeg', 'png', 'webp'].includes(f.split('.').pop().toLowerCase()));
+                    if (images.length === 0) return null;
+                    images.sort();
 
- let images = files.filter(f =>
-   ['jpg', 'jpeg', 'png', 'webp'].includes(
-     f.split('.').pop().toLowerCase()
-   )
- );
+                    // 1. 三级拆分：模糊色块图、600P缩略图、高清大图
+                    const blurFiles = images.filter(f => f.includes('模糊色块'));
+                    const thumbFiles = images.filter(f => f.includes('缩略图'));
+                    const mainFiles = images.filter(f => !f.includes('模糊色块') && !f.includes('缩略图'));
+                    const baseFiles = mainFiles.length > 0 ? mainFiles : (thumbFiles.length > 0 ? thumbFiles : blurFiles);
 
- if (images.length === 0) return;
+                    // 提取不含“模糊色块”、“缩略图”的目标图片文件名
+                    const cleanFiles = mainFiles.length > 0 ? mainFiles : images;
+                    const targetImg = cleanFiles[0];
+                    const nameWithoutExt = targetImg.substring(0, targetImg.lastIndexOf('.'));
 
- images.sort();
+                    // 作品名称提取：提取不含“模糊色块”、“缩略图”图片文件名中的汉字
+                    const cnMatches = nameWithoutExt.match(/[\u4e00-\u9fa5]+/g);
+                    let extractedName = cnMatches ? cnMatches.join('') : folderName;
 
- const blurFiles = images.filter(f => f.includes('模糊色块'));
- const thumbFiles = images.filter(f => f.includes('缩略图'));
- const mainFiles = images.filter(f =>
-   !f.includes('模糊色块') && !f.includes('缩略图')
- );
+                    // 作品编码读取：读取不含“模糊色块”、“缩略图”图片文件名中汉字后面的字母数字组合
+                    const codeMatch = nameWithoutExt.match(/[\u4e00-\u9fa5]+([a-zA-Z0-9]+)/);
+                    let extractedNum = codeMatch && codeMatch[1] ? codeMatch[1].toUpperCase() : '0000';
 
- const baseFiles = mainFiles.length
-   ? mainFiles
-   : (thumbFiles.length ? thumbFiles : blurFiles);
+                    // 系列名称提取：提取作品文件夹名里“-”后面的汉字
+                    let extractedSeries = '神话系列';
+                    const dashIdx = folderName.indexOf('-');
+                    if (dashIdx !== -1) {
+                        const afterDash = folderName.substring(dashIdx + 1);
+                        const seriesCn = afterDash.match(/[\u4e00-\u9fa5]+/g);
+                        if (seriesCn) {
+                            extractedSeries = seriesCn.join('');
+                        }
+                    }
 
- const cleanFiles = mainFiles.length ? mainFiles : images;
- const targetImg = cleanFiles[0];
+                    const textData = textDataDict[extractedName] || defaultText;
+                    
+                    // 若存在 TXT 文件且有内容则优先使用 TXT 内容，否则使用配置中的故事文字
+                    const finalStory = txtContent || textData.story;
+                    if (txtContent) {
+                        hasTxt = true;
+                    } else {
+                        hasTxt = files.some(f => f.toLowerCase().endsWith('.txt'));
+                    }
 
- const nameWithoutExt = targetImg.substring(
-   0,
-   targetImg.lastIndexOf('.')
- );
+                    // 2. 构建包含（原图 src + 缩略图 thumb + 色块图 blur）的版本结构，严格区分横竖版
+                    const versions = baseFiles.map(imgName => {
+                        const lower = imgName.toLowerCase();
+                        const isHoriz = lower.includes('横') || lower.includes('02');
+                        const label = isHoriz ? '横版' : '竖版'; // 正确对应横竖版标签
 
- const cnMatches = nameWithoutExt.match(/[\u4e00-\u9fa5]+/g);
- const extractedName = cnMatches
-   ? cnMatches.join('')
-   : folderName;
+                        const matchByDirection = (fileList) => fileList.find(file => {
+                            const fLower = file.toLowerCase();
+                            return isHoriz 
+                                ? (fLower.includes('横') || fLower.includes('02')) 
+                                : (fLower.includes('竖') || (!fLower.includes('横') && !fLower.includes('02')));
+                        });
 
- const codeMatch = nameWithoutExt.match(
-   /[\u4e00-\u9fa5]+([a-zA-Z0-9]+)/
- );
+                        const matchedBlur = matchByDirection(blurFiles);
+                        const matchedThumb = matchByDirection(thumbFiles);
 
- const extractedNum =
-   codeMatch && codeMatch[1]
-     ? codeMatch[1].toUpperCase()
-     : '0000';
+                        const srcPath = `./熊猫创意/${folderName}/${imgName}`;
+                        const thumbPath = matchedThumb ? `./熊猫创意/${folderName}/${matchedThumb}` : srcPath;
+                        const blurPath = matchedBlur ? `./熊猫创意/${folderName}/${matchedBlur}` : thumbPath;
 
- let extractedSeries = '神话系列';
- const dashIdx = folderName.indexOf('-');
-
- if (dashIdx !== -1) {
-   const afterDash = folderName.substring(dashIdx + 1);
-   const seriesCn = afterDash.match(/[\u4e00-\u9fa5]+/g);
-   if (seriesCn) extractedSeries = seriesCn.join('');
- }
-
- const textData = textDataDict[extractedName] || defaultText;
- const finalStory = txtContent || textData.story;
- const hasTxt = !!txtFile;
-
- const versions = baseFiles.map(imgName => {
-   const lower = imgName.toLowerCase();
-   const isHoriz =
-     lower.includes('横') ||
-     lower.includes('02');
-
-   const matchByDirection = fileList =>
-     fileList.find(file => {
-       const fLower = file.toLowerCase();
-
-       return isHoriz
-         ? (fLower.includes('横') || fLower.includes('02'))
-         : (
-             fLower.includes('竖') ||
-             (!fLower.includes('横') && !fLower.includes('02'))
-           );
-     });
-
-   const matchedBlur = matchByDirection(blurFiles);
-   const matchedThumb = matchByDirection(thumbFiles);
-
-   const srcPath =
-     `./熊猫创意/${folderName}/${imgName}`;
-
-   const thumbPath = matchedThumb
-     ? `./熊猫创意/${folderName}/${matchedThumb}`
-     : srcPath;
-
-   const blurPath = matchedBlur
-     ? `./熊猫创意/${folderName}/${matchedBlur}`
-     : thumbPath;
-
-   return {
-     src: srcPath,
-     thumb: thumbPath,
-     blur: blurPath,
-     label: isHoriz ? '横版' : '竖版'
-   };
- });
-
- // 不再 await 图片尺寸。
- // 文件名先快速决定排序，真实尺寸稍后后台自行修正。
+                        return { 
+                            src: srcPath,      // 高清原图
+                            thumb: thumbPath,  // 600P 缩略图
+                            blur: blurPath,    // 480P 模糊色块图
+                            label: label 
+                        };
+                    });
+                    
+                    // 2.1 数据加载阶段优化：去除预加载阻塞，通过文件名直接排序识别，实现秒加载
+ // (如果在上一步解封比例时检测到真实宽高，会在后台静默修正 label，不影响当前体验)
+ 
+ // 强制排序：确保识别出的“竖版”永远排在第1位，供首页默认加载
  versions.sort((a, b) => {
-   if (a.label === '竖版' && b.label !== '竖版') return -1;
-   if (a.label !== '竖版' && b.label === '竖版') return 1;
-   return 0;
+ if (a.label === '竖版' && b.label !== '竖版') return -1;
+ if (a.label !== '竖版' && b.label === '竖版') return 1;
+ return 0;
  });
 
- const work = {
-   name: extractedName,
-   series: extractedSeries,
-   num: extractedNum,
-   desc: textData.desc,
-   story: finalStory,
-   chips: textData.chips,
-   prices: textData.prices || defaultText.prices,
-   versions,
-   hasStory: hasTxt
- };
+                    return {
+                        name: extractedName,
+                        series: extractedSeries,
+                        num: extractedNum,
+                        desc: textData.desc,
+                        story: finalStory,
+                        chips: textData.chips,
+                        prices: textData.prices || defaultText.prices,
+                        versions: versions,
+                        hasStory: hasTxt // 记录是否包含Txt文档
+                    };
+                });
 
- works[index] = work;
-
- // GitHub文字信息拿到后立即写入骨架。
- revealWorkText(index, work);
-
- // 紧接着开始：模糊色块 -> 缩略图。
- loadProgressiveWorkImage(index, work);
-
- // 后台再慢慢校正横竖版，不阻塞首页。
- detectVersionDirectionsInBackground(work);
- }
-
- function revealWorkText(index, work) {
- const card = document.getElementById(`progressive-card-${index}`);
- const info = document.getElementById(`progressive-info-${index}`);
- const buy = document.getElementById(`progressive-buy-${index}`);
-
- if (!card || !info) return;
-
- info.innerHTML = `
-   <div class="art-series">${work.series} ${String(index + 1).padStart(2, '0')}</div>
-   <div class="art-title-text">${work.name}</div>
-   <div class="art-meta-text">${work.num}</div>
- `;
-
- card.onclick = () => openLB(index);
-
- if (buy) {
-   buy.style.visibility = 'visible';
-   buy.onclick = event => {
-     event.stopPropagation();
-     openPurchase(index, 0);
-   };
- }
- }
-
- function loadProgressiveWorkImage(index, work) {
- const imgEl = document.getElementById(`card-img-${index}`);
- const wrapEl = document.getElementById(`img-wrap-${index}`);
- const skeleton = document.getElementById(`progressive-skeleton-${index}`);
-
- if (!imgEl || !wrapEl || !work.versions.length) return;
-
- const ver = work.versions[0];
- const blurUrl = ver.blur || ver.thumb || ver.src;
- const thumbUrl = ver.thumb || ver.src;
-
- imgEl.classList.add('is-blur');
-
- const blurImage = new Image();
-
- blurImage.onload = () => {
-   // 只有真正成功下载之后才显示，避免破图。
-   imgEl.src = blurUrl;
-   imgEl.style.opacity = '1';
-
-   if (skeleton) {
-     skeleton.classList.add('is-hidden');
-   }
-
-   const thumbImage = new Image();
-
-   thumbImage.onload = () => {
-     imgEl.src = thumbUrl;
-     imgEl.classList.remove('is-blur');
-
-     // 最后才根据真实图片调整比例。
-     // 因此前期始终是稳定3:4，不会加载过程中乱跳。
-     if (thumbImage.naturalWidth && thumbImage.naturalHeight) {
-       wrapEl.style.aspectRatio =
-         `${thumbImage.naturalWidth} / ${thumbImage.naturalHeight}`;
-     }
-   };
-
-   thumbImage.onerror = () => {
-     imgEl.classList.remove('is-blur');
-   };
-
-   thumbImage.src = thumbUrl;
- };
-
- blurImage.onerror = () => {
-   // 模糊图失败时直接尝试缩略图，不能让流程卡死。
-   const thumbImage = new Image();
-
-   thumbImage.onload = () => {
-     imgEl.src = thumbUrl;
-     imgEl.style.opacity = '1';
-     imgEl.classList.remove('is-blur');
-
-     if (skeleton) {
-       skeleton.classList.add('is-hidden');
-     }
-
-     if (thumbImage.naturalWidth && thumbImage.naturalHeight) {
-       wrapEl.style.aspectRatio =
-         `${thumbImage.naturalWidth} / ${thumbImage.naturalHeight}`;
-     }
-   };
-
-   thumbImage.src = thumbUrl;
- };
-
- blurImage.src = blurUrl;
- }
-
- function detectVersionDirectionsInBackground(work) {
- work.versions.forEach(ver => {
-   const probe = new Image();
-
-   probe.onload = () => {
-     if (probe.naturalWidth && probe.naturalHeight) {
-       ver.label =
-         probe.naturalWidth > probe.naturalHeight
-           ? '横版'
-           : '竖版';
-     }
-
-     work.versions.sort((a, b) => {
-       if (a.label === '竖版' && b.label !== '竖版') return -1;
-       if (a.label !== '竖版' && b.label === '竖版') return 1;
-       return 0;
-     });
-   };
-
-   probe.src = ver.thumb || ver.src;
- });
- }
+                works = (await Promise.all(promises)).filter(Boolean);
+                renderGallery();
+            } catch (err) {
+                console.error('渲染异常:', err);
+            }
+        }
 
         // ==========================================
         // 首页网格渲染
@@ -1406,13 +1085,15 @@ function loadLightboxImage(imgEl, ver) {
         }
 
         let lastWindowWidth = window.innerWidth;
- window.addEventListener('resize', () => {
- clearTimeout(window.resizeTimer);
-
- window.resizeTimer = setTimeout(() => {
-   lastWindowWidth = window.innerWidth;
- }, 300);
- });
+        window.addEventListener('resize', () => {
+            clearTimeout(window.resizeTimer);
+            window.resizeTimer = setTimeout(() => {
+                if (window.innerWidth !== lastWindowWidth) {
+                    lastWindowWidth = window.innerWidth;
+                    if (works.length > 0) renderGallery();
+                }
+            }, 300);
+        });
 
         // ==========================================
         // 灯箱控制
@@ -1739,7 +1420,7 @@ function loadLightboxImage(imgEl, ver) {
  container.innerHTML = '';
  return;
  }
- container.innerHTML = `<button onclick="event.stopPropagation(); toggleLBVersion()"><span class="switch-symbol">⇌</span><span class="switch-text">横竖版切换</span></button>`;
+ container.innerHTML = `<button onclick="event.stopPropagation(); toggleLBVersion()"><span style="font-size:16px; transform:rotate(90deg); display:inline-block; margin-bottom:4px; line-height:1;">⇌</span>横竖版切换</button>`;
  }
 
         function renderPurchaseVersions() {
@@ -1943,7 +1624,7 @@ function loadLightboxImage(imgEl, ver) {
  container.innerHTML = '';
  return;
  }
- container.innerHTML = `<button onclick="event.stopPropagation(); toggleLBVersion()"><span class="switch-symbol">⇌</span><span class="switch-text">横竖版切换</span></button>`;
+ container.innerHTML = `<button onclick="event.stopPropagation(); toggleLBVersion()">⇌ 横竖版切换</button>`;
  }
  function renderPurchaseVersions() {
  const w = works[purchaseArtIdx];
