@@ -225,44 +225,27 @@
             object-fit: contain; border-radius: 4px; border: 1px solid rgba(124, 159, 75, 0.35);
             box-shadow: 0 48px 130px rgba(0, 0, 0, .85), 0 0 80px rgba(124, 159, 75, 0.06);
         }
-        /* HD 状态感知指示灯样式 */
-        .hd-badge {
+        /* 大图加载中圆角矩形毛玻璃提示框 */
+        .lb-loading-box {
             position: absolute;
-            top: 12px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 3px 8px;
-            background: rgba(8, 8, 15, 0.65);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            transform: translate(-50%, -50%);
+            z-index: 20;
+            padding: 10px 22px;
+            background: rgba(20, 20, 30, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(201, 168, 76, 0.3);
             border-radius: 12px;
-            font-size: 10px;
-            font-weight: 600;
             color: #e8c97a;
-            letter-spacing: 1px;
+            font-size: 13px;
+            letter-spacing: 3px;
             pointer-events: none;
-            user-select: none;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-        }
-        .hd-badge .hd-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #c9a84c;
-            box-shadow: 0 0 6px #c9a84c;
-        }
-        /* 载入中状态：淡金光呼吸闪烁 */
-        .hd-badge.loading .hd-dot {
-            animation: hdPulse 1.2s infinite ease-in-out;
-        }
-        @keyframes hdPulse {
-            0%, 100% { opacity: 0.3; transform: scale(0.8); box-shadow: 0 0 2px rgba(201, 168, 76, 0.4); }
-            50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 10px rgba(232, 201, 122, 0.9); }
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
         }
 
         @keyframes zoomIn { from { transform: scale(0.88); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -734,37 +717,40 @@
             };
         }
 
-        // 灯箱大图无感秒开（带 HD 状态感知微提示，载入中闪烁淡金光，替换完成后常亮）
+        // 灯箱大图秒开（600P全屏秒开，未加载完1080P时显示毛玻璃“加载中”，加载完成后消失）
         function loadLightboxImage(imgEl, ver) {
             if (!imgEl || !ver) return;
             
             const quickSrc = ver.thumb || ver.blur || ver.src;
             const fullSrc = ver.src;
 
-            // 自动检测/创建角标
+            // 获取或创建毛玻璃“加载中”提示框
             const cardEl = imgEl.parentElement;
-            let hdBadge = cardEl ? cardEl.querySelector('.hd-badge') : null;
-            if (!hdBadge && cardEl) {
-                hdBadge = document.createElement('div');
-                hdBadge.className = 'hd-badge loading';
-                hdBadge.innerHTML = '<span class="hd-dot"></span>HD';
-                cardEl.appendChild(hdBadge);
+            let loadingBox = cardEl ? cardEl.querySelector('.lb-loading-box') : null;
+            if (!loadingBox && cardEl) {
+                loadingBox = document.createElement('div');
+                loadingBox.className = 'lb-loading-box';
+                loadingBox.textContent = '加载中';
+                cardEl.appendChild(loadingBox);
             }
 
-            // 瞬间先渲染已有的 600P 缩略图
+            // 1. 600P 缩略图秒开全屏显示
             imgEl.src = quickSrc;
 
-            // 后台加载高清原图
+            // 2. 当 1080P 大图未加载完成时显示毛玻璃“加载中”，加载完成后隐藏
             if (fullSrc && fullSrc !== quickSrc) {
-                if (hdBadge) hdBadge.classList.add('loading'); // 载入中闪烁
+                if (loadingBox) loadingBox.style.display = 'flex';
                 const highRes = new Image();
                 highRes.src = fullSrc;
                 highRes.onload = () => {
                     imgEl.src = fullSrc;
-                    if (hdBadge) hdBadge.classList.remove('loading'); // 替换完成常亮
+                    if (loadingBox) loadingBox.style.display = 'none';
+                };
+                highRes.onerror = () => {
+                    if (loadingBox) loadingBox.style.display = 'none';
                 };
             } else {
-                if (hdBadge) hdBadge.classList.remove('loading');
+                if (loadingBox) loadingBox.style.display = 'none';
             }
         }
 
@@ -1357,7 +1343,7 @@
             }
             // 在 onclick 中加入 event.stopPropagation()，阻止点击冒泡到手势容器
             container.innerHTML = w.versions.map((v, i) =>
-                `<button class="${i===curVer?'active':''}" style="font-size: 14px;" onclick="event.stopPropagation(); switchLBVersion(${i})">${i === 0 ? '竖' : '横'}</button>`
+                `<button class="${i===curVer?'active':''}" style="font-size: 14px;" onclick="event.stopPropagation(); switchLBVersion(${i})">${v.label ? v.label.charAt(0) : (i === 0 ? '竖' : '横')}</button>`
             ).join('');
         }
 
@@ -1552,7 +1538,7 @@
             const container = document.getElementById('purchaseVersionSwitch');
             if (!w || !w.versions || w.versions.length <= 1) { container.innerHTML = ''; return; }
             container.innerHTML = w.versions.map((v, i) =>
-                `<button class="v-switch-btn${i===purchaseVer?' active':''}" onclick="switchPurchaseVersion(${i})">${i === 0 ? '竖' : '横'}</button>`
+                `<button class="v-switch-btn${i===purchaseVer?' active':''}" onclick="switchPurchaseVersion(${i})">${v.label ? v.label.charAt(0) : (i === 0 ? '竖' : '横')}</button>`
             ).join('');
         }
 
