@@ -1653,23 +1653,35 @@ onclick="togglePurchaseVersion()">横竖版切换</button>`;
         function updatePurchaseThumb() {
  const w = works[purchaseArtIdx];
  const group = document.getElementById('purchaseThumbGroup');
- if (group) {
- group.innerHTML = w.versions.map((v, i) => `<img id="p-thumb-${i}" 
-class="purchase-thumb-img is-blur" src="" alt="作品缩略图" style="opacity:1; width:100%; height:auto; min-height:0; aspect-ratio: auto;" 
-/>`).join('');
+ if (!group) return;
+
+ // 先清空容器
+ group.innerHTML = '';
+
  w.versions.forEach((v, i) => {
- const imgEl = document.getElementById('p-thumb-' + i);
- if (!imgEl) return;
  const blurUrl = v.blur || v.thumb || v.src;
  const thumbUrl = v.thumb || v.src;
- imgEl.onload = function() {
+
+ const imgEl = document.createElement('img');
+ imgEl.id = 'p-thumb-' + i;
+ imgEl.className = 'purchase-thumb-img is-blur';
+ imgEl.alt = '作品缩略图';
+ imgEl.style.opacity = '1';
  imgEl.style.width = '100%';
  imgEl.style.height = 'auto';
  imgEl.style.minHeight = '0';
+ group.appendChild(imgEl);
+
+ // 模糊色块加载完成后，再静默加载600P缩略图
+ imgEl.onload = function() {
+ imgEl.onload = null; // 防止重复触发
  if (thumbUrl && thumbUrl !== blurUrl) {
  const tmp = new Image();
  tmp.onload = function() {
  imgEl.src = thumbUrl;
+ imgEl.classList.remove('is-blur');
+ };
+ tmp.onerror = function() {
  imgEl.classList.remove('is-blur');
  };
  tmp.src = thumbUrl;
@@ -1677,12 +1689,19 @@ class="purchase-thumb-img is-blur" src="" alt="作品缩略图" style="opacity:1
  imgEl.classList.remove('is-blur');
  }
  };
+
+ imgEl.onerror = function() {
+ // 模糊色块加载失败，直接尝试缩略图
+ imgEl.onerror = null;
+ imgEl.classList.remove('is-blur');
+ if (imgEl.src !== thumbUrl) {
+ imgEl.src = thumbUrl;
+ }
+ };
+
+ // 最后才赋值src，确保onload事件已绑定
  imgEl.src = blurUrl;
- if (imgEl.complete && imgEl.naturalWidth > 0) {
- imgEl.onload();
- }
  });
- }
  }
 
         function renderMobileVersionSwitch() {
