@@ -136,13 +136,16 @@
  }
  .sec-line-glow {
  width: 100%; max-width: 500px; height: 1px;
- background: linear-gradient(90deg, transparent, rgba(201, 168, 76, 0.35), transparent);
- position: relative;
+ background: linear-gradient(90deg, transparent, rgba(201, 168, 76, 0.7), transparent);
+ position: relative; display: flex; justify-content: center; align-items: center;
+ }
+ .sec-line-glow::before {
+ content: ''; position: absolute; width: 28px; height: 1.5px; background: #fff;
+ border-radius: 50%; box-shadow: 0 0 10px var(--gold-l), 0 0 20px var(--gold);
  }
  .sec-line-glow::after {
- content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
- width: 5px; height: 5px; border-radius: 50%; background: var(--gold-l);
- box-shadow: 0 0 10px var(--gold-l), 0 0 20px var(--gold);
+ content: ''; position: absolute; width: 1.5px; height: 28px; background: #fff;
+ border-radius: 50%; box-shadow: 0 0 10px var(--gold-l), 0 0 20px var(--gold);
  }
 
         /* ===== 作品网格 ===== */
@@ -545,7 +548,10 @@ gap: 14px; width: 170px; border-right: 1px solid rgba(255, 255, 255, 0.08); padd
         .purchase-note-highlight { padding: 12px 14px; background: rgba(255, 200, 80, 0.05); border: 1px solid rgba(255, 200, 80, 0.5); border-radius: 6px; font-size: 11px; color: #ffd580; letter-spacing: 1px; animation: softPulse 2.2s ease-in-out infinite; line-height: 1.6; display: flex; justify-content: center; align-items: center; gap: 10px; }
         .purchase-note-highlight strong { font-size: 13px; color: #fff; letter-spacing: 2px; }
         .warn-icon { font-size: 36px; line-height: 1; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-        .note-text { line-height: 1.6; text-align: justify; text-justify: inter-ideograph; word-break: normal; line-break: strict; }
+        .note-text { display: flex; flex-direction: column; gap: 6px; text-align: justify; text-justify: inter-ideograph; word-break: normal; line-break: strict; overflow: hidden; width: 100%; }
+ .note-line1 { font-size: 13px; line-height: 1.5; color: #ffd580; }
+ .note-line1 strong { font-size: 15px; color: #fff; letter-spacing: 1px; }
+ .note-line2 { font-size: 10px; line-height: 1.2; color: rgba(255, 213, 128, 0.7); white-space: nowrap; letter-spacing: 0; }
         .tier-row { display: flex; gap: 0; }
         .p-tier { flex: 1; padding: 14px 10px; text-align: center; position: relative; cursor: default; border: none; transition: none; }
         .p-tier:not(:last-child)::after { content: ''; position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: 2px; height: 36px; background: rgba(255, 255, 255, 0.25); }
@@ -555,7 +561,8 @@ gap: 14px; width: 170px; border-right: 1px solid rgba(255, 255, 255, 0.08); padd
         .pay-switch { display: flex; gap: 0; border: 2px solid var(--b-sub); border-radius: 4px; overflow: hidden; }
         .pay-btn { flex: 1; padding: 10px; background: transparent; border: none; color: var(--t2); font-size: 11px; letter-spacing: 2px; cursor: pointer; transition: 0.3s; font-family: inherit; -webkit-tap-highlight-color: transparent !important; }
         .pay-btn.active { background: rgba(124, 159, 75, 0.15); color: var(--bamboo); font-weight: 600; }
-        .qr-code-img { width: 130px; height: 130px; margin: 0 auto; background: #fff; border-radius: 6px; padding: 6px; align-self: center; }
+        .qr-code-img { width: 200px; height: 200px; margin: 0 auto; background: #fff; 
+border-radius: 8px; padding: 8px; align-self: center; flex-shrink: 0; }
         .qr-code-img img { width: 100%; height: 100%; object-fit: contain; }
         .purchase-steps { display: flex; gap: 14px; font-size: 9px; color: var(--t2); letter-spacing: 0.5px; justify-content: center; margin-top: 4px; }
         .p-step { display: flex; align-items: center; gap: 6px; }
@@ -573,7 +580,7 @@ border-right: none; padding-right: 0; }
  .p-tier:not(:last-child)::after { width: 2px; height: 30px; background: rgba(255, 255, 255, 0.2); }
  .p-tier-name { font-size: 10px; white-space: nowrap; letter-spacing: 0; }
             .p-tier-price { font-size: 16px; }
-            .qr-code-img { width: 110px; height: 110px; }
+            .qr-code-img { width: 200px; height: 200px; }
         }
 
         /* ============================================================
@@ -691,11 +698,12 @@ border-right: none; padding-right: 0; }
  </div>
             <div class="purchase-right">
                 <div class="purchase-note-highlight" id="purchaseNote">
-                    <span class="warn-icon">⚠</span>
-                    <span class="note-text">
-                        付款备注：<strong id="purchaseNoteCode">QSQ01</strong> + （邮箱/微信/QQ）三选一，或收件地址。<br>勿必填写付款备注，以便我第一时间发送文件！
-                    </span>
-                </div>
+ <span class="warn-icon">⚠</span>
+ <div class="note-text">
+ <div class="note-line1">付款备注：<strong id="purchaseNoteCode">QSQ01</strong> + (邮箱/微信/QQ)三选一，或收件地址。</div>
+ <div class="note-line2">勿必填写付款备注，以便我第一时间发送文件！</div>
+ </div>
+ </div>
                 <div class="tier-row" id="purchaseTiers"></div>
                 <div class="pay-switch">
                     <button class="pay-btn active" onclick="switchPurchasePay(0)">微信支付</button>
