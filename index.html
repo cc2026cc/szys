@@ -652,9 +652,9 @@ min-width: 0; }
 
     <header class="header">
         <div class="logo">
-            <img class="logo-img" src="熊猫logo.webp" alt="熊猫创意 Logo">
+            <img class="logo-img" src="熊猫logo.webp" alt="滚滚治愈馆 Logo">
             <div class="logo-words">
-                <span class="logo-cn">熊猫创意</span>
+                <span class="logo-cn">滚滚治愈馆</span>
                 <span class="logo-en">PANDA CREATION</span>
             </div>
         </div>
@@ -679,7 +679,7 @@ min-width: 0; }
 
     <footer class="footer" style="position: relative; z-index: 1; padding: 56px 52px; border-top: 1px solid rgba(124, 159, 75, 0.12); display: flex; align-items: center; justify-content: space-between;">
         <div>
-            <div style="font-size: 17px; font-weight: 300; letter-spacing: 8px; color: var(--t2); margin-bottom: 7px;">熊猫创意</div>
+            <div style="font-size: 17px; font-weight: 300; letter-spacing: 8px; color: var(--t2); margin-bottom: 7px;">滚滚治愈馆</div>
             <div style="font-size: 9px; letter-spacing: 2px; color: var(--t3);">© 2024 · 七仔数字艺术 · 未经授权不得转载或商用</div>
         </div>
         <div style="font-size: 9px; letter-spacing: 2px; color: var(--t3);">多种收藏规格</div>
@@ -773,7 +773,7 @@ min-width: 0; }
         // ==========================================
         const GITHUB_USERNAME = "cc2026cc";
         const REPO_NAME = "szys";
-        const API_BASE = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/熊猫创意`;
+        const API_BASE = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/滚滚治愈馆`;
 
         let works = [];
         const tierNames = ['壁纸级数字版', '6寸艺术微喷实体', '16寸收藏级实体版'];
@@ -967,7 +967,7 @@ style="width:100%;padding-bottom:133.33%;background:linear-gradient(135deg,var(-
                     const txtFile = files.find(f => f.toLowerCase().endsWith('.txt'));
                     if (txtFile) {
                         try {
-                            const txtRes = await fetch(`./熊猫创意/${encodeURIComponent(folderName)}/${encodeURIComponent(txtFile)}?t=${timestamp}`);
+                            const txtRes = await fetch(`./滚滚治愈馆/${encodeURIComponent(folderName)}/${encodeURIComponent(txtFile)}?t=${timestamp}`);
                             if (txtRes.ok) {
                                 txtContent = (await txtRes.text()).trim();
                             }
@@ -1037,9 +1037,9 @@ style="width:100%;padding-bottom:133.33%;background:linear-gradient(135deg,var(-
                         const matchedBlur = matchByDirection(blurFiles);
                         const matchedThumb = matchByDirection(thumbFiles);
 
-                        const srcPath = `./熊猫创意/${folderName}/${imgName}`;
-                        const thumbPath = matchedThumb ? `./熊猫创意/${folderName}/${matchedThumb}` : srcPath;
-                        const blurPath = matchedBlur ? `./熊猫创意/${folderName}/${matchedBlur}` : thumbPath;
+                        const srcPath = `./滚滚治愈馆/${folderName}/${imgName}`;
+                        const thumbPath = matchedThumb ? `./滚滚治愈馆/${folderName}/${matchedThumb}` : srcPath;
+                        const blurPath = matchedBlur ? `./滚滚治愈馆/${folderName}/${matchedBlur}` : thumbPath;
 
                         return { 
                             src: srcPath,      // 高清原图
