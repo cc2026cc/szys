@@ -1632,28 +1632,30 @@ onclick="togglePurchaseVersion()">横竖版切换</button>`;
  renderPurchaseTiers();
  document.getElementById('qrWx').style.display = 'block';
             document.getElementById('qrAli').style.display = 'none';
-            document.querySelectorAll('.pay-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
-            document.getElementById('purchaseModal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
+            document.querySelectorAll('.pay-btn').forEach((b, i) => b.classList.toggle('active', i 
+=== 0));
+ document.getElementById('purchaseModal').classList.add('active');
+ document.body.style.overflow = 'hidden';
+ document.documentElement.style.overflow = 'hidden'; // 双重封锁，专治部分安卓机型
+ }
 
         function openPurchaseFromLB() {
             openPurchase(cur, curVer);
         }
 
         function closePurchaseModal() {
-            document.getElementById('purchaseModal').classList.remove('active');
-            document.body.style.overflow = '';
-        }
+ document.getElementById('purchaseModal').classList.remove('active');
+ document.body.style.overflow = '';
+ document.documentElement.style.overflow = ''; // 解除双重封锁
+ }
 
         function updatePurchaseThumb() {
  const w = works[purchaseArtIdx];
  const group = document.getElementById('purchaseThumbGroup');
  if (group) {
- group.innerHTML = w.versions.map((v, i) => `<img id="p-thumb-${i}" class="purchase-thumb-img" src="${v.blur || v.thumb || v.src}" alt="作品缩略图" />`).join('');
- w.versions.forEach((v, i) => {
- loadGalleryCardImage(document.getElementById(`p-thumb-${i}`), null, v);
- });
+ // 直接赋予最终缩略图地址，移除小图的渐进式加载机制，解决浏览器缓存导致事件丢失引发的细长条Bug
+ group.innerHTML = w.versions.map((v, i) => `<img id="p-thumb-${i}" 
+class="purchase-thumb-img" src="${v.thumb || v.src}" alt="作品缩略图" style="opacity: 1;" />`).join('');
  }
  }
 
@@ -1787,12 +1789,23 @@ onclick="togglePurchaseVersion()">横竖版切换</button>`;
 
         document.querySelector('.wx-qr-bg').addEventListener('click', closeWxQR);
 
-        const purchaseBgEl = document.querySelector('.purchase-bg');
-        if (purchaseBgEl) {
-            purchaseBgEl.addEventListener('touchmove', function(e) {
-                e.preventDefault();
-            }, { passive: false });
-        }
-    </script>
+        // 全局暴力拦截弹窗层的滑动，彻底阻断安卓浏览器的“橡皮筋”透底效应
+ const purchaseModalEl = document.getElementById('purchaseModal');
+ if (purchaseModalEl) {
+ purchaseModalEl.addEventListener('touchmove', function(e) {
+ // 如果手指滑动的区域不是中间的弹窗面板，直接强制掐断滑动事件
+ if (!e.target.closest('.purchase-box')) {
+ e.preventDefault();
+ }
+ }, { passive: false });
+ }
+
+ const purchaseBgEl = document.querySelector('.purchase-bg');
+ if (purchaseBgEl) {
+ purchaseBgEl.addEventListener('touchmove', function(e) {
+ e.preventDefault();
+ }, { passive: false });
+ }
+ </script>
 </body>
 </html>
