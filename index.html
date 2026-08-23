@@ -309,7 +309,8 @@ transition: opacity 0.45s ease; overscroll-behavior: contain; }
         .lb-dot.on { background: var(--bamboo); width: 10px; height: 10px; border-color: var(--bamboo); box-shadow: 0 0 10px rgba(124, 159, 75, 0.9); }
 
         /* PC 右侧面板 */
- .lb-panel { width: 310px; flex-shrink: 0; padding: 40px 36px 40px 8px; max-height: 100vh; display: flex; 
+ .lb-panel { width: 403px; flex-shrink: 0; padding: 40px 36px 40px 8px; max-height: 100vh; 
+display: flex; 
 flex-direction: column; justify-content: center; }
  .lb-info { margin-bottom: 24px; flex-shrink: 0; }
  .lb-tag-row { display: flex; align-items: center; gap: 10px; font-size: 9px; letter-spacing: 
@@ -582,7 +583,7 @@ transition: filter 0.4s ease; }
         .pay-btn { flex: 1; padding: 10px; background: transparent; border: none; color: var(--t2); font-size: 11px; letter-spacing: 2px; cursor: pointer; transition: 0.3s; font-family: inherit; -webkit-tap-highlight-color: transparent !important; }
         .pay-btn.active { background: rgba(124, 159, 75, 0.15); color: var(--bamboo); font-weight: 600; }
         .qr-code-img { width: 200px; height: 200px; margin: 0 auto; background: #fff; 
-border-radius: 8px; padding: 8px; align-self: center; flex-shrink: 0; }
+border-radius: 8px; padding: 4px; align-self: center; flex-shrink: 0; }
         .qr-code-img img { width: 100%; height: 100%; object-fit: contain; }
         .purchase-steps { display: flex; gap: 14px; font-size: 9px; color: var(--t2); letter-spacing: 0.5px; justify-content: center; margin-top: 4px; }
         .p-step { display: flex; align-items: center; gap: 6px; }
@@ -597,8 +598,8 @@ border-radius: 8px; padding: 8px; align-self: center; flex-shrink: 0; }
 border-right: none; padding-right: 0; }
  .purchase-thumb-group { display: flex; flex-direction: row; gap: 10px; flex: 1; min-width: 0; 
 max-width: 60vw; }
- .purchase-thumb-img { flex: 1; min-width: 0; width: 100%; height: 110px; max-height: 
-110px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); background: 
+ .purchase-thumb-img { flex: 1; min-width: 0; width: 100%; height: auto; min-height: 0; max-height: 
+160px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); background: 
 var(--bg2); object-fit: contain; display: block; transition: filter 0.4s ease; }
  .tier-row { flex-direction: row; gap: 0; justify-content: space-around; }
  .p-tier { flex: 1; padding: 10px 2px; border: none !important; cursor: default; 
@@ -1653,9 +1654,34 @@ onclick="togglePurchaseVersion()">横竖版切换</button>`;
  const w = works[purchaseArtIdx];
  const group = document.getElementById('purchaseThumbGroup');
  if (group) {
- // 直接赋予最终缩略图地址，移除小图的渐进式加载机制，解决浏览器缓存导致事件丢失引发的细长条Bug
  group.innerHTML = w.versions.map((v, i) => `<img id="p-thumb-${i}" 
-class="purchase-thumb-img" src="${v.thumb || v.src}" alt="作品缩略图" style="opacity: 1;" />`).join('');
+class="purchase-thumb-img is-blur" src="" alt="作品缩略图" style="opacity:1; width:100%; height:auto; min-height:0; aspect-ratio: auto;" 
+/>`).join('');
+ w.versions.forEach((v, i) => {
+ const imgEl = document.getElementById('p-thumb-' + i);
+ if (!imgEl) return;
+ const blurUrl = v.blur || v.thumb || v.src;
+ const thumbUrl = v.thumb || v.src;
+ imgEl.onload = function() {
+ imgEl.style.width = '100%';
+ imgEl.style.height = 'auto';
+ imgEl.style.minHeight = '0';
+ if (thumbUrl && thumbUrl !== blurUrl) {
+ const tmp = new Image();
+ tmp.onload = function() {
+ imgEl.src = thumbUrl;
+ imgEl.classList.remove('is-blur');
+ };
+ tmp.src = thumbUrl;
+ } else {
+ imgEl.classList.remove('is-blur');
+ }
+ };
+ imgEl.src = blurUrl;
+ if (imgEl.complete && imgEl.naturalWidth > 0) {
+ imgEl.onload();
+ }
+ });
  }
  }
 
