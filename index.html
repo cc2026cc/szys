@@ -309,20 +309,34 @@ transition: opacity 0.45s ease; overscroll-behavior: contain; }
         .lb-dot.on { background: var(--bamboo); width: 10px; height: 10px; border-color: var(--bamboo); box-shadow: 0 0 10px rgba(124, 159, 75, 0.9); }
 
         /* PC 右侧面板 */
-        .lb-panel { width: 310px; flex-shrink: 0; padding: 0 36px 0 8px; display: flex; flex-direction: column; justify-content: center; }
-        .lb-info { margin-bottom: 24px; }
-        .lb-tag-row { display: flex; align-items: center; gap: 10px; font-size: 9px; letter-spacing: 3px; color: var(--bamboo); margin-bottom: 14px; position: relative; z-index: 2; }
-        .lb-tag-row::before { content: ''; width: 18px; height: 1px; background: var(--bamboo); }
-        .lb-ghost-num { font-size: 88px; font-weight: 200; line-height: 1; color: rgba(124, 159, 75, 0.12); margin-bottom: -10px; letter-spacing: -4px; user-select: none; z-index: 0; position: relative; }
-        .lb-art-name { font-size: 26px; font-weight: 600; letter-spacing: 5px; color: var(--t1); margin-bottom: 10px; position: relative; z-index: 2; }
-        .lb-art-desc { font-size: 11px; color: var(--t2); letter-spacing: 1.5px; line-height: 2.1; margin-bottom: 18px; }
-        .lb-art-chips { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 16px; }
-        .lb-chip { padding: 3px 10px; border: 1px solid var(--b-sub); font-size: 8px; letter-spacing: 2px; color: var(--t2); border-radius: 2px; }
-        .lb-story { margin-top: 16px; border-top: 1px solid var(--b-sub); padding-top: 16px; }
-        .lb-story-title { font-size: 9px; letter-spacing: 4px; color: var(--bamboo); margin-bottom: 10px; text-transform: uppercase; }
-        .lb-story-text { font-size: 14px; color: var(--t2); line-height: 1.9; letter-spacing: 1px; }
-        .btn-collect { width: 100%; padding: 14px; margin-top: 24px; background: linear-gradient(135deg, var(--bamboo) 0%, #9bbf6a 100%); border: none; border-radius: 3px; color: #0a0f05; font-size: 12px; font-weight: 700; letter-spacing: 5px; cursor: pointer; font-family: inherit; transition: all 0.3s; }
-        .btn-collect:hover { box-shadow: 0 8px 32px rgba(124, 159, 75, 0.45); transform: translateY(-1px); }
+ .lb-panel { width: 310px; flex-shrink: 0; padding: 40px 36px 40px 8px; max-height: 100vh; display: flex; 
+flex-direction: column; justify-content: center; }
+ .lb-info { margin-bottom: 24px; flex-shrink: 0; }
+ .lb-tag-row { display: flex; align-items: center; gap: 10px; font-size: 9px; letter-spacing: 
+3px; color: var(--bamboo); margin-bottom: 14px; position: relative; z-index: 2; }
+ .lb-tag-row::before { content: ''; width: 18px; height: 1px; background: var(--bamboo); }
+ .lb-ghost-num { font-size: 88px; font-weight: 200; line-height: 1; color: rgba(124, 159, 
+75, 0.12); margin-bottom: -10px; letter-spacing: -4px; user-select: none; z-index: 0; position: 
+relative; }
+ .lb-art-name { font-size: 26px; font-weight: 600; letter-spacing: 5px; color: var(--t1); 
+margin-bottom: 10px; position: relative; z-index: 2; }
+ .lb-art-desc { font-size: 11px; color: var(--t2); letter-spacing: 1.5px; line-height: 2.1; 
+margin-bottom: 18px; }
+ .lb-art-chips { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 16px; }
+ .lb-chip { padding: 3px 10px; border: 1px solid var(--b-sub); font-size: 8px; 
+letter-spacing: 2px; color: var(--t2); border-radius: 2px; }
+ .lb-story { margin-top: 16px; border-top: 1px solid var(--b-sub); padding-top: 16px; padding-bottom: 16px; flex-shrink: 1; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(201, 168, 76, 0.3) transparent; }
+ .lb-story::-webkit-scrollbar { width: 4px; }
+ .lb-story::-webkit-scrollbar-thumb { background: rgba(201, 168, 76, 0.3); border-radius: 4px; }
+ .lb-story-title { font-size: 9px; letter-spacing: 4px; color: var(--bamboo); 
+margin-bottom: 10px; text-transform: uppercase; }
+ .lb-story-text { font-size: 14px; color: var(--t2); line-height: 1.9; letter-spacing: 1px; }
+ .btn-collect { width: 100%; padding: 14px; margin-top: 16px; flex-shrink: 0; background: 
+linear-gradient(135deg, var(--bamboo) 0%, #9bbf6a 100%); border: none; border-radius: 
+3px; color: #0a0f05; font-size: 12px; font-weight: 700; letter-spacing: 5px; cursor: pointer; 
+font-family: inherit; transition: all 0.3s; }
+ .btn-collect:hover { box-shadow: 0 8px 32px rgba(124, 159, 75, 0.45); transform: 
+translateY(-1px); }
 
         .lb-close {
             position: absolute; top: 20px; right: 20px; z-index: 20; width: 32px; height: 32px;
@@ -493,10 +507,12 @@ letter-spacing: 0.5px; margin-bottom: 10px; }
         /* ============================================================
            购买弹窗
            ============================================================ */
-        .purchase-modal {
-            position: fixed; inset: 0; z-index: 800; display: flex; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.4s; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
-        }
+        .purchase-modal { 
+ position: fixed; inset: 0; z-index: 800; display: flex; align-items: center; justify-content:
+center;
+ opacity: 0; pointer-events: none; transition: opacity 0.4s; overflow-y: auto; 
+overscroll-behavior: none; -webkit-overflow-scrolling: touch;
+ }
         .purchase-modal.active { opacity: 1; pointer-events: auto; }
         .purchase-bg { position: fixed; inset: 0; background: rgba(4, 4, 10, 0.92); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
         .purchase-box {
@@ -573,19 +589,26 @@ border-radius: 8px; padding: 8px; align-self: center; flex-shrink: 0; }
         .p-step-n { width: 16px; height: 16px; border: 1px solid var(--bamboo); display: flex; align-items: center; justify-content: center; font-size: 8px; color: var(--bamboo); flex-shrink: 0; border-radius: 2px; }
 
         @media (max-width: 850px) {
-            .purchase-box { flex-direction: column; width: 92vw; gap: 20px; padding: 40px 20px 28px; align-items: stretch; }
-            .purchase-left { width: 100%; flex-direction: row; gap: 16px; align-items: flex-start; 
+ .purchase-modal { overscroll-behavior: none; }
+ .purchase-bg { background: var(--bg); opacity: 0.98; backdrop-filter: none; -webkit-backdrop-filter: none; }
+ .purchase-box { flex-direction: column; width: 92vw; gap: 20px; padding: 40px 20px 
+28px; align-items: stretch; }
+ .purchase-left { width: 100%; flex-direction: row; gap: 16px; align-items: flex-start; 
 border-right: none; padding-right: 0; }
- .purchase-thumb-group { display: flex; flex-direction: row; gap: 10px; flex: 1; min-width: 0; max-width: 60vw; }
- .purchase-thumb-img { flex: 1; min-width: 0; width: 100%; height: 110px; max-height: 110px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); background: var(--bg2); object-fit: contain; display: block; transition: filter 0.4s ease; }
-
-            .tier-row { flex-direction: row; gap: 0; justify-content: space-around; }
-            .p-tier { flex: 1; padding: 10px 2px; border: none !important; cursor: default; min-width: 0; }
- .p-tier:not(:last-child)::after { width: 2px; height: 30px; background: rgba(255, 255, 255, 0.2); }
+ .purchase-thumb-group { display: flex; flex-direction: row; gap: 10px; flex: 1; min-width: 0; 
+max-width: 60vw; }
+ .purchase-thumb-img { flex: 1; min-width: 0; width: 100%; height: 110px; max-height: 
+110px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); background: 
+var(--bg2); object-fit: contain; display: block; transition: filter 0.4s ease; }
+ .tier-row { flex-direction: row; gap: 0; justify-content: space-around; }
+ .p-tier { flex: 1; padding: 10px 2px; border: none !important; cursor: default; 
+min-width: 0; }
+ .p-tier:not(:last-child)::after { width: 2px; height: 30px; background: rgba(255, 255, 255, 0.2); 
+}
  .p-tier-name { font-size: 10px; white-space: nowrap; letter-spacing: 0; }
-            .p-tier-price { font-size: 16px; }
-            .qr-code-img { width: 200px; height: 200px; }
-        }
+ .p-tier-price { font-size: 16px; }
+ .qr-code-img { width: 170px; height: 170px; }
+ }
 
         /* ============================================================
            微信二维码弹窗 
@@ -779,18 +802,17 @@ border-right: none; padding-right: 0; }
         };
 
         // 首页卡片渐进式加载（3:4占位 -> 模糊色块 -> 容器自适应比例 -> 600P缩略图）
-        function loadGalleryCardImage(imgEl, wrapEl, ver) {
-            if (!imgEl || !ver) return;
-            
-            const blurUrl = ver.blur || ver.thumb || ver.src;
-            const thumbUrl = ver.thumb || ver.src;
-
-            // 1. 先展示 10KB 内的模糊色块图并打上高斯模糊
-            imgEl.classList.add('is-blur');
-            imgEl.src = blurUrl;
-
-            // 当色块图加载完成后，立刻解封 3:4 比例限制，自适应图片真实比例
- imgEl.onload = () => {
+ function loadGalleryCardImage(imgEl, wrapEl, ver) {
+ if (!imgEl || !ver) return;
+ 
+ const blurUrl = ver.blur || ver.thumb || ver.src;
+ const thumbUrl = ver.thumb || ver.src;
+ 
+ // 1. 先展示 10KB 内的模糊色块图并打上高斯模糊
+ imgEl.classList.add('is-blur');
+ 
+ // 当色块图加载完成后，立刻解封 3:4 比例限制，自适应图片真实比例
+ const onBlurLoad = () => {
  if (wrapEl) {
  wrapEl.style.paddingBottom = '0';
  imgEl.style.position = 'relative';
@@ -802,16 +824,24 @@ border-right: none; padding-right: 0; }
  // 2. 静默后台加载 600P 缩略图，加载完毕无缝替换并解除虚化
  if (thumbUrl && thumbUrl !== blurUrl) {
  const tempThumb = new Image();
- tempThumb.src = thumbUrl;
  tempThumb.onload = () => {
  imgEl.src = thumbUrl;
  imgEl.classList.remove('is-blur');
  };
+ tempThumb.src = thumbUrl;
  } else {
  imgEl.classList.remove('is-blur');
  }
- // （尺寸检测代码已按最优方案摘除，由文件名直接匹配决定横竖版）
  };
+ 
+ // 先绑定事件，再赋值src，避免因为瞬时缓存读取导致onload防丢卡死在加载画面
+ imgEl.onload = onBlurLoad;
+ imgEl.src = blurUrl;
+ 
+ // 兜底保险：如果赋值后已经处于完成状态，则手动推进状态
+ if (imgEl.complete) {
+ onBlurLoad();
+ }
  }
 
         // 灯箱大图无感秒开与自动尺寸检测（修复错乱与切换闪烁Bug）
