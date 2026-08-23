@@ -320,7 +320,7 @@ transition: opacity 0.45s ease; overscroll-behavior: contain; }
         .lb-chip { padding: 3px 10px; border: 1px solid var(--b-sub); font-size: 8px; letter-spacing: 2px; color: var(--t2); border-radius: 2px; }
         .lb-story { margin-top: 16px; border-top: 1px solid var(--b-sub); padding-top: 16px; }
         .lb-story-title { font-size: 9px; letter-spacing: 4px; color: var(--bamboo); margin-bottom: 10px; text-transform: uppercase; }
-        .lb-story-text { font-size: 11px; color: var(--t2); line-height: 1.9; letter-spacing: 1px; }
+        .lb-story-text { font-size: 14px; color: var(--t2); line-height: 1.9; letter-spacing: 1px; }
         .btn-collect { width: 100%; padding: 14px; margin-top: 24px; background: linear-gradient(135deg, var(--bamboo) 0%, #9bbf6a 100%); border: none; border-radius: 3px; color: #0a0f05; font-size: 12px; font-weight: 700; letter-spacing: 5px; cursor: pointer; font-family: inherit; transition: all 0.3s; }
         .btn-collect:hover { box-shadow: 0 8px 32px rgba(124, 159, 75, 0.45); transform: translateY(-1px); }
 
@@ -448,7 +448,8 @@ touch-action: pan-y; overscroll-behavior: contain;
             .lb-mobile-info-area .mi-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
             .lb-mobile-info-area .mi-chip { padding: 4px 12px; border: 1px solid var(--b-sub); font-size: 10px; letter-spacing: 1px; color: var(--t2); border-radius: 2px; }
             .lb-mobile-info-area .mi-story-title { font-size: 10px; letter-spacing: 4px; color: var(--bamboo); margin: 10px 0 6px; text-transform: uppercase; }
-            .lb-mobile-info-area .mi-story-text { font-size: 12px; color: var(--t2); line-height: 1.9; letter-spacing: 0.5px; margin-bottom: 10px; }
+            .lb-mobile-info-area .mi-story-text { font-size: 15px; color: var(--t2); line-height: 1.9; 
+letter-spacing: 0.5px; margin-bottom: 10px; }
 
             /* ---- 底部购买按钮 (固定始终显示，精致紧凑) ---- */
             .lb-mobile-buy-fixed {
@@ -512,7 +513,10 @@ gap: 14px; width: 170px; border-right: 1px solid rgba(255, 255, 255, 0.08); padd
 28px; }
  .purchase-info-col { display: flex; flex-direction: column; gap: 6px; width: 100%; }
  .purchase-thumb-group { display: flex; flex-direction: column; gap: 12px; width: 100%; }
- .purchase-thumb-img { width: 100%; height: auto; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1); background: var(--bg2); object-fit: contain; display: block; }
+ .purchase-thumb-img { width: 100%; height: auto; border-radius: 8px; border: 1px solid 
+rgba(255, 255, 255, 0.1); background: var(--bg2); object-fit: contain; display: block; 
+transition: filter 0.4s ease; }
+ .purchase-thumb-img.is-blur { filter: blur(10px) brightness(0.9); }
         .purchase-name { font-size: 16px; font-weight: 600; letter-spacing: 2px; color: var(--t1); text-align: left; line-height: 1.3; }
         .purchase-num { font-size: 10px; letter-spacing: 2px; color: var(--t2); text-align: left; }
         .version-switch { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
@@ -572,8 +576,8 @@ border-radius: 8px; padding: 8px; align-self: center; flex-shrink: 0; }
             .purchase-box { flex-direction: column; width: 92vw; gap: 20px; padding: 40px 20px 28px; align-items: stretch; }
             .purchase-left { width: 100%; flex-direction: row; gap: 16px; align-items: flex-start; 
 border-right: none; padding-right: 0; }
- .purchase-thumb-group { display: flex; flex-direction: row; gap: 10px; width: auto; max-width: 60vw; flex-shrink: 0; }
- .purchase-thumb-img { width: auto; height: 110px; max-height: 110px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); background: var(--bg2); object-fit: contain; display: block; }
+ .purchase-thumb-group { display: flex; flex-direction: row; gap: 10px; flex: 1; min-width: 0; max-width: 60vw; }
+ .purchase-thumb-img { flex: 1; min-width: 0; width: 100%; height: 110px; max-height: 110px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); background: var(--bg2); object-fit: contain; display: block; transition: filter 0.4s ease; }
 
             .tier-row { flex-direction: row; gap: 0; justify-content: space-around; }
             .p-tier { flex: 1; padding: 10px 2px; border: none !important; cursor: default; min-width: 0; }
@@ -1539,8 +1543,11 @@ onclick="togglePurchaseVersion()">横竖版切换</button>`;
         }
 
         function updateMobileTransform(progress) {
-            const w = works[cur];
-            if (!w || !w.hasStory) return; // 没有story时维持完全居中，不执行形变代码
+ const w = works[cur];
+ if (!w || !w.hasStory) {
+ if (mobileImgCard) mobileImgCard.style.transform = 'scale(1)';
+ return;
+ }
 
             const minR = Math.min(0.30, currentImgRatio * 0.5);
             const scale = 1 - progress * (1 - minR / currentImgRatio);
@@ -1613,7 +1620,10 @@ onclick="togglePurchaseVersion()">横竖版切换</button>`;
  const w = works[purchaseArtIdx];
  const group = document.getElementById('purchaseThumbGroup');
  if (group) {
- group.innerHTML = w.versions.map(v => `<img class="purchase-thumb-img" src="${v.thumb || v.src}" alt="作品缩略图" />`).join('');
+ group.innerHTML = w.versions.map((v, i) => `<img id="p-thumb-${i}" class="purchase-thumb-img" src="${v.blur || v.thumb || v.src}" alt="作品缩略图" />`).join('');
+ w.versions.forEach((v, i) => {
+ loadGalleryCardImage(document.getElementById(`p-thumb-${i}`), null, v);
+ });
  }
  }
 
