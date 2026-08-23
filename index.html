@@ -583,7 +583,7 @@ transition: filter 0.4s ease; }
         .pay-btn { flex: 1; padding: 10px; background: transparent; border: none; color: var(--t2); font-size: 11px; letter-spacing: 2px; cursor: pointer; transition: 0.3s; font-family: inherit; -webkit-tap-highlight-color: transparent !important; }
         .pay-btn.active { background: rgba(124, 159, 75, 0.15); color: var(--bamboo); font-weight: 600; }
         .qr-code-img { width: 200px; height: 200px; margin: 0 auto; background: #fff; 
-border-radius: 8px; padding: 4px; align-self: center; flex-shrink: 0; }
+border-radius: 8px; padding: 8px; align-self: center; flex-shrink: 0; }
         .qr-code-img img { width: 100%; height: 100%; object-fit: contain; }
         .purchase-steps { display: flex; gap: 14px; font-size: 9px; color: var(--t2); letter-spacing: 0.5px; justify-content: center; margin-top: 4px; }
         .p-step { display: flex; align-items: center; gap: 6px; }
@@ -596,11 +596,8 @@ border-radius: 8px; padding: 4px; align-self: center; flex-shrink: 0; }
 28px; align-items: stretch; }
  .purchase-left { width: 100%; flex-direction: row; gap: 16px; align-items: flex-start; 
 border-right: none; padding-right: 0; }
- .purchase-thumb-group { display: flex; flex-direction: row; gap: 10px; flex: 1; min-width: 0; 
-max-width: 60vw; }
- .purchase-thumb-img { flex: 1; min-width: 0; width: 100%; height: auto; min-height: 0; max-height: 
-160px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); background: 
-var(--bg2); object-fit: contain; display: block; transition: filter 0.4s ease; }
+ .purchase-thumb-group { display: flex; flex-direction: row; gap: 10px; flex: 0 0 auto; max-width: 50vw; }
+ .purchase-thumb-img { flex: none; width: auto; height: 110px; max-height: 110px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); background: var(--bg2); object-fit: contain; display: block; transition: filter 0.4s ease; }
  .tier-row { flex-direction: row; gap: 0; justify-content: space-around; }
  .p-tier { flex: 1; padding: 10px 2px; border: none !important; cursor: default; 
 min-width: 0; }
@@ -608,7 +605,7 @@ min-width: 0; }
 }
  .p-tier-name { font-size: 10px; white-space: nowrap; letter-spacing: 0; }
  .p-tier-price { font-size: 16px; }
- .qr-code-img { width: 170px; height: 170px; }
+ .qr-code-img { width: 170px; height: 170px; padding: 3px; }
  }
 
         /* ============================================================
@@ -1653,55 +1650,33 @@ onclick="togglePurchaseVersion()">横竖版切换</button>`;
         function updatePurchaseThumb() {
  const w = works[purchaseArtIdx];
  const group = document.getElementById('purchaseThumbGroup');
- if (!group) return;
-
- // 先清空容器
- group.innerHTML = '';
-
+ if (group) {
+ group.innerHTML = w.versions.map((v, i) => {
+ const blurUrl = v.blur || v.thumb || v.src;
+ return `<img id="p-thumb-${i}" class="purchase-thumb-img is-blur" src="${blurUrl}" alt="作品缩略图" />`;
+ }).join('');
  w.versions.forEach((v, i) => {
+ const imgEl = document.getElementById(`p-thumb-${i}`);
  const blurUrl = v.blur || v.thumb || v.src;
  const thumbUrl = v.thumb || v.src;
-
- const imgEl = document.createElement('img');
- imgEl.id = 'p-thumb-' + i;
- imgEl.className = 'purchase-thumb-img is-blur';
- imgEl.alt = '作品缩略图';
- imgEl.style.opacity = '1';
- imgEl.style.width = '100%';
- imgEl.style.height = 'auto';
- imgEl.style.minHeight = '0';
- group.appendChild(imgEl);
-
- // 模糊色块加载完成后，再静默加载600P缩略图
- imgEl.onload = function() {
- imgEl.onload = null; // 防止重复触发
+ if (imgEl) {
+ const onBlurLoad = () => {
  if (thumbUrl && thumbUrl !== blurUrl) {
- const tmp = new Image();
- tmp.onload = function() {
+ const tempThumb = new Image();
+ tempThumb.onload = () => {
  imgEl.src = thumbUrl;
  imgEl.classList.remove('is-blur');
  };
- tmp.onerror = function() {
- imgEl.classList.remove('is-blur');
- };
- tmp.src = thumbUrl;
+ tempThumb.src = thumbUrl;
  } else {
  imgEl.classList.remove('is-blur');
  }
  };
-
- imgEl.onerror = function() {
- // 模糊色块加载失败，直接尝试缩略图
- imgEl.onerror = null;
- imgEl.classList.remove('is-blur');
- if (imgEl.src !== thumbUrl) {
- imgEl.src = thumbUrl;
+ imgEl.onload = onBlurLoad;
+ if (imgEl.complete) onBlurLoad();
  }
- };
-
- // 最后才赋值src，确保onload事件已绑定
- imgEl.src = blurUrl;
  });
+ }
  }
 
         function renderMobileVersionSwitch() {
