@@ -529,10 +529,8 @@ overscroll-behavior: none; -webkit-overflow-scrolling: touch;
 gap: 14px; width: 170px; border-right: 1px solid rgba(255, 255, 255, 0.08); padding-right: 
 28px; }
  .purchase-info-col { display: flex; flex-direction: column; gap: 6px; width: 100%; }
- .purchase-thumb-group { display: flex; flex-direction: column; gap: 12px; width: 100%; }
- .purchase-thumb-img { width: 100%; height: auto; border-radius: 8px; border: 1px solid 
-rgba(255, 255, 255, 0.1); background: var(--bg2); object-fit: contain; display: block; 
-transition: filter 0.4s ease; }
+ .purchase-thumb-group { display: flex; flex-direction: row; gap: 10px; flex: 0 1 auto; min-width: 0; max-width: calc(100% - 100px); align-items: flex-start; }
+ .purchase-thumb-img { flex: 0 1 auto; width: auto; max-width: 100%; min-width: 0; height: auto; max-height: 110px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); background: var(--bg2); object-fit: contain; display: block; transition: filter 0.4s ease; }
  .purchase-thumb-img.is-blur { filter: blur(10px) brightness(0.9); }
         .purchase-name { font-size: 16px; font-weight: 600; letter-spacing: 2px; color: var(--t1); text-align: left; line-height: 1.3; }
         .purchase-num { font-size: 10px; letter-spacing: 2px; color: var(--t2); text-align: left; }
